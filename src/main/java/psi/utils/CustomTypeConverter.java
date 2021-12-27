@@ -1,0 +1,15 @@
+package psi.utils;
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+
+public class CustomTypeConverter {
+
+     public static BigInteger convertStringToBigInteger(String s){
+         return new BigInteger(s.getBytes(StandardCharsets.UTF_8));
+     }
+
+     public static String convertBigIntegerToString(BigInteger b){
+         return new String(b.toByteArray(), StandardCharsets.UTF_8);
+     }
+}
