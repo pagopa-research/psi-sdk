@@ -6,10 +6,10 @@ import java.nio.charset.StandardCharsets;
 public class CustomTypeConverter {
 
      public static BigInteger convertStringToBigInteger(String s){
-         return new BigInteger(s.getBytes(StandardCharsets.UTF_8));
+         return new BigInteger(s.getBytes(StandardCharsets.ISO_8859_1));
      }
 
      public static String convertBigIntegerToString(BigInteger b){
-         return new String(b.toByteArray(), StandardCharsets.UTF_8);
+         return new String(b.toByteArray(), StandardCharsets.ISO_8859_1);
      }
 }

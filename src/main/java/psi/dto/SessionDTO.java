@@ -1,12 +1,12 @@
 package psi.dto;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public class SessionDTO {
 
     private long sessionId;
 
-    private Timestamp expiration;
+    private Instant expiration;
 
     private String modulus;
 
@@ -22,11 +22,11 @@ public class SessionDTO {
         this.sessionId = sessionId;
     }
 
-    public Timestamp getExpiration() {
+    public Instant getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(Timestamp expiration) {
+    public void setExpiration(Instant expiration) {
         this.expiration = expiration;
     }
 

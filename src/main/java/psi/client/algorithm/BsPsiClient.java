@@ -19,7 +19,6 @@ public class BsPsiClient extends PsiAbstractClient {
 
     private static final int RANDOM_BITS = 2048;
 
-    private int threads;
     private BigInteger seed;
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, BigInteger> clientRandomDatasetMap;
@@ -31,12 +30,14 @@ public class BsPsiClient extends PsiAbstractClient {
         this.sessionId = sessionDTO.getSessionId();
         this.modulus = CustomTypeConverter.convertStringToBigInteger(sessionDTO.getModulus());
         this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(sessionDTO.getServerPublicKey());
+        this.expiration = sessionDTO.getExpiration();
         this.serverEncryptedDataset = new HashSet<>();
         this.clientClearDatasetMap = new HashMap<>();
         this.clientRandomDatasetMap = new HashMap<>();
         this.clientEncryptedDatasetMap = new HashMap<>();
         this.clientDoubleEncryptedDatasetMap = new HashMap<>();
         this.clientReversedDatasetMap = new HashMap<>();
+        this.threads = DEFAULT_THREADS;
 
         // By default, a new seed for the blind signature is created. It can be overwritten with the setter method
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
