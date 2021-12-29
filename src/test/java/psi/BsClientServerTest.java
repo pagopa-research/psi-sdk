@@ -1,9 +1,10 @@
-package psi.utils;
+package psi;
 
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.dto.SessionDTO;
 import psi.dto.SessionParameterDTO;
+import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDtoMapper;
 import psi.server.PsiServer;
 import psi.server.model.SessionPayload;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BsClientServerTest {
@@ -26,7 +28,7 @@ public class BsClientServerTest {
     public void initClientDataset(){
         Map<Long, String> localClientDatasetMap = new HashMap<>();
         long last = 0;
-        long i = 0;
+        long i;
         for(i = 0; i < 1000; i ++){
             localClientDatasetMap.put(i, "MATCHING-"+i);
             last = i+1;
@@ -87,5 +89,6 @@ public class BsClientServerTest {
         // Compute PSI
         Set<String> psiResult = psiClient.computePsi();
         assertEquals(1000, psiResult.size());
+        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDatasetMap, psiResult));
     }
 }
