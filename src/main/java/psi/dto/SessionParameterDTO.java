@@ -4,7 +4,7 @@ public class SessionParameterDTO {
 
     private String algorithm;
 
-    private int keySize;
+    private Integer keySize;
 
     private String datatypeId;
 
@@ -18,11 +18,11 @@ public class SessionParameterDTO {
         this.algorithm = algorithm;
     }
 
-    public int getKeySize() {
+    public Integer getKeySize() {
         return keySize;
     }
 
-    public void setKeySize(int keySize) {
+    public void setKeySize(Integer keySize) {
         this.keySize = keySize;
     }
 

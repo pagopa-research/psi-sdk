@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.dto.SessionParameterDTO;
 import psi.exception.CustomRuntimeException;
+import psi.pluggable.EncryptionCacheProvider;
 import psi.server.PsiAbstractServer;
 import psi.server.model.SessionPayload;
 import psi.utils.CustomTypeConverter;
@@ -38,6 +39,7 @@ public class BsPsiServer extends PsiAbstractServer {
         this.sessionPayload.setKeySize(sessionParameterDTO.getKeySize());
         this.sessionPayload.setDatatypeId(sessionParameterDTO.getDatatypeId());
         this.sessionPayload.setDatatypeDescription(sessionParameterDTO.getDatatypeDescription());
+        this.sessionPayload.setCacheEnabled(false);
 
         KeyPairGenerator keyGenerator;
         KeyFactory keyFactory;
@@ -63,6 +65,15 @@ public class BsPsiServer extends PsiAbstractServer {
             throw new CustomRuntimeException("KeySpec is invalid. " +
                     "Verify whether both the input algorithm and key size are correct and compatible.");
         }
+    }
+
+    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider){
+        //TODO: check keyId
+
+        this.sessionPayload.setCacheEnabled(true);
+        this.encryptionCacheProvider = encryptionCacheProvider;
+
+        //TODO: implement CANARY check
     }
 
     @Override

@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.client.PsiAbstractClient;
 import psi.dto.SessionDTO;
+import psi.exception.CustomRuntimeException;
+import psi.pluggable.EncryptionCacheProvider;
 import psi.utils.CustomTypeConverter;
 import psi.utils.PartitionHelper;
 
@@ -38,9 +40,23 @@ public class BsPsiClient extends PsiAbstractClient {
         this.clientDoubleEncryptedDatasetMap = new HashMap<>();
         this.clientReversedDatasetMap = new HashMap<>();
         this.threads = DEFAULT_THREADS;
+        this.cacheEnabled = false;
 
         // By default, a new seed for the blind signature is created. It can be overwritten with the setter method
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
+    }
+
+    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider){
+        //TODO: check id
+
+        this.cacheEnabled = true;
+        this.encryptionCacheProvider = encryptionCacheProvider;
+
+        //TODO: implement CANARY check
+    }
+
+    public void enableCacheSupport(long keyId, BigInteger serverPublicKey, BigInteger privateKey, BigInteger modulus, EncryptionCacheProvider encryptionCacheProvider) {
+        throw new CustomRuntimeException("Method not supported with BS algorithm");
     }
 
     public BigInteger getSeed() {

@@ -4,65 +4,65 @@ import java.util.List;
 
 public class ServerDatasetPageDTO {
 
-    private int page;
+    private Integer page;
 
-    private int size;
+    private Integer size;
 
-    private int entries;
+    private Integer entries;
 
-    private boolean last;
+    private Boolean last;
 
-    private int totalPages;
+    private Integer totalPages;
 
-    private int totalEntries;
+    private Integer totalEntries;
 
     private List<String> content;
 
-    public int getPage() {
+    public Integer getPage() {
         return page;
     }
 
-    public void setPage(int page) {
+    public void setPage(Integer page) {
         this.page = page;
     }
 
-    public int getSize() {
+    public Integer getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(Integer size) {
         this.size = size;
     }
 
-    public int getEntries() {
+    public Integer getEntries() {
         return entries;
     }
 
-    public void setEntries(int entries) {
+    public void setEntries(Integer entries) {
         this.entries = entries;
     }
 
-    public boolean isLast() {
+    public Boolean isLast() {
         return last;
     }
 
-    public void setLast(boolean last) {
+    public void setLast(Boolean last) {
         this.last = last;
     }
 
-    public int getTotalPages() {
+    public Integer getTotalPages() {
         return totalPages;
     }
 
-    public void setTotalPages(int totalPages) {
+    public void setTotalPages(Integer totalPages) {
         this.totalPages = totalPages;
     }
 
-    public int getTotalEntries() {
+    public Integer getTotalEntries() {
         return totalEntries;
     }
 
-    public void setTotalEntries(int totalEntries) {
+    public void setTotalEntries(Integer totalEntries) {
         this.totalEntries = totalEntries;
     }
 

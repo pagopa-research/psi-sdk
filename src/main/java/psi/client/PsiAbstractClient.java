@@ -1,5 +1,7 @@
 package psi.client;
 
+import psi.pluggable.EncryptionCacheProvider;
+
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -16,4 +18,8 @@ public abstract class PsiAbstractClient implements PsiClient {
     protected BigInteger modulus;
     protected long sessionId;
     protected Instant expiration;
+
+    protected boolean cacheEnabled;
+    protected long cacheKeyId;
+    protected EncryptionCacheProvider encryptionCacheProvider;
 }

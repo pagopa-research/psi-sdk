@@ -2,6 +2,7 @@ package psi.server;
 
 import psi.dto.SessionParameterDTO;
 import psi.exception.PsiClientInitException;
+import psi.pluggable.EncryptionCacheProvider;
 import psi.server.algorithm.BsPsiServer;
 import psi.server.model.SessionPayload;
 
@@ -20,7 +21,9 @@ public interface PsiServer {
 
     Set<String> encryptDataset(BigInteger serverPrivateKey, BigInteger modulus, Set<String> inputSet);
 
-    Map<Long, String> encryptDatasetMap(BigInteger serverPrivateKey, BigInteger modulus,  Map<Long, String> BigInteger);
+    Map<Long, String> encryptDatasetMap(BigInteger serverPrivateKey, BigInteger modulus,  Map<Long, String> encryptedDatasetMap);
+
+    void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider);
 
     /**  Creates the specific server object based on the algorithm field defined in the input SessionParameterDTO */
     static PsiServer initSession(SessionParameterDTO sessionParameterDTO){

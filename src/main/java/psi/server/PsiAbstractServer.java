@@ -1,5 +1,6 @@
 package psi.server;
 
+import psi.pluggable.EncryptionCacheProvider;
 import psi.server.model.SessionPayload;
 
 public abstract class PsiAbstractServer implements PsiServer {
@@ -10,6 +11,8 @@ public abstract class PsiAbstractServer implements PsiServer {
     protected Long sessionId;
     protected int threads;
     protected SessionPayload sessionPayload;
+
+    protected EncryptionCacheProvider encryptionCacheProvider;
 
     public Long getSessionId() {
         return sessionId;

@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public class SessionDTO {
 
-    private long sessionId;
+    private Long sessionId;
 
     private Instant expiration;
 
@@ -14,11 +14,13 @@ public class SessionDTO {
 
     private SessionParameterDTO sessionParameterDTO;
 
-    public long getSessionId() {
+    private Boolean cacheEnabled;
+
+    public Long getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(long sessionId) {
+    public void setSessionId(Long sessionId) {
         this.sessionId = sessionId;
     }
 
@@ -54,6 +56,14 @@ public class SessionDTO {
         this.sessionParameterDTO = sessionParameterDTO;
     }
 
+    public Boolean getCacheEnabled() {
+        return cacheEnabled;
+    }
+
+    public void setCacheEnabled(Boolean cacheEnabled) {
+        this.cacheEnabled = cacheEnabled;
+    }
+
     @Override
     public String toString() {
         return "SessionDTO{" +
@@ -62,6 +72,7 @@ public class SessionDTO {
                 ", modulus='" + modulus + '\'' +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", sessionParameterDTO=" + sessionParameterDTO +
+                ", cacheEnabled=" + cacheEnabled +
                 '}';
     }
 }

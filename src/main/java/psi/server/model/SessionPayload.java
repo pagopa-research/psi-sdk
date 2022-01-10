@@ -13,6 +13,8 @@ public class SessionPayload {
     private int keySize;
     private String datatypeId;
     private String datatypeDescription;
+    private long cacheKeyId;
+    private boolean cacheEnabled;
 
     public BigInteger getServerPrivateKey() {
         return serverPrivateKey;
@@ -76,6 +78,22 @@ public class SessionPayload {
 
     public void setDatatypeDescription(String datatypeDescription) {
         this.datatypeDescription = datatypeDescription;
+    }
+
+    public long getCacheKeyId() {
+        return cacheKeyId;
+    }
+
+    public void setCacheKeyId(long cacheKeyId) {
+        this.cacheKeyId = cacheKeyId;
+    }
+
+    public boolean isCacheEnabled() {
+        return cacheEnabled;
+    }
+
+    public void setCacheEnabled(boolean cacheEnabled) {
+        this.cacheEnabled = cacheEnabled;
     }
 
     @Override
