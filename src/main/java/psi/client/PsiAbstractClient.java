@@ -1,9 +1,8 @@
 package psi.client;
 
-import psi.pluggable.EncryptionCacheProvider;
+import psi.cache.EncryptionCacheProvider;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Set;
 

@@ -3,9 +3,8 @@ package psi.client;
 import psi.client.algorithm.BsPsiClient;
 import psi.dto.SessionDTO;
 import psi.exception.PsiClientInitException;
-import psi.pluggable.EncryptionCacheProvider;
+import psi.cache.EncryptionCacheProvider;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;

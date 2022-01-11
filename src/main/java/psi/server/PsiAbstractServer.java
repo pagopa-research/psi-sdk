@@ -1,7 +1,9 @@
 package psi.server;
 
-import psi.pluggable.EncryptionCacheProvider;
-import psi.server.model.SessionPayload;
+import psi.cache.EncryptionCacheProvider;
+import psi.model.KeyDescription;
+import psi.model.ServerSessionPayload;
+import psi.utils.CustomTypeConverter;
 
 public abstract class PsiAbstractServer implements PsiServer {
 
@@ -10,8 +12,7 @@ public abstract class PsiAbstractServer implements PsiServer {
 
     protected Long sessionId;
     protected int threads;
-    protected SessionPayload sessionPayload;
-
+    protected ServerSessionPayload serverSessionPayload;
     protected EncryptionCacheProvider encryptionCacheProvider;
 
     public Long getSessionId() {
@@ -30,13 +31,22 @@ public abstract class PsiAbstractServer implements PsiServer {
         this.threads = threads;
     }
 
-    @Override
-    public SessionPayload getSessionPayload() {
-        return sessionPayload;
+    public KeyDescription getKeyDescription(){
+        KeyDescription keyDescription = new KeyDescription();
+        if(serverSessionPayload.getCacheKeyId() != null)
+            keyDescription.setKeyId(serverSessionPayload.getCacheKeyId());
+        keyDescription.setKey(CustomTypeConverter.convertBigIntegerToString(serverSessionPayload.getServerPrivateKey()));
+        keyDescription.setModulus(CustomTypeConverter.convertBigIntegerToString(serverSessionPayload.getModulus()));
+        return keyDescription;
     }
 
-    public void setSessionPayload(SessionPayload sessionPayload) {
-        this.sessionPayload = sessionPayload;
+    @Override
+    public ServerSessionPayload getSessionPayload() {
+        return serverSessionPayload;
+    }
+
+    public void setSessionPayload(ServerSessionPayload serverSessionPayload) {
+        this.serverSessionPayload = serverSessionPayload;
     }
 
     @Override
@@ -44,7 +54,7 @@ public abstract class PsiAbstractServer implements PsiServer {
         return "PsiAbstractServer{" +
                 "sessionId=" + sessionId +
                 ", threads=" + threads +
-                ", sessionPayload=" + sessionPayload +
+                ", sessionPayload=" + serverSessionPayload +
                 '}';
     }
 }

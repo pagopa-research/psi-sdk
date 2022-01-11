@@ -9,23 +9,18 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashFactory {
 
-    private static final Logger log = LoggerFactory.getLogger("FullHashDomain");
+    private static final Logger log = LoggerFactory.getLogger(HashFactory.class);
 
-    private MessageDigest digestHashFullDomain;
-    private MessageDigest digestHash;
+    private final MessageDigest digestHashFullDomain;
+    private final MessageDigest digestHash;
 
-    private int modulusByteLength;
-
-    private String hashingAlgorithm = "SHA-256"; //TODO: change this value depending on the modulus length
-    private String fullDomainHashingAlgorithm = "SHA-256"; //TODO: change this value depending on the modulus length
+    private final int modulusByteLength;
 
     public HashFactory(BigInteger modulus) throws NoSuchAlgorithmException {
         this.modulusByteLength = (int) Math.ceil(modulus.bitLength() / 8.0) + 1;
-        this.digestHashFullDomain = MessageDigest.getInstance(fullDomainHashingAlgorithm);
-        if(hashingAlgorithm.equalsIgnoreCase(fullDomainHashingAlgorithm))
-            this.digestHash = this.digestHashFullDomain;
-        else
-            this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
+        String hashingAlgorithm = "SHA-256";
+        this.digestHashFullDomain = MessageDigest.getInstance(hashingAlgorithm);
+        this.digestHash = this.digestHashFullDomain;
     }
 
     public BigInteger hashFullDomain(BigInteger input) {
@@ -34,12 +29,6 @@ public class HashFactory {
 
     public BigInteger hash(BigInteger input) {
         return new BigInteger(this.digestHash.digest(input.toByteArray()));
-    }
-
-    public static BigInteger hashFullDomainStatic(BigInteger input, String hashingAlgorithm, BigInteger modulus) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm);
-        int modulusByteLength = modulus.bitLength();
-        return computeHashFullDomainInner(input, digest, modulusByteLength);
     }
 
     public static BigInteger computeHashFullDomainInner(BigInteger input, MessageDigest digest, int modulusByteLength) {
@@ -64,24 +53,5 @@ public class HashFactory {
         }
 
         return new BigInteger(result);
-    }
-
-    public void setHashingAlgorithm(String hashingAlgorithm) throws NoSuchAlgorithmException {
-        this.hashingAlgorithm = hashingAlgorithm;
-        this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
-
-    }
-
-    public void setFullDomainHashingAlgorithm(String fullDomainHashingAlgorithm) throws NoSuchAlgorithmException {
-        this.fullDomainHashingAlgorithm = fullDomainHashingAlgorithm;
-        this.digestHashFullDomain = MessageDigest.getInstance(fullDomainHashingAlgorithm);
-    }
-
-    public String getFullDomainHashingAlgorithm() {
-        return fullDomainHashingAlgorithm;
-    }
-
-    public String getHashingAlgorithm() {
-        return hashingAlgorithm;
     }
 }

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import psi.client.PsiAbstractClient;
 import psi.dto.SessionDTO;
 import psi.exception.CustomRuntimeException;
-import psi.pluggable.EncryptionCacheProvider;
+import psi.cache.EncryptionCacheProvider;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -81,10 +81,10 @@ public class BsPsiClient extends PsiAbstractClient {
         List<FutureTask<BsMapQuartet>> futureTaskList = new ArrayList<>(threads);
         for(Map<Long, String> partition : clientDatasetPartitions) {
             FutureTask<BsMapQuartet> futureTask = new FutureTask<>(() -> {
-                 Map<Long, BigInteger> localClientClearDatasetMap = new HashMap<>();
-                 Map<Long, BigInteger> localClientRandomDatasetMap = new HashMap<>();
-                 Map<Long, BigInteger> localClientEncryptedDatasetMap = new HashMap<>();
-                 Map<Long, String> localClientEncryptedDatasetMapConvertedToString = new HashMap<>();
+                Map<Long, BigInteger> localClientClearDatasetMap = new HashMap<>();
+                Map<Long, BigInteger> localClientRandomDatasetMap = new HashMap<>();
+                Map<Long, BigInteger> localClientEncryptedDatasetMap = new HashMap<>();
+                Map<Long, String> localClientEncryptedDatasetMapConvertedToString = new HashMap<>();
                 HashFactory hashFactory = new HashFactory(modulus);
 
                 for(Map.Entry<Long, String> entry : partition.entrySet()){

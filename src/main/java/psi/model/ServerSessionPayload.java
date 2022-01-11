@@ -1,19 +1,19 @@
-package psi.server.model;
+package psi.model;
 
 import java.math.BigInteger;
 import java.time.Instant;
 
-public class SessionPayload {
+public class ServerSessionPayload {
 
     private BigInteger serverPrivateKey;
     private BigInteger serverPublicKey;
     private BigInteger modulus;
     private Instant expiration;
     private String algorithm;
-    private int keySize;
+    private Integer keySize;
     private String datatypeId;
     private String datatypeDescription;
-    private long cacheKeyId;
+    private Long cacheKeyId;
     private boolean cacheEnabled;
 
     public BigInteger getServerPrivateKey() {
@@ -56,11 +56,11 @@ public class SessionPayload {
         this.algorithm = algorithm;
     }
 
-    public int getKeySize() {
+    public Integer getKeySize() {
         return keySize;
     }
 
-    public void setKeySize(int keySize) {
+    public void setKeySize(Integer keySize) {
         this.keySize = keySize;
     }
 
@@ -80,11 +80,11 @@ public class SessionPayload {
         this.datatypeDescription = datatypeDescription;
     }
 
-    public long getCacheKeyId() {
+    public Long getCacheKeyId() {
         return cacheKeyId;
     }
 
-    public void setCacheKeyId(long cacheKeyId) {
+    public void setCacheKeyId(Long cacheKeyId) {
         this.cacheKeyId = cacheKeyId;
     }
 
@@ -98,7 +98,7 @@ public class SessionPayload {
 
     @Override
     public String toString() {
-        return "SessionPayload{" +
+        return "ServerSessionPayload{" +
                 "serverPrivateKey=" + serverPrivateKey +
                 ", serverPublicKey=" + serverPublicKey +
                 ", modulus=" + modulus +
@@ -107,6 +107,8 @@ public class SessionPayload {
                 ", keySize=" + keySize +
                 ", datatypeId='" + datatypeId + '\'' +
                 ", datatypeDescription='" + datatypeDescription + '\'' +
+                ", cacheKeyId=" + cacheKeyId +
+                ", cacheEnabled=" + cacheEnabled +
                 '}';
     }
 }

@@ -1,4 +1,4 @@
-package psi.pluggable;
+package psi.cache;
 
 public interface EncryptionCacheProvider {
     enum CacheOperationType {

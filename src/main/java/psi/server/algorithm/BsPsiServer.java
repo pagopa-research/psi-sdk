@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.dto.SessionParameterDTO;
 import psi.exception.CustomRuntimeException;
-import psi.pluggable.EncryptionCacheProvider;
+import psi.cache.EncryptionCacheProvider;
 import psi.server.PsiAbstractServer;
-import psi.server.model.SessionPayload;
+import psi.model.ServerSessionPayload;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -19,11 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -34,13 +31,13 @@ public class BsPsiServer extends PsiAbstractServer {
 
     public BsPsiServer(SessionParameterDTO sessionParameterDTO){
         this.threads = DEFAULT_THREADS;
-        this.sessionPayload = new SessionPayload();
-        this.sessionPayload.setExpiration(Instant.now().plus(SESSION_DURATION_HOURS, ChronoUnit.HOURS));
-        this.sessionPayload.setAlgorithm(sessionParameterDTO.getAlgorithm());
-        this.sessionPayload.setKeySize(sessionParameterDTO.getKeySize());
-        this.sessionPayload.setDatatypeId(sessionParameterDTO.getDatatypeId());
-        this.sessionPayload.setDatatypeDescription(sessionParameterDTO.getDatatypeDescription());
-        this.sessionPayload.setCacheEnabled(false);
+        this.serverSessionPayload = new ServerSessionPayload();
+        this.serverSessionPayload.setExpiration(Instant.now().plus(SESSION_DURATION_HOURS, ChronoUnit.HOURS));
+        this.serverSessionPayload.setAlgorithm(sessionParameterDTO.getAlgorithm());
+        this.serverSessionPayload.setKeySize(sessionParameterDTO.getKeySize());
+        this.serverSessionPayload.setDatatypeId(sessionParameterDTO.getDatatypeId());
+        this.serverSessionPayload.setDatatypeDescription(sessionParameterDTO.getDatatypeDescription());
+        this.serverSessionPayload.setCacheEnabled(false);
 
         KeyPairGenerator keyGenerator;
         KeyFactory keyFactory;
@@ -57,10 +54,10 @@ public class BsPsiServer extends PsiAbstractServer {
 
         try {
             RSAPrivateKeySpec privateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), RSAPrivateKeySpec.class);
-            sessionPayload.setModulus(privateKeySpec.getModulus());
-            sessionPayload.setServerPrivateKey(privateKeySpec.getPrivateExponent());
+            serverSessionPayload.setModulus(privateKeySpec.getModulus());
+            serverSessionPayload.setServerPrivateKey(privateKeySpec.getPrivateExponent());
             RSAPublicKeySpec publicKeySpec = keyFactory.getKeySpec(pair.getPublic(), RSAPublicKeySpec.class);
-            sessionPayload.setServerPublicKey(publicKeySpec.getPublicExponent());
+            serverSessionPayload.setServerPublicKey(publicKeySpec.getPublicExponent());
         } catch (InvalidKeySpecException e) {
             log.error("Error: ", e);
             throw new CustomRuntimeException("KeySpec is invalid. " +
@@ -71,7 +68,7 @@ public class BsPsiServer extends PsiAbstractServer {
     public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider){
         //TODO: check keyId
 
-        this.sessionPayload.setCacheEnabled(true);
+        this.serverSessionPayload.setCacheEnabled(true);
         this.encryptionCacheProvider = encryptionCacheProvider;
 
         //TODO: implement CANARY check
@@ -93,7 +90,7 @@ public class BsPsiServer extends PsiAbstractServer {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     // Should add cache references here
                     BigInteger encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                    encryptedValue = encryptedValue.modPow(sessionPayload.getServerPrivateKey(), sessionPayload.getModulus());
+                    encryptedValue = encryptedValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
                     encryptedValue = hashFactory.hash(encryptedValue);
                     localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
@@ -127,7 +124,7 @@ public class BsPsiServer extends PsiAbstractServer {
                 for(Map.Entry<Long, String> entry : partition.entrySet()){
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                     // Should add cache references here
-                    BigInteger encryptedValue = bigIntegerValue.modPow(sessionPayload.getServerPrivateKey(), sessionPayload.getModulus());
+                    BigInteger encryptedValue = bigIntegerValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
                     localDatasetMap.put(entry.getKey(), CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
                 return localDatasetMap;

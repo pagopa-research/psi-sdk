@@ -7,7 +7,7 @@ import psi.dto.SessionParameterDTO;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDtoMapper;
 import psi.server.PsiServer;
-import psi.server.model.SessionPayload;
+import psi.model.ServerSessionPayload;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,9 +59,9 @@ public class BsClientServerTest {
         psiServer = PsiServer.initSession(sessionParameterDTO);
         if(psiServer == null)
             throw new RuntimeException("Psi server creation failed");
-        SessionPayload sessionPayload = psiServer.getSessionPayload();
+        ServerSessionPayload serverSessionPayload = psiServer.getSessionPayload();
         psiServer.setSessionId(1L);
-        SessionDTO sessionDTO = SessionDtoMapper.getSessionDtoFromSessionPayload(sessionPayload, psiServer.getSessionId());
+        SessionDTO sessionDTO = SessionDtoMapper.getSessionDtoFromServerSessionPayload(serverSessionPayload, psiServer.getSessionId());
         psiClient = PsiClient.initSession(sessionDTO);
     }
 
