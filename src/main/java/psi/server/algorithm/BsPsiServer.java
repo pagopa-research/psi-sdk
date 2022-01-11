@@ -8,6 +8,7 @@ import psi.pluggable.EncryptionCacheProvider;
 import psi.server.PsiAbstractServer;
 import psi.server.model.SessionPayload;
 import psi.utils.CustomTypeConverter;
+import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
@@ -85,12 +86,15 @@ public class BsPsiServer extends PsiAbstractServer {
         List<FutureTask<Set<String>>> futureTaskList = new ArrayList<>(threads);
         for(Set<String> partition : partitionList) {
             FutureTask<Set<String>> futureTask = new FutureTask<>(() -> {
+                HashFactory hashFactory = new HashFactory(modulus);
                 Set<String> localDataset = new HashSet<>();
 
                 for(String stringValue : partition){
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     // Should add cache references here
-                    BigInteger encryptedValue = bigIntegerValue.modPow(sessionPayload.getServerPrivateKey(), sessionPayload.getModulus());
+                    BigInteger encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
+                    encryptedValue = encryptedValue.modPow(sessionPayload.getServerPrivateKey(), sessionPayload.getModulus());
+                    encryptedValue = hashFactory.hash(encryptedValue);
                     localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
                 return localDataset;

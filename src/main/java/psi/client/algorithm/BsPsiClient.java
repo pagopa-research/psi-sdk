@@ -7,6 +7,7 @@ import psi.dto.SessionDTO;
 import psi.exception.CustomRuntimeException;
 import psi.pluggable.EncryptionCacheProvider;
 import psi.utils.CustomTypeConverter;
+import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
@@ -55,10 +56,6 @@ public class BsPsiClient extends PsiAbstractClient {
         //TODO: implement CANARY check
     }
 
-    public void enableCacheSupport(long keyId, BigInteger serverPublicKey, BigInteger privateKey, BigInteger modulus, EncryptionCacheProvider encryptionCacheProvider) {
-        throw new CustomRuntimeException("Method not supported with BS algorithm");
-    }
-
     public BigInteger getSeed() {
         return seed;
     }
@@ -88,12 +85,13 @@ public class BsPsiClient extends PsiAbstractClient {
                  Map<Long, BigInteger> localClientRandomDatasetMap = new HashMap<>();
                  Map<Long, BigInteger> localClientEncryptedDatasetMap = new HashMap<>();
                  Map<Long, String> localClientEncryptedDatasetMapConvertedToString = new HashMap<>();
+                HashFactory hashFactory = new HashFactory(modulus);
 
                 for(Map.Entry<Long, String> entry : partition.entrySet()){
                      BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                      // Should add cache references here
                      BigInteger randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
-                     BigInteger encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(bigIntegerValue).mod(modulus);
+                     BigInteger encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                      localClientClearDatasetMap.put(entry.getKey(), bigIntegerValue);
                      localClientRandomDatasetMap.put(entry.getKey(), randomValue);
                      localClientEncryptedDatasetMap.put(entry.getKey(), encryptedValue);
@@ -148,10 +146,11 @@ public class BsPsiClient extends PsiAbstractClient {
         List<FutureTask<Map<Long, BigInteger>>> futureTaskList = new ArrayList<>(threads);
         for(Map<Long, BigInteger> partition : doubleEncryptedMapPartition){
             FutureTask<Map<Long, BigInteger>> futureTask = new FutureTask<>(() -> {
+                HashFactory hashFactory = new HashFactory(modulus);
                 Map<Long, BigInteger> localClientReversedDatasetMap = new HashMap<>();
                 for(Map.Entry<Long, BigInteger> entry : partition.entrySet()){
                     // Should add cache references here
-                    BigInteger reversedValue = entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus);
+                    BigInteger reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
                     localClientReversedDatasetMap.put(entry.getKey(), reversedValue);
                 }
                 return localClientReversedDatasetMap;
