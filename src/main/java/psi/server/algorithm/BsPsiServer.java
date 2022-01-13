@@ -3,10 +3,12 @@ package psi.server.algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.dto.SessionParameterDTO;
-import psi.exception.CustomRuntimeException;
 import psi.cache.EncryptionCacheProvider;
+import psi.exception.PsiServerInitException;
+import psi.exception.PsiServerException;
+import psi.model.BsKeyDescription;
 import psi.server.PsiAbstractServer;
-import psi.model.ServerSessionPayload;
+import psi.model.BsServerSession;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -19,66 +21,97 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 public class BsPsiServer extends PsiAbstractServer {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(PsiAbstractServer.class);
 
-    public BsPsiServer(SessionParameterDTO sessionParameterDTO){
-        this.threads = DEFAULT_THREADS;
-        this.serverSessionPayload = new ServerSessionPayload();
-        this.serverSessionPayload.setExpiration(Instant.now().plus(SESSION_DURATION_HOURS, ChronoUnit.HOURS));
-        this.serverSessionPayload.setAlgorithm(sessionParameterDTO.getAlgorithm());
-        this.serverSessionPayload.setKeySize(sessionParameterDTO.getKeySize());
-        this.serverSessionPayload.setDatatypeId(sessionParameterDTO.getDatatypeId());
-        this.serverSessionPayload.setDatatypeDescription(sessionParameterDTO.getDatatypeDescription());
-        this.serverSessionPayload.setCacheEnabled(false);
+    public BsPsiServer(BsServerSession bsServerSession, EncryptionCacheProvider encryptionCacheProvider) {
+        this.serverSession = bsServerSession;
+        this.threads = PsiAbstractServer.DEFAULT_THREADS;
 
-        KeyPairGenerator keyGenerator;
-        KeyFactory keyFactory;
-        try {
-            String keyType = "RSA";
-            keyGenerator = KeyPairGenerator.getInstance(keyType);
-            keyFactory = KeyFactory.getInstance(keyType);
-        } catch (NoSuchAlgorithmException e) {
-            log.error("Error ",e);
-            throw new CustomRuntimeException("RSA key generator not available");
-        }
-        keyGenerator.initialize(sessionParameterDTO.getKeySize());
-        KeyPair pair = keyGenerator.genKeyPair();
-
-        try {
-            RSAPrivateKeySpec privateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), RSAPrivateKeySpec.class);
-            serverSessionPayload.setModulus(privateKeySpec.getModulus());
-            serverSessionPayload.setServerPrivateKey(privateKeySpec.getPrivateExponent());
-            RSAPublicKeySpec publicKeySpec = keyFactory.getKeySpec(pair.getPublic(), RSAPublicKeySpec.class);
-            serverSessionPayload.setServerPublicKey(publicKeySpec.getPublicExponent());
-        } catch (InvalidKeySpecException e) {
-            log.error("Error: ", e);
-            throw new CustomRuntimeException("KeySpec is invalid. " +
-                    "Verify whether both the input algorithm and key size are correct and compatible.");
+        if(encryptionCacheProvider != null){
+            if(serverSession.getKeyId() == null)
+                throw new PsiServerException("The field keyId of serverSession should always be different than null when cache is enabled");
+            // TODO: add cache validation call
+            this.encryptionCacheProvider = encryptionCacheProvider;
         }
     }
 
-    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider){
-        //TODO: check keyId
+    public static BsServerSession initSession(SessionParameterDTO sessionParameterDTO, BsKeyDescription bsKeyDescription, EncryptionCacheProvider encryptionCacheProvider) {
+        BsServerSession bsServerSession = new BsServerSession();
+        bsServerSession.setAlgorithm(sessionParameterDTO.getAlgorithm());
+        bsServerSession.setKeySize(sessionParameterDTO.getKeySize());
 
-        this.serverSessionPayload.setCacheEnabled(true);
-        this.encryptionCacheProvider = encryptionCacheProvider;
+        // keys are created from scratch
+        if (bsKeyDescription == null) {
+            KeyPairGenerator keyGenerator;
+            KeyFactory keyFactory;
+            try {
+                String keyType = "RSA";
+                keyGenerator = KeyPairGenerator.getInstance(keyType);
+                keyFactory = KeyFactory.getInstance(keyType);
+            } catch (NoSuchAlgorithmException e) {
+                log.error("Error ", e);
+                throw new PsiServerInitException("RSA key generator not available");
+            }
+            keyGenerator.initialize(sessionParameterDTO.getKeySize());
+            KeyPair pair = keyGenerator.genKeyPair();
 
-        //TODO: implement CANARY check
+            try {
+                RSAPrivateKeySpec privateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), RSAPrivateKeySpec.class);
+                bsServerSession.setModulus(CustomTypeConverter.convertBigIntegerToString(privateKeySpec.getModulus()));
+                bsServerSession.setServerPrivateKey(CustomTypeConverter.convertBigIntegerToString(privateKeySpec.getPrivateExponent()));
+                RSAPublicKeySpec publicKeySpec = keyFactory.getKeySpec(pair.getPublic(), RSAPublicKeySpec.class);
+                bsServerSession.setServerPublicKey(CustomTypeConverter.convertBigIntegerToString(publicKeySpec.getPublicExponent()));
+            } catch (InvalidKeySpecException e) {
+                log.error("Error: ", e);
+                throw new PsiServerInitException("KeySpec is invalid. " +
+                        "Verify whether both the input algorithm and key size are correct and compatible.");
+            }
+
+        // keys are loaded from bsKeyDescription
+        } else {
+            if (bsKeyDescription.getModulus() == null || bsKeyDescription.getModulus().isEmpty()
+                    || bsKeyDescription.getPrivateKey() == null || bsKeyDescription.getPrivateKey().isEmpty()
+                    || bsKeyDescription.getPublicKey() == null || bsKeyDescription.getPublicKey().isEmpty())
+                throw new PsiServerInitException("The keys and/or modulus passed in the input keyDescription are either null or empty");
+
+            // TODO: check whether keys are valid wrt each other
+            bsServerSession.setServerPrivateKey(bsKeyDescription.getPrivateKey());
+            bsServerSession.setServerPublicKey(bsKeyDescription.getPublicKey());
+            bsServerSession.setModulus(bsKeyDescription.getModulus());
+            if(bsKeyDescription.getKeyId() != null)
+                bsServerSession.setKeyId(bsKeyDescription.getKeyId());
+        }
+
+        // if encryptionCacheProvider != null, enable and validate the cache
+        if(encryptionCacheProvider == null)
+            bsServerSession.setCacheEnabled(false);
+        else{
+            if(bsServerSession.getKeyId() == null)
+                throw new PsiServerInitException("The keyId of the input bsKeyDescription is null despite being required to enable the cache");
+            // TODO: insert cache validation call
+            bsServerSession.setCacheEnabled(true);
+        }
+
+        return bsServerSession;
     }
 
     @Override
-    public Set<String> encryptDataset(BigInteger serverPrivateKey, BigInteger modulus, Set<String> inputSet) {
+    public Set<String> encryptDataset(Set<String> inputSet) {
         log.debug("Called encryptDataset()");
-        Set<String> encryptedSet = new HashSet<>();
 
+        if (!(serverSession instanceof BsServerSession))
+            throw new PsiServerException("The serverSession passed as input of encryptDataset() should be an instance of the subclass BsServerSession");
+        BsServerSession bsServerSession = (BsServerSession) serverSession;
+        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getServerPrivateKey());
+        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getModulus());
+
+        Set<String> encryptedSet = new HashSet<>();
         List<Set<String>> partitionList = PartitionHelper.partitionSet(inputSet, this.threads);
         List<FutureTask<Set<String>>> futureTaskList = new ArrayList<>(threads);
         for(Set<String> partition : partitionList) {
@@ -90,7 +123,7 @@ public class BsPsiServer extends PsiAbstractServer {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     // Should add cache references here
                     BigInteger encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                    encryptedValue = encryptedValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
+                    encryptedValue = encryptedValue.modPow(serverPrivateKey, modulus);
                     encryptedValue = hashFactory.hash(encryptedValue);
                     localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
@@ -112,10 +145,16 @@ public class BsPsiServer extends PsiAbstractServer {
     }
 
     @Override
-    public Map<Long, String> encryptDatasetMap(BigInteger serverPrivateKey, BigInteger modulus, Map<Long, String> inputMap) {
+    public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
         log.debug("Called encryptDatasetMap()");
-        Map<Long, String> encryptedMap = new HashMap<>();
 
+        if (!(serverSession instanceof BsServerSession))
+            throw new PsiServerException("The serverSession passed as input of encryptDataset() should be an instance of the subclass BsServerSession");
+        BsServerSession bsServerSession = (BsServerSession) serverSession;
+        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getServerPrivateKey());
+        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getModulus());
+
+        Map<Long, String> encryptedMap = new HashMap<>();
         List<Map<Long, String>> partitionList = PartitionHelper.partitionMap(inputMap, this.threads);
         List<FutureTask<Map<Long, String>>> futureTaskList = new ArrayList<>(threads);
         for(Map<Long, String> partition : partitionList) {
@@ -124,11 +163,10 @@ public class BsPsiServer extends PsiAbstractServer {
                 for(Map.Entry<Long, String> entry : partition.entrySet()){
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                     // Should add cache references here
-                    BigInteger encryptedValue = bigIntegerValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
+                    BigInteger encryptedValue = bigIntegerValue.modPow(serverPrivateKey, modulus);
                     localDatasetMap.put(entry.getKey(), CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
                 return localDatasetMap;
-
             });
             (new Thread(futureTask)).start();
             futureTaskList.add(futureTask);
