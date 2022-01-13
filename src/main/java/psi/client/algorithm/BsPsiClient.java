@@ -2,10 +2,15 @@ package psi.client.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.cache.EncryptionCacheUtils;
+import psi.cache.enumeration.CacheOperationType;
+import psi.cache.model.EncryptedCacheObject;
+import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.dto.SessionDTO;
-import psi.exception.CustomRuntimeException;
 import psi.cache.EncryptionCacheProvider;
+import psi.exception.MismatchingCacheKeyIdException;
+import psi.exception.MissingCacheKeyIdException;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -47,13 +52,12 @@ public class BsPsiClient extends PsiAbstractClient {
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
     }
 
-    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider){
-        //TODO: check id
+    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchingCacheKeyIdException {
+        if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.cacheKeyId, this.serverPublicKey, this.modulus, encryptionCacheProvider))
+            throw new MismatchingCacheKeyIdException();
 
         this.cacheEnabled = true;
         this.encryptionCacheProvider = encryptionCacheProvider;
-
-        //TODO: implement CANARY check
     }
 
     public BigInteger getSeed() {
@@ -89,9 +93,24 @@ public class BsPsiClient extends PsiAbstractClient {
 
                 for(Map.Entry<Long, String> entry : partition.entrySet()){
                      BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
-                     // Should add cache references here
-                     BigInteger randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
-                     BigInteger encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
+                    BigInteger encryptedValue = null;
+                    BigInteger randomValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
+                    if(this.cacheEnabled) {
+                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = this.encryptionCacheProvider.getCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class);
+                        if (encryptedCacheObjectOptional.isPresent()) {
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                            randomValue = encryptedCacheObjectOptional.get().getRandomValue();
+                        }
+                    }
+                    // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
+                    if (encryptedValue == null) {
+                        randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
+                        encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
+                        if(this.cacheEnabled) {
+                            this.encryptionCacheProvider.putCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue));
+                        }
+                    }
                      localClientClearDatasetMap.put(entry.getKey(), bigIntegerValue);
                      localClientRandomDatasetMap.put(entry.getKey(), randomValue);
                      localClientEncryptedDatasetMap.put(entry.getKey(), encryptedValue);
@@ -148,9 +167,22 @@ public class BsPsiClient extends PsiAbstractClient {
             FutureTask<Map<Long, BigInteger>> futureTask = new FutureTask<>(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
                 Map<Long, BigInteger> localClientReversedDatasetMap = new HashMap<>();
-                for(Map.Entry<Long, BigInteger> entry : partition.entrySet()){
-                    // Should add cache references here
-                    BigInteger reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
+                for(Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
+                    BigInteger reversedValue = null;
+                    if (this.cacheEnabled) {
+                        //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = this.encryptionCacheProvider.getCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class);
+                        if (encryptedCacheObjectOptional.isPresent()) {
+                            reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                        }
+                    }
+                    if (reversedValue == null){
+                        // Should add cache references here
+                        reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
+                        if (this.cacheEnabled) {
+                            this.encryptionCacheProvider.putCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue)); //TODO, come sopra
+                        }
+                    }
                     localClientReversedDatasetMap.put(entry.getKey(), reversedValue);
                 }
                 return localClientReversedDatasetMap;

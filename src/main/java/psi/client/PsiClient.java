@@ -2,6 +2,8 @@ package psi.client;
 
 import psi.client.algorithm.BsPsiClient;
 import psi.dto.SessionDTO;
+import psi.exception.MismatchingCacheKeyIdException;
+import psi.exception.MissingCacheKeyIdException;
 import psi.exception.PsiClientInitException;
 import psi.cache.EncryptionCacheProvider;
 
@@ -25,7 +27,7 @@ public interface PsiClient {
 
     Set<String> computePsi();
 
-    void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider);
+    void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchingCacheKeyIdException;
 
     /**  Creates the specific client object based on the algorithm field defined in the input sessionDTO */
     static PsiClient initSession(SessionDTO sessionDTO){

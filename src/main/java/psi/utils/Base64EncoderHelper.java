@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CacheEncoderHelper {
+public class Base64EncoderHelper {
 
     static public <T> String dtoToBase64(T dto){
         ObjectMapper objectMapper = new ObjectMapper();

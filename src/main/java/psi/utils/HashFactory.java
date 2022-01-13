@@ -6,32 +6,36 @@ import org.slf4j.LoggerFactory;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Provider.Service;
+import java.security.Security;
+import java.util.LinkedList;
+import java.util.List;
 
 public class HashFactory {
 
     private static final Logger log = LoggerFactory.getLogger(HashFactory.class);
 
-    private final MessageDigest digestHashFullDomain;
-    private final MessageDigest digestHash;
+    private MessageDigest digestHash;
 
-    private final int modulusByteLength;
+    private int modulusByteLength;
+
+    private String hashingAlgorithm = "SHA-256";
 
     public HashFactory(BigInteger modulus) throws NoSuchAlgorithmException {
         this.modulusByteLength = (int) Math.ceil(modulus.bitLength() / 8.0) + 1;
-        String hashingAlgorithm = "SHA-256";
-        this.digestHashFullDomain = MessageDigest.getInstance(hashingAlgorithm);
-        this.digestHash = this.digestHashFullDomain;
+        this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
     }
 
     public BigInteger hashFullDomain(BigInteger input) {
-        return computeHashFullDomainInner(input, this.digestHashFullDomain, this.modulusByteLength);
+        return computeHashFullDomainInner(input, this.digestHash, this.modulusByteLength);
     }
 
     public BigInteger hash(BigInteger input) {
         return new BigInteger(this.digestHash.digest(input.toByteArray()));
     }
 
-    public static BigInteger computeHashFullDomainInner(BigInteger input, MessageDigest digest, int modulusByteLength) {
+    private static BigInteger computeHashFullDomainInner(BigInteger input, MessageDigest digest, int modulusByteLength) {
         log.debug("Calling computeFullDomainHashInner with input = {}, modulusByteLength = {}", input, modulusByteLength);
         byte[] result = new byte[modulusByteLength];
         result[0] = (byte) 0xff;
@@ -53,5 +57,28 @@ public class HashFactory {
         }
 
         return new BigInteger(result);
+    }
+
+    public void setHashingAlgorithm(String hashingAlgorithm) throws NoSuchAlgorithmException {
+        this.hashingAlgorithm = hashingAlgorithm;
+        this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
+
+    }
+
+    public String getHashingAlgorithm() {
+        return hashingAlgorithm;
+    }
+
+    public static List<String> getSupportedHashAlgorithms() {
+        List<String> algorithmList = new LinkedList<>();
+        String type = (MessageDigest.class).getSimpleName();
+        for (Provider prov : Security.getProviders()) {
+            for (Service service : prov.getServices()) {
+                if (service.getType().equalsIgnoreCase(type)) {
+                    algorithmList.add(service.getAlgorithm());
+                }
+            }
+        }
+        return algorithmList;
     }
 }

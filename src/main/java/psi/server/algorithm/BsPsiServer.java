@@ -2,9 +2,14 @@ package psi.server.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.cache.EncryptionCacheUtils;
+import psi.cache.enumeration.CacheOperationType;
+import psi.cache.model.EncryptedCacheObject;
 import psi.dto.SessionParameterDTO;
 import psi.exception.CustomRuntimeException;
 import psi.cache.EncryptionCacheProvider;
+import psi.exception.MismatchingCacheKeyIdException;
+import psi.exception.MissingCacheKeyIdException;
 import psi.server.PsiAbstractServer;
 import psi.model.ServerSessionPayload;
 import psi.utils.CustomTypeConverter;
@@ -65,13 +70,12 @@ public class BsPsiServer extends PsiAbstractServer {
         }
     }
 
-    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider){
-        //TODO: check keyId
+    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchingCacheKeyIdException {
+        if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.serverSessionPayload.getCacheKeyId(), this.serverSessionPayload.getServerPrivateKey(), this.serverSessionPayload.getModulus(), encryptionCacheProvider))
+            throw new MismatchingCacheKeyIdException();
 
         this.serverSessionPayload.setCacheEnabled(true);
         this.encryptionCacheProvider = encryptionCacheProvider;
-
-        //TODO: implement CANARY check
     }
 
     @Override
@@ -88,11 +92,24 @@ public class BsPsiServer extends PsiAbstractServer {
 
                 for(String stringValue : partition){
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
-                    // Should add cache references here
-                    BigInteger encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                    encryptedValue = encryptedValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
-                    encryptedValue = hashFactory.hash(encryptedValue);
-                    localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
+                    BigInteger encryptedValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
+                    if(this.serverSessionPayload.isCacheEnabled()) {
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = this.encryptionCacheProvider.getCachedObject(this.serverSessionPayload.getCacheKeyId(), CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class);
+                        if (encryptedCacheObjectOptional.isPresent())
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                    }
+                    // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
+                    if (encryptedValue == null) {
+                        encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
+                        encryptedValue = encryptedValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
+                        encryptedValue = hashFactory.hash(encryptedValue);
+                        // If the cache support is enabled, the result is stored in the cache
+                        if (this.serverSessionPayload.isCacheEnabled()) {
+                            this.encryptionCacheProvider.putCachedObject(this.serverSessionPayload.getCacheKeyId(), CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue));
+                        }
+                        localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
+                    }
                 }
                 return localDataset;
             });
@@ -121,10 +138,23 @@ public class BsPsiServer extends PsiAbstractServer {
         for(Map<Long, String> partition : partitionList) {
             FutureTask<Map<Long, String>> futureTask = new FutureTask<>(() -> {
                 Map<Long, String> localDatasetMap = new HashMap<>();
-                for(Map.Entry<Long, String> entry : partition.entrySet()){
+                for(Map.Entry<Long, String> entry : partition.entrySet()) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
-                    // Should add cache references here
-                    BigInteger encryptedValue = bigIntegerValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
+                    BigInteger encryptedValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
+                    if (this.serverSessionPayload.isCacheEnabled()) {
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = this.encryptionCacheProvider.getCachedObject(this.serverSessionPayload.getCacheKeyId(), CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class);
+                        if (encryptedCacheObjectOptional.isPresent())
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                    }
+                    // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
+                    if (encryptedValue == null) {
+                        encryptedValue = bigIntegerValue.modPow(serverSessionPayload.getServerPrivateKey(), serverSessionPayload.getModulus());
+                        // If the cache support is enabled, the result is stored in the cache
+                        if (this.serverSessionPayload.isCacheEnabled()) {
+                            this.encryptionCacheProvider.putCachedObject(this.serverSessionPayload.getCacheKeyId(), CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue));
+                        }
+                    }
                     localDatasetMap.put(entry.getKey(), CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
                 return localDatasetMap;

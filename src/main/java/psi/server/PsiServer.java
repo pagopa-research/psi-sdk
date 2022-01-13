@@ -1,6 +1,8 @@
 package psi.server;
 
 import psi.dto.SessionParameterDTO;
+import psi.exception.MismatchingCacheKeyIdException;
+import psi.exception.MissingCacheKeyIdException;
 import psi.exception.PsiClientInitException;
 import psi.cache.EncryptionCacheProvider;
 import psi.exception.PsiServerInitException;
@@ -25,7 +27,7 @@ public interface PsiServer {
 
     Map<Long, String> encryptDatasetMap(BigInteger serverPrivateKey, BigInteger modulus,  Map<Long, String> encryptedDatasetMap);
 
-    void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider);
+    void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchingCacheKeyIdException;
 
     /**  Creates the specific server object based on the algorithm field defined in the input SessionParameterDTO */
     static PsiServer initSession(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription){
