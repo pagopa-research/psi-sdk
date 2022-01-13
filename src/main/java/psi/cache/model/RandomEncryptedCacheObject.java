@@ -3,6 +3,7 @@ package psi.cache.model;
 import psi.utils.Base64EncoderHelper;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 public class RandomEncryptedCacheObject implements CacheObject {
 
@@ -10,12 +11,13 @@ public class RandomEncryptedCacheObject implements CacheObject {
 
     private BigInteger encryptedValue;
 
+    public RandomEncryptedCacheObject() {}
 
     public RandomEncryptedCacheObject(BigInteger randomValue, BigInteger encryptedValue) {
         this.randomValue = randomValue;
         this.encryptedValue = encryptedValue;
     }
-
+/*
     public RandomEncryptedCacheObject(String base64) {
         this.initializeFromBase64Representation(base64);
     }
@@ -31,7 +33,7 @@ public class RandomEncryptedCacheObject implements CacheObject {
         randomValue = obj.getRandomValue();
         encryptedValue = obj.getEncryptedValue();
     }
-
+*/
     public BigInteger getRandomValue() {
         return randomValue;
     }
@@ -46,5 +48,27 @@ public class RandomEncryptedCacheObject implements CacheObject {
 
     public void setEncryptedValue(BigInteger encryptedValue) {
         this.encryptedValue = encryptedValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RandomEncryptedCacheObject that = (RandomEncryptedCacheObject) o;
+        return Objects.equals(randomValue, that.randomValue) &&
+                Objects.equals(encryptedValue, that.encryptedValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(randomValue, encryptedValue);
+    }
+
+    @Override
+    public String toString() {
+        return "RandomEncryptedCacheObject{" +
+                "randomValue=" + randomValue +
+                ", encryptedValue=" + encryptedValue +
+                '}';
     }
 }
