@@ -1,6 +1,6 @@
 package psi.exception;
 
-public class MissingCacheKeyIdException extends Exception {
+public class MissingCacheKeyIdException extends RuntimeException {
     public MissingCacheKeyIdException() {
         super();
     }

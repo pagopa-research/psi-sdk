@@ -6,10 +6,6 @@ public class SessionParameterDTO {
 
     private Integer keySize;
 
-    private String datatypeId;
-
-    private String datatypeDescription;
-
     public String getAlgorithm() {
         return algorithm;
     }
@@ -26,29 +22,11 @@ public class SessionParameterDTO {
         this.keySize = keySize;
     }
 
-    public String getDatatypeId() {
-        return datatypeId;
-    }
-
-    public void setDatatypeId(String datatypeId) {
-        this.datatypeId = datatypeId;
-    }
-
-    public String getDatatypeDescription() {
-        return datatypeDescription;
-    }
-
-    public void setDatatypeDescription(String datatypeDescription) {
-        this.datatypeDescription = datatypeDescription;
-    }
-
     @Override
     public String toString() {
         return "SessionParameterDTO{" +
                 "algorithm='" + algorithm + '\'' +
                 ", keySize=" + keySize +
-                ", datatypeId='" + datatypeId + '\'' +
-                ", datatypeDescription='" + datatypeDescription + '\'' +
                 '}';
     }
 }

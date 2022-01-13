@@ -1,4 +1,4 @@
-package psi;
+package psi.algorithm.bs;
 
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
@@ -6,8 +6,9 @@ import psi.dto.SessionDTO;
 import psi.dto.SessionParameterDTO;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDtoMapper;
+import psi.model.ServerSession;
 import psi.server.PsiServer;
-import psi.model.ServerSessionPayload;
+import psi.server.PsiServerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,13 +18,14 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BsClientServerTest {
+public class BsClientServerBasicTest {
 
-    private PsiServer psiServer;
     private PsiClient psiClient;
+    private ServerSession serverSession;
 
     private Set<String> serverDataset;
     private Map<Long, String> clientDatasetMap;
+
 
     public void initClientDataset(){
         Map<Long, String> localClientDatasetMap = new HashMap<>();
@@ -55,13 +57,9 @@ public class BsClientServerTest {
         SessionParameterDTO sessionParameterDTO = new SessionParameterDTO();
         sessionParameterDTO.setAlgorithm("BS");
         sessionParameterDTO.setKeySize(2048);
-        sessionParameterDTO.setDatatypeId("TEST");
-        psiServer = PsiServer.initSession(sessionParameterDTO);
-        if(psiServer == null)
-            throw new RuntimeException("Psi server creation failed");
-        ServerSessionPayload serverSessionPayload = psiServer.getSessionPayload();
-        psiServer.setSessionId(1L);
-        SessionDTO sessionDTO = SessionDtoMapper.getSessionDtoFromServerSessionPayload(serverSessionPayload, psiServer.getSessionId());
+        ServerSession serverSession = PsiServerFactory.initSession(sessionParameterDTO);
+        this.serverSession = serverSession;
+        SessionDTO sessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(serverSession, 1);
         psiClient = PsiClient.initSession(sessionDTO);
     }
 
@@ -71,19 +69,16 @@ public class BsClientServerTest {
         initClientDataset();
         initServerAndClient();
 
+        // Get server instance
+        PsiServer psiServer = PsiServerFactory.loadSession(serverSession);
+
         // Client loads the double encrypted client dataset map
         Map<Long, String> clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDatasetMap);
-        Map<Long, String> doubleEncryptedClientDatasetMap = psiServer.encryptDatasetMap(
-                psiServer.getSessionPayload().getServerPrivateKey(),
-                psiServer.getSessionPayload().getModulus(),
-                clientEncryptedDatasetMap);
+        Map<Long, String> doubleEncryptedClientDatasetMap = psiServer.encryptDatasetMap(clientEncryptedDatasetMap);
         psiClient.loadDoubleEncryptedClientDataset(doubleEncryptedClientDatasetMap);
 
         // Client loads the encrypted server dataset
-        Set<String> serverEncryptedDataset = psiServer.encryptDataset(
-                psiServer.getSessionPayload().getServerPrivateKey(),
-                psiServer.getSessionPayload().getModulus(),
-                serverDataset);
+        Set<String> serverEncryptedDataset = psiServer.encryptDataset(serverDataset);
         psiClient.loadServerDataset(serverEncryptedDataset);
 
         // Compute PSI

@@ -9,7 +9,7 @@ import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.dto.SessionDTO;
 import psi.cache.EncryptionCacheProvider;
-import psi.exception.MismatchingCacheKeyIdException;
+import psi.exception.MismatchedCacheKeyIdException;
 import psi.exception.MissingCacheKeyIdException;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
@@ -52,9 +52,9 @@ public class BsPsiClient extends PsiAbstractClient {
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
     }
 
-    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchingCacheKeyIdException {
+    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchedCacheKeyIdException {
         if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.cacheKeyId, this.serverPublicKey, this.modulus, encryptionCacheProvider))
-            throw new MismatchingCacheKeyIdException();
+            throw new MismatchedCacheKeyIdException();
 
         this.cacheEnabled = true;
         this.encryptionCacheProvider = encryptionCacheProvider;
