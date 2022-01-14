@@ -8,10 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 // This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
 public class EncryptionCacheProviderImplementationTest{
 
-    EncryptionCacheProviderImplementation cacheImpl = new EncryptionCacheProviderImplementation();
 
     @Test
     public void getCachedEncryptedValueTest(){
+        EncryptionCacheProviderImplementation cacheImpl = new EncryptionCacheProviderImplementation();
+
         long keyId0 = 0L;
         long keyId1 = 1L;
 

@@ -4,6 +4,8 @@ import java.util.*;
 
 public class PartitionHelper {
 
+    private PartitionHelper() {}
+
     public static <T, K> List<Map<T,K>> partitionMap(Map<T,K> map, int numPartitions){
         if (map == null) {
             throw new NullPointerException("The map must not be null");

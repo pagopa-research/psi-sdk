@@ -3,7 +3,7 @@ package psi.cache;
 import psi.cache.enumeration.PsiCacheOperationType;
 import java.util.Optional;
 
-public abstract class PsiCacheProvider {
+public interface PsiCacheProvider {
 
     /**
      * Retrieve the output of the operation applied to an input value, using a given key.

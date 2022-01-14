@@ -5,7 +5,9 @@ import java.nio.charset.StandardCharsets;
 
 public class CustomTypeConverter {
 
-     public static BigInteger convertStringToBigInteger(String s){
+    private CustomTypeConverter() {}
+
+    public static BigInteger convertStringToBigInteger(String s){
          return new BigInteger(s.getBytes(StandardCharsets.ISO_8859_1));
      }
 

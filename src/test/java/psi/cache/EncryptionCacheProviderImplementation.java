@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class EncryptionCacheProviderImplementation extends PsiCacheProvider {
+public class EncryptionCacheProviderImplementation implements PsiCacheProvider {
 
-    Map<Long, Map<PsiCacheOperationType, Map<String,String>>> rootMap = new HashMap<>();;
+    private Map<Long, Map<PsiCacheOperationType, Map<String,String>>> rootMap = new HashMap<>();;
 
     /**
      * Retrieve the output of the operation applied to an input value, using a given key.
