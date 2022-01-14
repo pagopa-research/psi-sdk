@@ -2,7 +2,7 @@ package psi.client;
 
 import psi.cache.PsiCacheProvider;
 import psi.client.algorithm.bs.BsPsiClient;
-import psi.client.algorithm.bs.model.BsClientKeyDescription;
+import psi.client.algorithm.bs.model.BsPsiClientKeyDescription;
 import psi.client.model.PsiClientKeyDescription;
 import psi.dto.PsiSessionDTO;
 import psi.exception.PsiClientException;
@@ -53,9 +53,9 @@ public class PsiClientFactory {
 
         switch(psiSessionDTO.getSessionParameterDTO().getAlgorithm()){
             case "BS":
-                if(psiClientKeyDescription != null && !(psiClientKeyDescription instanceof BsClientKeyDescription))
+                if(psiClientKeyDescription != null && !(psiClientKeyDescription instanceof BsPsiClientKeyDescription))
                     throw new PsiClientException("The subclass of the input clientKeyDescription does not match the algorithm. Should pass as clientKeyDescription an instance of BsClientKeyDescription.");
-                return new BsPsiClient(psiSessionDTO, psiClientKeyDescription != null ? (BsClientKeyDescription) psiClientKeyDescription : null, psiCacheProvider);
+                return new BsPsiClient(psiSessionDTO, psiClientKeyDescription != null ? (BsPsiClientKeyDescription) psiClientKeyDescription : null, psiCacheProvider);
             case "DH":
 
             default:

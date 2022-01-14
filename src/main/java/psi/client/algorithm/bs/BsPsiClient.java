@@ -8,12 +8,12 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
-import psi.client.algorithm.bs.model.BsClientKeyDescription;
+import psi.client.PsiClient;
+import psi.client.algorithm.bs.model.BsPsiClientKeyDescription;
 import psi.client.model.PsiClientKeyDescription;
 import psi.dto.PsiSessionDTO;
 import psi.exception.MismatchedCacheKeyIdException;
 import psi.exception.PsiClientException;
-import psi.exception.PsiServerInitException;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -40,7 +40,7 @@ public class BsPsiClient extends PsiAbstractClient {
     private BigInteger modulus;
     private BigInteger serverPublicKey;
 
-    public BsPsiClient(PsiSessionDTO psiSessionDTO, BsClientKeyDescription bsClientKeyDescription, PsiCacheProvider psiCacheProvider){
+    public BsPsiClient(PsiSessionDTO psiSessionDTO, BsPsiClientKeyDescription bsPsiClientKeyDescription, PsiCacheProvider psiCacheProvider){
         this.sessionId = psiSessionDTO.getSessionId();
         this.serverEncryptedDataset = new HashSet<>();
         this.clientClearDatasetMap = new HashMap<>();
@@ -54,16 +54,20 @@ public class BsPsiClient extends PsiAbstractClient {
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
 
         // keys are set from the psiSessionDTO
-        if(bsClientKeyDescription == null) {
+        if(bsPsiClientKeyDescription == null) {
             this.modulus = CustomTypeConverter.convertStringToBigInteger(psiSessionDTO.getModulus());
             this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiSessionDTO.getServerPublicKey());
         }
         // keys are loaded from bsClientKeyDescription, but should still match those of psiSessionDTO
         else{
-            if(!psiSessionDTO.getModulus().equals(bsClientKeyDescription.getModulus()) || !psiSessionDTO.getServerPublicKey().equals(bsClientKeyDescription.getServerPublicKey()))
-                throw new PsiClientException("The modulus and/or serverPrivateKey in the bsClientKeyDescription does not match those in the psiSessionDTO");
-            if(bsClientKeyDescription.getKeyId() != null)
-                this.keyId = bsClientKeyDescription.getKeyId();
+            if(bsPsiClientKeyDescription.getModulus() == null || bsPsiClientKeyDescription.getServerPublicKey() == null)
+                throw new PsiClientException("The fields modulus and serverPrivateKey in the input bsClientKeyDescription cannot be null");
+            if(!psiSessionDTO.getModulus().equals(bsPsiClientKeyDescription.getModulus()) || !psiSessionDTO.getServerPublicKey().equals(bsPsiClientKeyDescription.getServerPublicKey()))
+                throw new PsiClientException("The fields modulus and/or serverPrivateKey in the bsClientKeyDescription does not match those in the psiSessionDTO");
+            if(bsPsiClientKeyDescription.getKeyId() != null)
+                this.keyId = bsPsiClientKeyDescription.getKeyId();
+            this.modulus = CustomTypeConverter.convertStringToBigInteger(bsPsiClientKeyDescription.getModulus());
+            this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(bsPsiClientKeyDescription.getServerPublicKey());
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiSessionDTO
@@ -74,7 +78,7 @@ public class BsPsiClient extends PsiAbstractClient {
         else{
             if(this.keyId == null)
                 throw new PsiClientException("The keyId of the input bsClientKeyDescription is null despite being required to enable the cache");
-            if(!PsiCacheUtils.verifyCacheKeyIdCorrectness(this.keyId, bsClientKeyDescription, psiCacheProvider))
+            if(!PsiCacheUtils.verifyCacheKeyIdCorrectness(this.keyId, bsPsiClientKeyDescription, psiCacheProvider))
                     throw new MismatchedCacheKeyIdException();
             this.cacheEnabled = true;
         }
@@ -245,11 +249,11 @@ public class BsPsiClient extends PsiAbstractClient {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        BsClientKeyDescription bsClientKeyDescription = new BsClientKeyDescription();
-        bsClientKeyDescription.setKeyId(this.keyId);
-        bsClientKeyDescription.setModulus(CustomTypeConverter.convertBigIntegerToString(this.modulus));
-        bsClientKeyDescription.setServerPublicKey(CustomTypeConverter.convertBigIntegerToString(this.serverPublicKey));
-        return bsClientKeyDescription;
+        BsPsiClientKeyDescription bsPsiClientKeyDescription = new BsPsiClientKeyDescription();
+        bsPsiClientKeyDescription.setKeyId(this.keyId);
+        bsPsiClientKeyDescription.setModulus(CustomTypeConverter.convertBigIntegerToString(this.modulus));
+        bsPsiClientKeyDescription.setServerPublicKey(CustomTypeConverter.convertBigIntegerToString(this.serverPublicKey));
+        return bsPsiClientKeyDescription;
     }
 
     // Helper class that bundles a quartet of maps. Three <Long, BigInteger> and one <Long, String>

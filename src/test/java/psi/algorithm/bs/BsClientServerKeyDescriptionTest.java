@@ -3,6 +3,7 @@ package psi.algorithm.bs;
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
+import psi.client.algorithm.bs.model.BsPsiClientKeyDescription;
 import psi.client.model.PsiClientKeyDescription;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
@@ -29,6 +30,7 @@ public class BsClientServerKeyDescriptionTest {
     private PsiClient psiClient;
     private ServerSession serverSession;
     private PsiServerKeyDescription psiServerKeyDescription;
+    private PsiClientKeyDescription psiClientKeyDescription;
 
     private Set<String> serverDataset;
     private Map<Long, String> clientDatasetMap;
@@ -60,7 +62,7 @@ public class BsClientServerKeyDescriptionTest {
         this.serverDataset = localServerDataset;
     }
 
-    public void initKeyDescription(){
+    public void initKeyDescriptions(){
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
         psiAlgorithmParameterDTO.setAlgorithm("BS");
         psiAlgorithmParameterDTO.setKeySize(2048);
@@ -73,6 +75,11 @@ public class BsClientServerKeyDescriptionTest {
         bsServerKeyDescription.setPrivateKey(bsServerSession.getServerPrivateKey());
         bsServerKeyDescription.setPublicKey(bsServerSession.getServerPublicKey());
         this.psiServerKeyDescription = bsServerKeyDescription;
+
+        BsPsiClientKeyDescription bsPsiClientKeyDescription = new BsPsiClientKeyDescription();
+        bsPsiClientKeyDescription.setServerPublicKey(bsServerKeyDescription.getPublicKey());
+        bsPsiClientKeyDescription.setModulus(bsServerKeyDescription.getModulus());
+        this.psiClientKeyDescription = bsPsiClientKeyDescription;
     }
 
     public void initServerAndClient(){
@@ -82,12 +89,12 @@ public class BsClientServerKeyDescriptionTest {
         ServerSession serverSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription);
         this.serverSession = serverSession;
         PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(serverSession, 1);
-        psiClient = PsiClientFactory.loadSession(psiSessionDTO);
+        psiClient = PsiClientFactory.loadSession(psiSessionDTO, psiClientKeyDescription);
     }
 
     @Test
     public void computeBsPsi(){
-        initKeyDescription();
+        initKeyDescriptions();
         initServerDataset();
         initClientDataset();
         initServerAndClient();
