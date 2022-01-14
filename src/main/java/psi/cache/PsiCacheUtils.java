@@ -4,7 +4,7 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.PsiCacheObject;
 import psi.exception.CustomRuntimeException;
 import psi.exception.MissingCacheKeyIdException;
-import psi.model.KeyDescription;
+import psi.model.PsiKeyDescription;
 import psi.utils.Base64EncoderHelper;
 import psi.utils.CustomTypeConverter;
 
@@ -29,7 +29,7 @@ public class PsiCacheUtils {
      * @return false if the check value is present in the cache for the specified cacheKeyId and it is different respect the one expected, true otherwise
      * @throws MissingCacheKeyIdException is the keyId is empty
      */
-    public static boolean verifyCacheKeyIdCorrectness(Long cacheKeyId, KeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
+    public static boolean verifyCacheKeyIdCorrectness(Long cacheKeyId, PsiKeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
         if(cacheKeyId == null)
             throw new MissingCacheKeyIdException();
         String base64KeyDescription = Base64EncoderHelper.objectToBase64(keyDescription);

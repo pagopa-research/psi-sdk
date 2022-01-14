@@ -1,6 +1,6 @@
 package psi.dto;
 
-public class SessionParameterDTO {
+public class PsiAlgorithmParameterDTO {
 
     private String algorithm;
 

@@ -1,7 +1,7 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
-import psi.model.ServerSession;
+import psi.server.model.ServerSession;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,5 +18,5 @@ public interface PsiServer {
 
     ServerSession getServerSession();
 
-    PsiCacheProvider getEncryptionCacheProvider();
+    PsiCacheProvider getPsiCacheProvider();
 }

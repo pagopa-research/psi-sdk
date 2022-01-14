@@ -1,20 +1,20 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
-import psi.dto.SessionParameterDTO;
+import psi.dto.PsiAlgorithmParameterDTO;
 import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
-import psi.model.BsKeyDescription;
-import psi.model.BsServerSession;
-import psi.model.KeyDescription;
-import psi.model.ServerSession;
-import psi.server.algorithm.BsPsiServer;
+import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
+import psi.server.algorithm.bs.model.BsServerSession;
+import psi.server.model.PsiServerKeyDescription;
+import psi.server.model.ServerSession;
+import psi.server.algorithm.bs.BsPsiServer;
 
 import java.util.Arrays;
 
 public class PsiServerFactory {
 
-    static String[] supportedAlgorithms =
+    public static String[] supportedAlgorithms =
             {
                     "BS",
                     "ECBS",
@@ -22,52 +22,52 @@ public class PsiServerFactory {
                     "ECDH"
             };
 
-    public static ServerSession initSession(SessionParameterDTO sessionParameterDTO) {
-        return initSessionInner(sessionParameterDTO, null, null);
+    public static ServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO) {
+        return initSessionInner(psiAlgorithmParameterDTO, null, null);
     }
 
-    public static ServerSession initSession(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription) {
-        if (keyDescription == null) {
-            throw new PsiServerInitException("Input keyDescription is null");
+    public static ServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription) {
+        if (psiServerKeyDescription == null) {
+            throw new PsiServerInitException("Input serverKeyDescription is null");
         }
 
-        return initSessionInner(sessionParameterDTO, keyDescription, null);
+        return initSessionInner(psiAlgorithmParameterDTO, psiServerKeyDescription, null);
     }
 
-    public static ServerSession initSession(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
-        if (keyDescription == null) {
-            throw new PsiServerInitException("Input keyDescription is null");
+    public static ServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+        if (psiServerKeyDescription == null) {
+            throw new PsiServerInitException("Input serverKeyDescription is null");
         }
 
-        if (encryptionCacheProvider == null) {
-            throw new PsiServerInitException("Input encryptionCacheProvider is null");
+        if (psiCacheProvider == null) {
+            throw new PsiServerInitException("Input psiCacheProvider is null");
         }
 
-        return initSessionInner(sessionParameterDTO, keyDescription, encryptionCacheProvider);
+        return initSessionInner(psiAlgorithmParameterDTO, psiServerKeyDescription, psiCacheProvider);
     }
 
     /**
      *  Calls the static method of the specific PsiServer subclass matching the algorithm set in the sessionParameterDTO
-     * @param sessionParameterDTO contains the algorithm and the key size selected by the client
-     * @param keyDescription if not null, the algorithm uses the input keys. If null, creates a new key
-     * @param encryptionCacheProvider if not null, uses this object as a cache provider. If null, no cache is used
+     * @param psiAlgorithmParameterDTO contains the algorithm and the key size selected by the client
+     * @param psiServerKeyDescription if not null, the algorithm uses the input keys. If null, creates a new key
+     * @param psiCacheProvider if not null, uses this object as a cache provider. If null, no cache is used
      *
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the sessionParameter DTO.
      */
-    private static ServerSession initSessionInner(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
-        if (sessionParameterDTO == null || sessionParameterDTO.getAlgorithm() == null
-                || sessionParameterDTO.getAlgorithm().isEmpty() || sessionParameterDTO.getKeySize() == null)
+    private static ServerSession initSessionInner(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+        if (psiAlgorithmParameterDTO == null || psiAlgorithmParameterDTO.getAlgorithm() == null
+                || psiAlgorithmParameterDTO.getAlgorithm().isEmpty() || psiAlgorithmParameterDTO.getKeySize() == null)
             throw new PsiServerInitException("Input sessionParameterDTO is null");
 
-        if (!Arrays.asList(supportedAlgorithms).contains(sessionParameterDTO.getAlgorithm()))
+        if (!Arrays.asList(supportedAlgorithms).contains(psiAlgorithmParameterDTO.getAlgorithm()))
             throw new PsiServerInitException("The algorithm defined in the input SessionParameterDTO is invalid or not supported");
 
-        switch (sessionParameterDTO.getAlgorithm()) {
+        switch (psiAlgorithmParameterDTO.getAlgorithm()) {
             case "BS":
-                if (keyDescription != null && !(keyDescription instanceof BsKeyDescription))
-                    throw new PsiServerInitException("The subclass of the input keyDescription does not match the algorithm. Should pass as keyDescription an instance of BsKeyDescription.");
-                return BsPsiServer.initSession(sessionParameterDTO, keyDescription != null ? (BsKeyDescription) keyDescription : null, encryptionCacheProvider);
+                if (psiServerKeyDescription != null && !(psiServerKeyDescription instanceof BsPsiServerKeyDescription))
+                    throw new PsiServerInitException("The subclass of the input serverKeyDescription does not match the algorithm. Should pass as serverKeyDescription an instance of BsServerKeyDescription.");
+                return BsPsiServer.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription != null ? (BsPsiServerKeyDescription) psiServerKeyDescription : null, psiCacheProvider);
 
             case "DH":
 
@@ -80,25 +80,25 @@ public class PsiServerFactory {
         return loadSession(serverSession, null);
     }
 
-    public static PsiServer loadSession(ServerSession serverSession, PsiCacheProvider encryptionCacheProvider) {
+    public static PsiServer loadSession(ServerSession serverSession, PsiCacheProvider psiCacheProvider) {
         if (serverSession == null || serverSession.getCacheEnabled() == null || serverSession.getAlgorithm() == null || serverSession.getKeySize() == null)
             throw new PsiServerInitException("The fields cacheEnabled, algorithm and keySize of the input serverSession cannot be null");
 
-        if (serverSession.getCacheEnabled() && encryptionCacheProvider == null)
-            throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of encryptionCacheProvider as parameter of loadSession()");
+        if (serverSession.getCacheEnabled() && psiCacheProvider == null)
+            throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
         if(serverSession.getCacheEnabled() && serverSession.getKeyId() == null){
             throw new PsiServerException("The field keyId of serverSession cannot be null if the cache is enabled");
         }
 
-        if (!serverSession.getCacheEnabled() && encryptionCacheProvider != null)
-            throw new PsiServerException("The session has the cache disabled but you still passed an implementation of encryptionCacheProvider as parameter of loadSession()");
+        if (!serverSession.getCacheEnabled() && psiCacheProvider != null)
+            throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 
         switch (serverSession.getAlgorithm()) {
             case "BS":
                 if (!(serverSession instanceof BsServerSession))
                     throw new PsiServerInitException("The subclass of the input serverSession does not match the algorithm. Should pass as serverSession an instance of BsServerSession.");
-                return new BsPsiServer((BsServerSession) serverSession, encryptionCacheProvider);
+                return new BsPsiServer((BsServerSession) serverSession, psiCacheProvider);
 
             case "DH":
 

@@ -1,6 +1,8 @@
-package psi.model;
+package psi.server.algorithm.bs.model;
 
-public class BsKeyDescription implements KeyDescription {
+import psi.server.model.PsiServerKeyDescription;
+
+public class BsPsiServerKeyDescription implements PsiServerKeyDescription {
 
     private String privateKey;
     private String publicKey;
