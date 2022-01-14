@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class StatisticsFactory {
 
-    public enum PsiPhase {ENCRYPTION, DOUBLE_ENCRYPTION, PSI}
+    public enum PsiPhase {ENCRYPTION, DOUBLE_ENCRYPTION, REVERSE_MAP, PSI}
 
     private PsiPhase description;
     private Instant startTime;

@@ -1,8 +1,10 @@
 package psi.client;
 
 import psi.cache.PsiCacheProvider;
+import psi.utils.StatisticsFactory;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 
 public abstract class PsiAbstractClient implements PsiClient {
@@ -15,6 +17,8 @@ public abstract class PsiAbstractClient implements PsiClient {
     protected Boolean cacheEnabled;
     protected Long keyId;
     protected PsiCacheProvider encryptionCacheProvider;
+
+    protected List<StatisticsFactory> statisticList;
 
     public Integer getThreads() {
         return threads;
@@ -46,6 +50,10 @@ public abstract class PsiAbstractClient implements PsiClient {
 
     public PsiCacheProvider getEncryptionCacheProvider() {
         return encryptionCacheProvider;
+    }
+
+    public List<StatisticsFactory> getStatisticList() {
+        return statisticList;
     }
 
     @Override

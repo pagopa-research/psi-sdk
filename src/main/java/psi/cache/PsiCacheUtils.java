@@ -47,18 +47,18 @@ public class PsiCacheUtils {
         }
     }
 
-    public static <T> Optional<T> getCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass, PsiCacheProvider encryptionCacheProvider){
+    public static <T> Optional<T> getCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass, PsiCacheProvider psiCacheProvider){
         String inputString = CustomTypeConverter.convertBigIntegerToString(input);
-        Optional<String> cachedValueBase64 = encryptionCacheProvider.get(keyId, cacheObjectType, inputString);
+        Optional<String> cachedValueBase64 = psiCacheProvider.get(keyId, cacheObjectType, inputString);
         if(!cachedValueBase64.isPresent())
             return Optional.empty();
         T cachedObject = Base64EncoderHelper.base64ToObject(cachedValueBase64.get(), typeParameterClass);
         return Optional.of(cachedObject);
     }
 
-    public static void putCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, PsiCacheObject output, PsiCacheProvider encryptionCacheProvider){
+    public static void putCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, PsiCacheObject output, PsiCacheProvider psiCacheProvider){
         String inputString = CustomTypeConverter.convertBigIntegerToString(input);
         String outputString = Base64EncoderHelper.objectToBase64(output);
-        encryptionCacheProvider.put(keyId,cacheObjectType,inputString,outputString);
+        psiCacheProvider.put(keyId,cacheObjectType,inputString,outputString);
     }
 }

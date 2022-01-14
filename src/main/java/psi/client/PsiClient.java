@@ -1,7 +1,9 @@
 package psi.client;
 
 import psi.client.model.PsiClientKeyDescription;
+import psi.utils.StatisticsFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,4 +18,6 @@ public interface PsiClient {
     Set<String> computePsi();
 
     PsiClientKeyDescription getClientKeyDescription();
+
+    public List<StatisticsFactory> getStatisticList();
 }

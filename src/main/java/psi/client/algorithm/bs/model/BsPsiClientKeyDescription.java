@@ -2,16 +2,16 @@ package psi.client.algorithm.bs.model;
 
 import psi.client.model.PsiClientKeyDescription;
 
-public class BsClientKeyDescription implements PsiClientKeyDescription {
+public class BsPsiClientKeyDescription implements PsiClientKeyDescription {
 
     private Long keyId;
     private String serverPublicKey;
     private String modulus;
 
-    public BsClientKeyDescription() {
+    public BsPsiClientKeyDescription() {
     }
 
-    public BsClientKeyDescription(Long keyId, String serverPublicKey, String modulus) {
+    public BsPsiClientKeyDescription(Long keyId, String serverPublicKey, String modulus) {
         this.keyId = keyId;
         this.serverPublicKey = serverPublicKey;
         this.modulus = modulus;
