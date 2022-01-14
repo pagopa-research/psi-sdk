@@ -3,7 +3,7 @@ package psi.cache;
 import org.junit.jupiter.api.Test;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.RandomEncryptedCacheObject;
-import psi.model.BsKeyDescription;
+import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
 import psi.utils.CustomTypeConverter;
 
 import java.math.BigInteger;
@@ -22,12 +22,12 @@ public class PsiCacheUtilsTest {
         long keyId1 = 1L;
         long keyId2 = 2L;
 
-        BsKeyDescription bsKeyDescription1 = new BsKeyDescription();
+        BsPsiServerKeyDescription bsKeyDescription1 = new BsPsiServerKeyDescription();
         bsKeyDescription1.setKeyId(keyId1);
         bsKeyDescription1.setPrivateKey("privateKey1");
         bsKeyDescription1.setPublicKey("publicKey1");
         bsKeyDescription1.setModulus("modulus1");
-        BsKeyDescription bsKeyDescription2 = new BsKeyDescription();
+        BsPsiServerKeyDescription bsKeyDescription2 = new BsPsiServerKeyDescription();
         bsKeyDescription2.setKeyId(keyId2);
         bsKeyDescription2.setPrivateKey("privateKey2");
         bsKeyDescription2.setPublicKey("publicKey2");
@@ -51,12 +51,12 @@ public class PsiCacheUtilsTest {
         long keyId1 = 1L;
         long keyId2 = 2L;
 
-        BsKeyDescription bsKeyDescription1 = new BsKeyDescription();
+        BsPsiServerKeyDescription bsKeyDescription1 = new BsPsiServerKeyDescription();
         bsKeyDescription1.setKeyId(keyId1);
         bsKeyDescription1.setPrivateKey("privateKey1");
         bsKeyDescription1.setPublicKey("publicKey1");
         bsKeyDescription1.setModulus("modulus1");
-        BsKeyDescription bsKeyDescription2 = new BsKeyDescription();
+        BsPsiServerKeyDescription bsKeyDescription2 = new BsPsiServerKeyDescription();
         bsKeyDescription2.setKeyId(keyId2);
         bsKeyDescription2.setPrivateKey("privateKey2");
         bsKeyDescription2.setPublicKey("publicKey2");

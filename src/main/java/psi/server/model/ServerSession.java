@@ -1,4 +1,4 @@
-package psi.model;
+package psi.server.model;
 
 public abstract class ServerSession {
 

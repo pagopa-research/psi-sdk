@@ -1,6 +1,6 @@
-package psi.model;
+package psi.server.algorithm.bs.model;
 
-import java.math.BigInteger;
+import psi.server.model.ServerSession;
 
 public class BsServerSession extends ServerSession {
 

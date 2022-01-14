@@ -1,16 +1,19 @@
-package psi.client.algorithm;
+package psi.client.algorithm.bs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.cache.PsiCacheProvider;
 import psi.cache.PsiCacheUtils;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
-import psi.dto.SessionDTO;
-import psi.cache.PsiCacheProvider;
+import psi.client.algorithm.bs.model.BsClientKeyDescription;
+import psi.client.model.PsiClientKeyDescription;
+import psi.dto.PsiSessionDTO;
 import psi.exception.MismatchedCacheKeyIdException;
-import psi.exception.MissingCacheKeyIdException;
+import psi.exception.PsiClientException;
+import psi.exception.PsiServerInitException;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -34,11 +37,11 @@ public class BsPsiClient extends PsiAbstractClient {
     private final Map<Long, BigInteger> clientDoubleEncryptedDatasetMap;
     private final Map<Long, BigInteger> clientReversedDatasetMap;
 
-    public BsPsiClient(SessionDTO sessionDTO){
-        this.sessionId = sessionDTO.getSessionId();
-        this.modulus = CustomTypeConverter.convertStringToBigInteger(sessionDTO.getModulus());
-        this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(sessionDTO.getServerPublicKey());
-        this.expiration = sessionDTO.getExpiration();
+    private BigInteger modulus;
+    private BigInteger serverPublicKey;
+
+    public BsPsiClient(PsiSessionDTO psiSessionDTO, BsClientKeyDescription bsClientKeyDescription, PsiCacheProvider psiCacheProvider){
+        this.sessionId = psiSessionDTO.getSessionId();
         this.serverEncryptedDataset = new HashSet<>();
         this.clientClearDatasetMap = new HashMap<>();
         this.clientRandomDatasetMap = new HashMap<>();
@@ -46,19 +49,35 @@ public class BsPsiClient extends PsiAbstractClient {
         this.clientDoubleEncryptedDatasetMap = new HashMap<>();
         this.clientReversedDatasetMap = new HashMap<>();
         this.threads = DEFAULT_THREADS;
-        this.cacheEnabled = false;
 
         // By default, a new seed for the blind signature is created. It can be overwritten with the setter method
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
-    }
 
-    public void enableCacheSupport(PsiCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchedCacheKeyIdException {
-        //TODO: use key description
-        //if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.cacheKeyId, this.serverPublicKey, this.modulus, encryptionCacheProvider))
-        //    throw new MismatchedCacheKeyIdException();
+        // keys are set from the psiSessionDTO
+        if(bsClientKeyDescription == null) {
+            this.modulus = CustomTypeConverter.convertStringToBigInteger(psiSessionDTO.getModulus());
+            this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiSessionDTO.getServerPublicKey());
+        }
+        // keys are loaded from bsClientKeyDescription, but should still match those of psiSessionDTO
+        else{
+            if(!psiSessionDTO.getModulus().equals(bsClientKeyDescription.getModulus()) || !psiSessionDTO.getServerPublicKey().equals(bsClientKeyDescription.getServerPublicKey()))
+                throw new PsiClientException("The modulus and/or serverPrivateKey in the bsClientKeyDescription does not match those in the psiSessionDTO");
+            if(bsClientKeyDescription.getKeyId() != null)
+                this.keyId = bsClientKeyDescription.getKeyId();
+        }
 
-        this.cacheEnabled = true;
-        this.encryptionCacheProvider = encryptionCacheProvider;
+        // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiSessionDTO
+
+        // If psiCacheProvider != null, setup and validate the cache
+        if(psiCacheProvider == null)
+            this.cacheEnabled = false;
+        else{
+            if(this.keyId == null)
+                throw new PsiClientException("The keyId of the input bsClientKeyDescription is null despite being required to enable the cache");
+            if(!PsiCacheUtils.verifyCacheKeyIdCorrectness(this.keyId, bsClientKeyDescription, psiCacheProvider))
+                    throw new MismatchedCacheKeyIdException();
+            this.cacheEnabled = true;
+        }
     }
 
     public BigInteger getSeed() {
@@ -67,14 +86,6 @@ public class BsPsiClient extends PsiAbstractClient {
 
     public void setSeed(BigInteger seed) {
         this.seed = seed;
-    }
-
-    public int getThreads() {
-        return threads;
-    }
-
-    public void setThreads(int threads) {
-        this.threads = threads;
     }
 
     @Override
@@ -99,7 +110,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(this.cacheEnabled) {
-                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(cacheKeyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             randomValue = encryptedCacheObjectOptional.get().getRandomValue();
@@ -110,7 +121,7 @@ public class BsPsiClient extends PsiAbstractClient {
                         randomValue = new BigInteger(modulus.bitCount(), secureRandom).mod(modulus);
                         encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         if(this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(cacheKeyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
+                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
                         }
                     }
                      localClientClearDatasetMap.put(entry.getKey(), bigIntegerValue);
@@ -160,7 +171,7 @@ public class BsPsiClient extends PsiAbstractClient {
         }
     }
 
-     // Loads the clientReversedDatasetMap which contains a decryption of the clientDoubleEncryptedDatasetMap entries
+    // Loads the clientReversedDatasetMap which contains a decryption of the clientDoubleEncryptedDatasetMap entries
     private void computeReversedMap(){
         log.debug("Called computeReversedMap");
         List<Map<Long, BigInteger>> doubleEncryptedMapPartition = PartitionHelper.partitionMap(clientDoubleEncryptedDatasetMap, threads);
@@ -173,16 +184,15 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger reversedValue = null;
                     if (this.cacheEnabled) {
                         //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(cacheKeyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                         }
                     }
                     if (reversedValue == null){
-                        // Should add cache references here
                         reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(cacheKeyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.encryptionCacheProvider); //TODO, come sopra
+                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.encryptionCacheProvider); //TODO, come sopra
                         }
                     }
                     localClientReversedDatasetMap.put(entry.getKey(), reversedValue);
@@ -214,7 +224,6 @@ public class BsPsiClient extends PsiAbstractClient {
             FutureTask<Set<String>> futureTask = new FutureTask<>(() -> {
                 Set<String> partitionPsiSet = new HashSet<>();
                 for(Map.Entry<Long, BigInteger> entry : partition.entrySet()){
-                    // Should add cache references here
                     if(serverEncryptedDataset.contains(entry.getValue()))
                         partitionPsiSet.add(CustomTypeConverter.convertBigIntegerToString(clientClearDatasetMap.get(entry.getKey())));
                 }
@@ -233,6 +242,15 @@ public class BsPsiClient extends PsiAbstractClient {
             }
         }
         return psi;
+    }
+
+    @Override
+    public PsiClientKeyDescription getClientKeyDescription() {
+        BsClientKeyDescription bsClientKeyDescription = new BsClientKeyDescription();
+        bsClientKeyDescription.setKeyId(this.keyId);
+        bsClientKeyDescription.setModulus(CustomTypeConverter.convertBigIntegerToString(this.modulus));
+        bsClientKeyDescription.setServerPublicKey(CustomTypeConverter.convertBigIntegerToString(this.serverPublicKey));
+        return bsClientKeyDescription;
     }
 
     // Helper class that bundles a quartet of maps. Three <Long, BigInteger> and one <Long, String>

@@ -1,20 +1,19 @@
 package psi.algorithm.bs;
 
 import org.junit.jupiter.api.Test;
-import psi.cache.PsiCacheProvider;
 import psi.cache.PsiCacheProviderImplementation;
 import psi.client.PsiClient;
-import psi.dto.SessionDTO;
-import psi.dto.SessionParameterDTO;
+import psi.client.PsiClientFactory;
+import psi.dto.PsiAlgorithmParameterDTO;
+import psi.dto.PsiSessionDTO;
 import psi.exception.CustomRuntimeException;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDtoMapper;
-import psi.model.BsKeyDescription;
-import psi.model.BsServerSession;
-import psi.model.KeyDescription;
-import psi.model.ServerSession;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
+import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
+import psi.server.algorithm.bs.model.BsServerSession;
+import psi.server.model.ServerSession;
 import psi.utils.StatisticsFactory;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class BsClientServerCacheTest {
 
     private PsiClient psiClient;
     private ServerSession serverSession;
-    private KeyDescription keyDescription;
+    private BsPsiServerKeyDescription keyDescription;
 
     private Set<String> serverDataset;
     private Map<Long, String> clientDatasetMap;
@@ -59,20 +58,20 @@ public class BsClientServerCacheTest {
             this.serverDataset.add("SERVER-ONLY-"+i);
     }
 
-    private void initKeyDescription(){
-        SessionParameterDTO sessionParameterDTO = new SessionParameterDTO();
-        sessionParameterDTO.setAlgorithm("BS");
-        sessionParameterDTO.setKeySize(2048);
-        ServerSession serverSession = PsiServerFactory.initSession(sessionParameterDTO);
+    public void initKeyDescription(){
+        PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
+        psiAlgorithmParameterDTO.setAlgorithm("BS");
+        psiAlgorithmParameterDTO.setKeySize(2048);
+        ServerSession serverSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
         if(!(serverSession instanceof BsServerSession))
             throw new CustomRuntimeException("serverSession is not an instance of the subclass BsServerSession");
         BsServerSession bsServerSession = (BsServerSession) serverSession;
-        BsKeyDescription bsKeyDescription = new BsKeyDescription();
-        bsKeyDescription.setModulus(bsServerSession.getModulus());
-        bsKeyDescription.setPrivateKey(bsServerSession.getServerPrivateKey());
-        bsKeyDescription.setPublicKey(bsServerSession.getServerPublicKey());
-        bsKeyDescription.setKeyId(0L);
-        this.keyDescription = bsKeyDescription;
+        BsPsiServerKeyDescription bsServerKeyDescription = new BsPsiServerKeyDescription();
+        bsServerKeyDescription.setModulus(bsServerSession.getModulus());
+        bsServerKeyDescription.setPrivateKey(bsServerSession.getServerPrivateKey());
+        bsServerKeyDescription.setPublicKey(bsServerSession.getServerPublicKey());
+        bsServerKeyDescription.setKeyId(1L);
+        this.keyDescription = bsServerKeyDescription;
     }
 
     private void initCaches(){
@@ -81,13 +80,13 @@ public class BsClientServerCacheTest {
     }
 
     private void initServerAndClient(){
-        SessionParameterDTO sessionParameterDTO = new SessionParameterDTO();
-        sessionParameterDTO.setAlgorithm("BS");
-        sessionParameterDTO.setKeySize(2048);
+        PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
+        psiAlgorithmParameterDTO.setAlgorithm("BS");
+        psiAlgorithmParameterDTO.setKeySize(2048);
 
-        this.serverSession = PsiServerFactory.initSession(sessionParameterDTO, this.keyDescription, this.serverCache);;
-        SessionDTO sessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(this.serverSession, 1);
-        this.psiClient = PsiClient.initSession(sessionDTO);
+        this.serverSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO, this.keyDescription, this.serverCache);;
+        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(serverSession, 1);
+        psiClient = PsiClientFactory.loadSession(psiSessionDTO);
     }
 
     @Test
@@ -104,9 +103,9 @@ public class BsClientServerCacheTest {
         if(!(serverSession instanceof BsServerSession))
             throw new CustomRuntimeException("serverSession is not an instance of the subclass BsServerSession");
         BsServerSession bsServerSession = (BsServerSession) serverSession;
-        if(!(keyDescription instanceof BsKeyDescription))
-            throw new CustomRuntimeException("keyDescription is not an instance of the subclass BsKeyDescription");
-        BsKeyDescription bsKeyDescription = (BsKeyDescription) keyDescription;
+        if(!(keyDescription instanceof BsPsiServerKeyDescription))
+            throw new CustomRuntimeException("keyDescription is not an instance of the subclass BsPsiServerKeyDescription");
+        BsPsiServerKeyDescription bsKeyDescription = (BsPsiServerKeyDescription) keyDescription;
         assertEquals(bsServerSession.getServerPrivateKey(), bsKeyDescription.getPrivateKey());
         assertEquals(bsServerSession.getServerPublicKey(), bsKeyDescription.getPublicKey());
         assertEquals(bsServerSession.getModulus(), bsKeyDescription.getModulus());

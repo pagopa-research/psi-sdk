@@ -1,23 +1,11 @@
 package psi.client;
 
-import psi.client.algorithm.BsPsiClient;
-import psi.dto.SessionDTO;
-import psi.exception.MismatchedCacheKeyIdException;
-import psi.exception.MissingCacheKeyIdException;
-import psi.exception.PsiClientInitException;
-import psi.cache.PsiCacheProvider;
+import psi.client.model.PsiClientKeyDescription;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
 public interface PsiClient {
-
-    String[] supportedAlgorithms =
-        {
-            "BS",
-            "DH"
-        };
 
     Map<Long, String> loadAndEncryptClientDataset(Map<Long, String> clearClientDataset);
 
@@ -27,23 +15,5 @@ public interface PsiClient {
 
     Set<String> computePsi();
 
-    void enableCacheSupport(PsiCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchedCacheKeyIdException;
-
-    /**  Creates the specific client object based on the algorithm field defined in the input sessionDTO */
-    static PsiClient initSession(SessionDTO sessionDTO){
-        if(sessionDTO.getSessionId() == null || sessionDTO.getSessionId() <= 0)
-            throw new PsiClientInitException("The id of the input sessionDTO is invalid");
-
-        if(!Arrays.asList(supportedAlgorithms).contains(sessionDTO.getSessionParameterDTO().getAlgorithm()))
-            throw new PsiClientInitException("The algorithm defined in the input sessionDTO is invalid or not supported");
-
-        switch(sessionDTO.getSessionParameterDTO().getAlgorithm()){
-            case "BS":
-                return new BsPsiClient(sessionDTO);
-            case "DH":
-                return null;
-        }
-        return null;
-    }
-
+    PsiClientKeyDescription getClientKeyDescription();
 }

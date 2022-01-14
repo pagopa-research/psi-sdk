@@ -1,8 +1,8 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
-import psi.model.ServerSession;
 import psi.utils.StatisticsFactory;
+import psi.server.model.ServerSession;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,8 @@ public interface PsiServer {
 
     ServerSession getServerSession();
 
-    PsiCacheProvider getEncryptionCacheProvider();
+    PsiCacheProvider getPsiCacheProvider();
 
     public List<StatisticsFactory> getStatisticList();
+
 }
