@@ -1,14 +1,9 @@
 package psi.cache;
 
-import psi.cache.enumeration.CacheOperationType;
-import psi.cache.model.CacheObject;
-import psi.utils.Base64EncoderHelper;
-import psi.utils.CustomTypeConverter;
-
-import java.math.BigInteger;
+import psi.cache.enumeration.PsiCacheOperationType;
 import java.util.Optional;
 
-public abstract class EncryptionCacheProvider {
+public abstract class PsiCacheProvider {
 
     /**
      * Retrieve the output of the operation applied to an input value, using a given key.
@@ -19,7 +14,7 @@ public abstract class EncryptionCacheProvider {
      *
      * @return an Optional containing the the cached result of the operation if present, Optional.empty() otherwise
      */
-    public abstract Optional<String> getCachedEncryptedValue(long keyId, CacheOperationType cacheObjectType, String input);
+    public abstract Optional<String> get(long keyId, PsiCacheOperationType cacheObjectType, String input);
 
     /**
      * Stores the result of the operation applied to an input value, using a given key.
@@ -29,5 +24,5 @@ public abstract class EncryptionCacheProvider {
      * @param input             input value of the operation which result has to be stored.
      * @param output            resulting value of the operation applied to the input value.
      */
-    public abstract void putEncryptedValue(long keyId, CacheOperationType cacheObjectType, String input, String output);
+    public abstract void put(long keyId, PsiCacheOperationType cacheObjectType, String input, String output);
 }

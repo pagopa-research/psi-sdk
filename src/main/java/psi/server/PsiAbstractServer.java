@@ -1,10 +1,7 @@
 package psi.server;
 
-import psi.cache.EncryptionCacheProvider;
-import psi.model.KeyDescription;
-import psi.model.BsServerSession;
+import psi.cache.PsiCacheProvider;
 import psi.model.ServerSession;
-import psi.utils.CustomTypeConverter;
 
 public abstract class PsiAbstractServer implements PsiServer {
 
@@ -12,7 +9,7 @@ public abstract class PsiAbstractServer implements PsiServer {
     protected int threads;
 
     protected ServerSession serverSession;
-    protected EncryptionCacheProvider encryptionCacheProvider;
+    protected PsiCacheProvider encryptionCacheProvider;
 
     public int getThreads() {
         return threads;
@@ -26,7 +23,7 @@ public abstract class PsiAbstractServer implements PsiServer {
         return serverSession;
     }
 
-    public EncryptionCacheProvider getEncryptionCacheProvider() {
+    public PsiCacheProvider getEncryptionCacheProvider() {
         return encryptionCacheProvider;
     }
 }

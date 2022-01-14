@@ -1,18 +1,8 @@
 package psi.server;
 
-import psi.dto.SessionParameterDTO;
-import psi.exception.CustomRuntimeException;
-import psi.exception.PsiClientInitException;
-import psi.cache.EncryptionCacheProvider;
-import psi.exception.PsiServerInitException;
-import psi.model.BsKeyDescription;
-import psi.model.KeyDescription;
+import psi.cache.PsiCacheProvider;
 import psi.model.ServerSession;
-import psi.server.algorithm.BsPsiServer;
-import psi.model.BsServerSession;
 
-import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,5 +18,5 @@ public interface PsiServer {
 
     ServerSession getServerSession();
 
-    EncryptionCacheProvider getEncryptionCacheProvider();
+    PsiCacheProvider getEncryptionCacheProvider();
 }

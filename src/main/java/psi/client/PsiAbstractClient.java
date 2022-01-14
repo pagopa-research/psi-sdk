@@ -1,6 +1,6 @@
 package psi.client;
 
-import psi.cache.EncryptionCacheProvider;
+import psi.cache.PsiCacheProvider;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -20,5 +20,5 @@ public abstract class PsiAbstractClient implements PsiClient {
 
     protected Boolean cacheEnabled;
     protected Long cacheKeyId;
-    protected EncryptionCacheProvider encryptionCacheProvider;
+    protected PsiCacheProvider encryptionCacheProvider;
 }

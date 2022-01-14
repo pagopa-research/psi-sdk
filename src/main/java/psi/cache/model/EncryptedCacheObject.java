@@ -1,11 +1,9 @@
 package psi.cache.model;
 
-import psi.utils.Base64EncoderHelper;
-
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class EncryptedCacheObject implements CacheObject {
+public class EncryptedCacheObject implements PsiCacheObject {
 
     private BigInteger encryptedValue;
 

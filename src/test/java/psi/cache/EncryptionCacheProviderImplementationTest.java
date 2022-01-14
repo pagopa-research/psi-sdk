@@ -1,7 +1,7 @@
 package psi.cache;
 
 import org.junit.jupiter.api.Test;
-import psi.cache.enumeration.CacheOperationType;
+import psi.cache.enumeration.PsiCacheOperationType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,16 +20,16 @@ public class EncryptionCacheProviderImplementationTest{
         String outputValue1a = "outputValue1a";
         String outputValue1b = "outputValue1b";
 
-        cacheImpl.putEncryptedValue(keyId1,CacheOperationType.PRIVATE_KEY_ENCRYPTION,inputValue1,outputValue1a);
-        cacheImpl.putEncryptedValue(keyId1,CacheOperationType.REVERSE_VALUE,inputValue1,outputValue1b);
-        assertFalse(cacheImpl.getCachedEncryptedValue(keyId0, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1).isPresent());
-        assertFalse(cacheImpl.getCachedEncryptedValue(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue0).isPresent());
-        assertFalse(cacheImpl.getCachedEncryptedValue(keyId1, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, inputValue1).isPresent());
+        cacheImpl.put(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION,inputValue1,outputValue1a);
+        cacheImpl.put(keyId1, PsiCacheOperationType.REVERSE_VALUE,inputValue1,outputValue1b);
+        assertFalse(cacheImpl.get(keyId0, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1).isPresent());
+        assertFalse(cacheImpl.get(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue0).isPresent());
+        assertFalse(cacheImpl.get(keyId1, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, inputValue1).isPresent());
 
-        assertTrue(cacheImpl.getCachedEncryptedValue(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1).isPresent());
-        assertEquals(outputValue1a, cacheImpl.getCachedEncryptedValue(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1).get());
-        assertTrue(cacheImpl.getCachedEncryptedValue(keyId1, CacheOperationType.REVERSE_VALUE, inputValue1).isPresent());
-        assertEquals(outputValue1b, cacheImpl.getCachedEncryptedValue(keyId1, CacheOperationType.REVERSE_VALUE, inputValue1).get());
+        assertTrue(cacheImpl.get(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1).isPresent());
+        assertEquals(outputValue1a, cacheImpl.get(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1).get());
+        assertTrue(cacheImpl.get(keyId1, PsiCacheOperationType.REVERSE_VALUE, inputValue1).isPresent());
+        assertEquals(outputValue1b, cacheImpl.get(keyId1, PsiCacheOperationType.REVERSE_VALUE, inputValue1).get());
     }
 
 }

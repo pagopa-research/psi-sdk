@@ -1,14 +1,14 @@
 package psi.cache;
 
-import psi.cache.enumeration.CacheOperationType;
+import psi.cache.enumeration.PsiCacheOperationType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class EncryptionCacheProviderImplementation extends EncryptionCacheProvider{
+public class EncryptionCacheProviderImplementation extends PsiCacheProvider {
 
-    Map<Long, Map<CacheOperationType, Map<String,String>>> rootMap = new HashMap<>();;
+    Map<Long, Map<PsiCacheOperationType, Map<String,String>>> rootMap = new HashMap<>();;
 
     /**
      * Retrieve the output of the operation applied to an input value, using a given key.
@@ -19,8 +19,8 @@ public class EncryptionCacheProviderImplementation extends EncryptionCacheProvid
      *
      * @return an Optional containing the the cached result of the operation if present, Optional.empty() otherwise
      */
-    public Optional<String> getCachedEncryptedValue(long keyId, CacheOperationType cacheObjectType, String input){
-        Map<CacheOperationType, Map<String, String>> keyIdMap = rootMap.get(keyId);
+    public Optional<String> get(long keyId, PsiCacheOperationType cacheObjectType, String input){
+        Map<PsiCacheOperationType, Map<String, String>> keyIdMap = rootMap.get(keyId);
         if (keyIdMap == null)
             return Optional.empty();
         Map<String, String> optTypeMap = keyIdMap.get(cacheObjectType);
@@ -42,8 +42,8 @@ public class EncryptionCacheProviderImplementation extends EncryptionCacheProvid
      * @param input             input value of the operation which result has to be stored.
      * @param output            resulting value of the operation applied to the input value.
      */
-    public void putEncryptedValue(long keyId, CacheOperationType cacheObjectType, String input, String output){
-        Map<CacheOperationType, Map<String, String>> keyIdMap = rootMap.computeIfAbsent(keyId, k -> new HashMap<>());
+    public void put(long keyId, PsiCacheOperationType cacheObjectType, String input, String output){
+        Map<PsiCacheOperationType, Map<String, String>> keyIdMap = rootMap.computeIfAbsent(keyId, k -> new HashMap<>());
         Map<String, String> optTypeMap = keyIdMap.computeIfAbsent(cacheObjectType, k -> new HashMap<>());
         optTypeMap.put(input, output);
     }

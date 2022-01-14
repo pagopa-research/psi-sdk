@@ -2,11 +2,11 @@ package psi.server.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.cache.EncryptionCacheUtils;
-import psi.cache.enumeration.CacheOperationType;
+import psi.cache.PsiCacheUtils;
+import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.dto.SessionParameterDTO;
-import psi.cache.EncryptionCacheProvider;
+import psi.cache.PsiCacheProvider;
 import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
 import psi.model.BsKeyDescription;
@@ -33,7 +33,7 @@ public class BsPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(PsiAbstractServer.class);
 
-    public BsPsiServer(BsServerSession bsServerSession, EncryptionCacheProvider encryptionCacheProvider) {
+    public BsPsiServer(BsServerSession bsServerSession, PsiCacheProvider encryptionCacheProvider) {
         this.serverSession = bsServerSession;
         this.threads = PsiAbstractServer.DEFAULT_THREADS;
 
@@ -45,7 +45,7 @@ public class BsPsiServer extends PsiAbstractServer {
         }
     }
 
-    public static BsServerSession initSession(SessionParameterDTO sessionParameterDTO, BsKeyDescription bsKeyDescription, EncryptionCacheProvider encryptionCacheProvider) {
+    public static BsServerSession initSession(SessionParameterDTO sessionParameterDTO, BsKeyDescription bsKeyDescription, PsiCacheProvider encryptionCacheProvider) {
         BsServerSession bsServerSession = new BsServerSession();
         bsServerSession.setAlgorithm(sessionParameterDTO.getAlgorithm());
         bsServerSession.setKeySize(sessionParameterDTO.getKeySize());
@@ -98,7 +98,7 @@ public class BsPsiServer extends PsiAbstractServer {
         else{
             if(bsServerSession.getKeyId() == null)
                 throw new PsiServerInitException("The keyId of the input bsKeyDescription is null despite being required to enable the cache");
-            if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(bsServerSession.getKeyId(), bsKeyDescription, encryptionCacheProvider))
+            if(!PsiCacheUtils.verifyCacheKeyIdCorrectness(bsServerSession.getKeyId(), bsKeyDescription, encryptionCacheProvider))
                 throw new MismatchedCacheKeyIdException();
             bsServerSession.setCacheEnabled(true);
         }
@@ -129,7 +129,7 @@ public class BsPsiServer extends PsiAbstractServer {
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(bsServerSession.getCacheEnabled()) {
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = EncryptionCacheUtils.getCachedObject(bsServerSession.getKeyId(), CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent())
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                     }
@@ -140,7 +140,7 @@ public class BsPsiServer extends PsiAbstractServer {
                         encryptedValue = hashFactory.hash(encryptedValue);
                         // If the cache support is enabled, the result is stored in the cache
                         if (bsServerSession.getCacheEnabled()) {
-                            EncryptionCacheUtils.putCachedObject(bsServerSession.getKeyId(), CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.encryptionCacheProvider);
+                            PsiCacheUtils.putCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.encryptionCacheProvider);
                         }
                     }
                     localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
@@ -183,7 +183,7 @@ public class BsPsiServer extends PsiAbstractServer {
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if (bsServerSession.getCacheEnabled()) {
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = EncryptionCacheUtils.getCachedObject(bsServerSession.getKeyId(), CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent())
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                     }
@@ -192,7 +192,7 @@ public class BsPsiServer extends PsiAbstractServer {
                         encryptedValue = bigIntegerValue.modPow(serverPrivateKey, modulus);
                         // If the cache support is enabled, the result is stored in the cache
                         if (bsServerSession.getCacheEnabled()) {
-                            EncryptionCacheUtils.putCachedObject(bsServerSession.getKeyId(), CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.encryptionCacheProvider);
+                            PsiCacheUtils.putCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.encryptionCacheProvider);
                         }
                     }
                     localDatasetMap.put(entry.getKey(), CustomTypeConverter.convertBigIntegerToString(encryptedValue));

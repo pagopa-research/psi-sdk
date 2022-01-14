@@ -2,13 +2,13 @@ package psi.client.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.cache.EncryptionCacheUtils;
-import psi.cache.enumeration.CacheOperationType;
+import psi.cache.PsiCacheUtils;
+import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.dto.SessionDTO;
-import psi.cache.EncryptionCacheProvider;
+import psi.cache.PsiCacheProvider;
 import psi.exception.MismatchedCacheKeyIdException;
 import psi.exception.MissingCacheKeyIdException;
 import psi.utils.CustomTypeConverter;
@@ -52,7 +52,7 @@ public class BsPsiClient extends PsiAbstractClient {
         this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
     }
 
-    public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchedCacheKeyIdException {
+    public void enableCacheSupport(PsiCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchedCacheKeyIdException {
         //TODO: use key description
         //if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.cacheKeyId, this.serverPublicKey, this.modulus, encryptionCacheProvider))
         //    throw new MismatchedCacheKeyIdException();
@@ -98,7 +98,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(this.cacheEnabled) {
-                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = EncryptionCacheUtils.getCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(cacheKeyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             randomValue = encryptedCacheObjectOptional.get().getRandomValue();
@@ -109,7 +109,7 @@ public class BsPsiClient extends PsiAbstractClient {
                         randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
                         encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         if(this.cacheEnabled) {
-                            EncryptionCacheUtils.putCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
+                            PsiCacheUtils.putCachedObject(cacheKeyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
                         }
                     }
                      localClientClearDatasetMap.put(entry.getKey(), bigIntegerValue);
@@ -172,7 +172,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger reversedValue = null;
                     if (this.cacheEnabled) {
                         //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = EncryptionCacheUtils.getCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(cacheKeyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                         }
@@ -181,7 +181,7 @@ public class BsPsiClient extends PsiAbstractClient {
                         // Should add cache references here
                         reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
                         if (this.cacheEnabled) {
-                            EncryptionCacheUtils.putCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.encryptionCacheProvider); //TODO, come sopra
+                            PsiCacheUtils.putCachedObject(cacheKeyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.encryptionCacheProvider); //TODO, come sopra
                         }
                     }
                     localClientReversedDatasetMap.put(entry.getKey(), reversedValue);

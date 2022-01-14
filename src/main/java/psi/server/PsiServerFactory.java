@@ -1,6 +1,6 @@
 package psi.server;
 
-import psi.cache.EncryptionCacheProvider;
+import psi.cache.PsiCacheProvider;
 import psi.dto.SessionParameterDTO;
 import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
@@ -34,7 +34,7 @@ public class PsiServerFactory {
         return initSessionInner(sessionParameterDTO, keyDescription, null);
     }
 
-    public static ServerSession initSession(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription, EncryptionCacheProvider encryptionCacheProvider) {
+    public static ServerSession initSession(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
         if (keyDescription == null) {
             throw new PsiServerInitException("Input keyDescription is null");
         }
@@ -55,7 +55,7 @@ public class PsiServerFactory {
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the sessionParameter DTO.
      */
-    private static ServerSession initSessionInner(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription, EncryptionCacheProvider encryptionCacheProvider) {
+    private static ServerSession initSessionInner(SessionParameterDTO sessionParameterDTO, KeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
         if (sessionParameterDTO == null || sessionParameterDTO.getAlgorithm() == null
                 || sessionParameterDTO.getAlgorithm().isEmpty() || sessionParameterDTO.getKeySize() == null)
             throw new PsiServerInitException("Input sessionParameterDTO is null");
@@ -80,7 +80,7 @@ public class PsiServerFactory {
         return loadSession(serverSession, null);
     }
 
-    public static PsiServer loadSession(ServerSession serverSession, EncryptionCacheProvider encryptionCacheProvider) {
+    public static PsiServer loadSession(ServerSession serverSession, PsiCacheProvider encryptionCacheProvider) {
         if (serverSession == null || serverSession.getCacheEnabled() == null || serverSession.getAlgorithm() == null || serverSession.getKeySize() == null)
             throw new PsiServerInitException("The fields cacheEnabled, algorithm and keySize of the input serverSession cannot be null");
 
