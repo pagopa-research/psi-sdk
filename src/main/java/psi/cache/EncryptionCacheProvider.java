@@ -30,20 +30,4 @@ public abstract class EncryptionCacheProvider {
      * @param output            resulting value of the operation applied to the input value.
      */
     public abstract void putEncryptedValue(long keyId, CacheOperationType cacheObjectType, String input, String output);
-
-    public <T> Optional<T> getCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass){
-        String inputString = CustomTypeConverter.convertBigIntegerToString(input);
-        Optional<String> cachedValueBase64 =  this.getCachedEncryptedValue(keyId, cacheObjectType, inputString);
-        if(!cachedValueBase64.isPresent())
-            return Optional.empty();
-        T cachedObject = Base64EncoderHelper.base64ToDto(cachedValueBase64.get(), typeParameterClass);
-        return Optional.of(cachedObject);
-    }
-
-    public void putCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, CacheObject output){
-        //TODO: non sono sicuro che non specificare il tipo qui funzioni, verificare
-        String inputString = CustomTypeConverter.convertBigIntegerToString(input);
-        String outputString = Base64EncoderHelper.dtoToBase64(output);
-        this.putEncryptedValue(keyId,cacheObjectType,inputString,outputString);
-    }
 }

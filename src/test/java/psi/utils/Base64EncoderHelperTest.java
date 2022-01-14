@@ -13,20 +13,20 @@ public class Base64EncoderHelperTest {
     public void encodeDecodeTest(){
         // Testing on simple Object, as a String
         String clearString = "Simple value";
-        String clearStringToBase64 = Base64EncoderHelper.dtoToBase64(clearString);
-        assertEquals(clearString, Base64EncoderHelper.base64ToDto(clearStringToBase64, String.class));
+        String clearStringToBase64 = Base64EncoderHelper.objectToBase64(clearString);
+        assertEquals(clearString, Base64EncoderHelper.base64ToObject(clearStringToBase64, String.class));
 
         // Testing on BigInteger
         BigInteger clearBigInteger = CustomTypeConverter.convertStringToBigInteger("BigInteger value");
-        String clearBigIntegerToBase64 = Base64EncoderHelper.dtoToBase64(clearBigInteger);
-        assertEquals(clearBigInteger, Base64EncoderHelper.base64ToDto(clearBigIntegerToBase64, BigInteger.class));
+        String clearBigIntegerToBase64 = Base64EncoderHelper.objectToBase64(clearBigInteger);
+        assertEquals(clearBigInteger, Base64EncoderHelper.base64ToObject(clearBigIntegerToBase64, BigInteger.class));
 
         // Testing con complex object
         BigInteger randomValue = CustomTypeConverter.convertStringToBigInteger("Random value");
         BigInteger encryptedValue = CustomTypeConverter.convertStringToBigInteger("Encrypted value");
         RandomEncryptedCacheObject clearObject = new RandomEncryptedCacheObject(randomValue,encryptedValue);
-        String clearObjectToBase64 = Base64EncoderHelper.dtoToBase64(clearObject);
-        assertEquals(clearObject, Base64EncoderHelper.base64ToDto(clearObjectToBase64, RandomEncryptedCacheObject.class));
+        String clearObjectToBase64 = Base64EncoderHelper.objectToBase64(clearObject);
+        assertEquals(clearObject, Base64EncoderHelper.base64ToObject(clearObjectToBase64, RandomEncryptedCacheObject.class));
     }
 
 }

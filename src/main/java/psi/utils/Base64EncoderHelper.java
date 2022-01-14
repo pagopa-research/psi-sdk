@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Base64EncoderHelper {
 
-    static public <T> String dtoToBase64(T dto){
+    static public <T> String objectToBase64(T dto){
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNodeJSON = objectMapper.valueToTree(dto);
         try {
@@ -20,7 +20,7 @@ public class Base64EncoderHelper {
         }
     }
 
-    static public <T> T base64ToDto(String base64, Class<T> typeParameterClass){
+    static public <T> T base64ToObject(String base64, Class<T> typeParameterClass){
         ObjectMapper objectMapper = new ObjectMapper();
         String decodedCursor = new String(Base64.getDecoder().decode(base64));
         try {

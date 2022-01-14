@@ -53,8 +53,9 @@ public class BsPsiClient extends PsiAbstractClient {
     }
 
     public void enableCacheSupport(EncryptionCacheProvider encryptionCacheProvider) throws MissingCacheKeyIdException, MismatchedCacheKeyIdException {
-        if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.cacheKeyId, this.serverPublicKey, this.modulus, encryptionCacheProvider))
-            throw new MismatchedCacheKeyIdException();
+        //TODO: use key description
+        //if(!EncryptionCacheUtils.verifyCacheKeyIdCorrectness(this.cacheKeyId, this.serverPublicKey, this.modulus, encryptionCacheProvider))
+        //    throw new MismatchedCacheKeyIdException();
 
         this.cacheEnabled = true;
         this.encryptionCacheProvider = encryptionCacheProvider;
@@ -97,7 +98,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(this.cacheEnabled) {
-                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = this.encryptionCacheProvider.getCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class);
+                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = EncryptionCacheUtils.getCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             randomValue = encryptedCacheObjectOptional.get().getRandomValue();
@@ -108,7 +109,7 @@ public class BsPsiClient extends PsiAbstractClient {
                         randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
                         encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         if(this.cacheEnabled) {
-                            this.encryptionCacheProvider.putCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue));
+                            EncryptionCacheUtils.putCachedObject(cacheKeyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
                         }
                     }
                      localClientClearDatasetMap.put(entry.getKey(), bigIntegerValue);
@@ -171,7 +172,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger reversedValue = null;
                     if (this.cacheEnabled) {
                         //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = this.encryptionCacheProvider.getCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = EncryptionCacheUtils.getCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.encryptionCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                         }
@@ -180,7 +181,7 @@ public class BsPsiClient extends PsiAbstractClient {
                         // Should add cache references here
                         reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
                         if (this.cacheEnabled) {
-                            this.encryptionCacheProvider.putCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue)); //TODO, come sopra
+                            EncryptionCacheUtils.putCachedObject(cacheKeyId, CacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.encryptionCacheProvider); //TODO, come sopra
                         }
                     }
                     localClientReversedDatasetMap.put(entry.getKey(), reversedValue);
