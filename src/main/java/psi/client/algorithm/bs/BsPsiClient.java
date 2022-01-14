@@ -8,7 +8,6 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
-import psi.client.PsiClient;
 import psi.client.algorithm.bs.model.BsPsiClientKeyDescription;
 import psi.client.model.PsiClientKeyDescription;
 import psi.dto.PsiSessionDTO;
@@ -30,15 +29,15 @@ public class BsPsiClient extends PsiAbstractClient {
 
     private static final int RANDOM_BITS = 2048;
 
-    private BigInteger seed;
+    private final SecureRandom secureRandom;
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, BigInteger> clientRandomDatasetMap;
     private final Map<Long, BigInteger> clientEncryptedDatasetMap;
     private final Map<Long, BigInteger> clientDoubleEncryptedDatasetMap;
     private final Map<Long, BigInteger> clientReversedDatasetMap;
 
-    private BigInteger modulus;
-    private BigInteger serverPublicKey;
+    private final BigInteger modulus;
+    private final BigInteger serverPublicKey;
 
     public BsPsiClient(PsiSessionDTO psiSessionDTO, BsPsiClientKeyDescription bsPsiClientKeyDescription, PsiCacheProvider psiCacheProvider){
         this.sessionId = psiSessionDTO.getSessionId();
@@ -49,9 +48,7 @@ public class BsPsiClient extends PsiAbstractClient {
         this.clientDoubleEncryptedDatasetMap = new HashMap<>();
         this.clientReversedDatasetMap = new HashMap<>();
         this.threads = DEFAULT_THREADS;
-
-        // By default, a new seed for the blind signature is created. It can be overwritten with the setter method
-        this.seed = new BigInteger(RANDOM_BITS, new SecureRandom());
+        this.secureRandom = new SecureRandom();
 
         // keys are set from the psiSessionDTO
         if(bsPsiClientKeyDescription == null) {
@@ -84,14 +81,6 @@ public class BsPsiClient extends PsiAbstractClient {
         }
     }
 
-    public BigInteger getSeed() {
-        return seed;
-    }
-
-    public void setSeed(BigInteger seed) {
-        this.seed = seed;
-    }
-
     @Override
     public Map<Long, String> loadAndEncryptClientDataset(Map<Long, String> clearClientDataset) {
         log.debug("Called loadAndEncryptClientDataset");
@@ -121,7 +110,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
+                        randomValue = new BigInteger(RANDOM_BITS, this.secureRandom).mod(modulus);
                         encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         if(this.cacheEnabled) {
                             PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
