@@ -27,7 +27,6 @@ public class PsiCacheUtils {
      * @param encryptionCacheProvider   encryption cache implementation.
      *
      * @return false if the check value is present in the cache for the specified cacheKeyId and it is different respect the one expected, true otherwise
-     * @throws MissingCacheKeyIdException is the keyId is empty
      */
     public static boolean verifyCacheKeyIdCorrectness(Long cacheKeyId, KeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
         if(cacheKeyId == null)

@@ -5,10 +5,11 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class EncryptionCacheProviderImplementation implements PsiCacheProvider {
+public class PsiCacheProviderImplementation implements PsiCacheProvider {
 
-    private Map<Long, Map<PsiCacheOperationType, Map<String,String>>> rootMap = new HashMap<>();;
+    private Map<Long, Map<PsiCacheOperationType, Map<String,String>>> rootMap = new ConcurrentHashMap<>();
 
     /**
      * Retrieve the output of the operation applied to an input value, using a given key.
@@ -43,9 +44,17 @@ public class EncryptionCacheProviderImplementation implements PsiCacheProvider {
      * @param output            resulting value of the operation applied to the input value.
      */
     public void put(long keyId, PsiCacheOperationType cacheObjectType, String input, String output){
-        Map<PsiCacheOperationType, Map<String, String>> keyIdMap = rootMap.computeIfAbsent(keyId, k -> new HashMap<>());
-        Map<String, String> optTypeMap = keyIdMap.computeIfAbsent(cacheObjectType, k -> new HashMap<>());
+        Map<PsiCacheOperationType, Map<String, String>> keyIdMap = rootMap.computeIfAbsent(keyId, k -> new ConcurrentHashMap<>());
+        Map<String, String> optTypeMap = keyIdMap.computeIfAbsent(cacheObjectType, k -> new ConcurrentHashMap<>());
         optTypeMap.put(input, output);
+    }
+
+    public long size (){
+        long size = 0;
+        for(Long keyId : rootMap.keySet())
+            for(PsiCacheOperationType opt : rootMap.get(keyId).keySet())
+                size += rootMap.get(keyId).get(opt).size();
+        return size;
     }
 
 }

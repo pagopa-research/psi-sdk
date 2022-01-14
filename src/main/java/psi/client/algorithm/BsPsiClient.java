@@ -91,9 +91,10 @@ public class BsPsiClient extends PsiAbstractClient {
                 Map<Long, BigInteger> localClientEncryptedDatasetMap = new HashMap<>();
                 Map<Long, String> localClientEncryptedDatasetMapConvertedToString = new HashMap<>();
                 HashFactory hashFactory = new HashFactory(modulus);
+                SecureRandom secureRandom = new SecureRandom();
 
                 for(Map.Entry<Long, String> entry : partition.entrySet()){
-                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
+                    BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                     BigInteger encryptedValue = null;
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
@@ -106,7 +107,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        randomValue = (seed.xor(bigIntegerValue)).mod(modulus); // new BigInteger(modulus.bitCount(), secureRandom).mod(modulus)
+                        randomValue = new BigInteger(modulus.bitCount(), secureRandom).mod(modulus);
                         encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         if(this.cacheEnabled) {
                             PsiCacheUtils.putCachedObject(cacheKeyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);

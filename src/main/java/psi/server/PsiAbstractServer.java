@@ -2,6 +2,9 @@ package psi.server;
 
 import psi.cache.PsiCacheProvider;
 import psi.model.ServerSession;
+import psi.utils.StatisticsFactory;
+
+import java.util.List;
 
 public abstract class PsiAbstractServer implements PsiServer {
 
@@ -10,6 +13,8 @@ public abstract class PsiAbstractServer implements PsiServer {
 
     protected ServerSession serverSession;
     protected PsiCacheProvider encryptionCacheProvider;
+
+    protected List<StatisticsFactory> statisticList;
 
     public int getThreads() {
         return threads;
@@ -25,5 +30,9 @@ public abstract class PsiAbstractServer implements PsiServer {
 
     public PsiCacheProvider getEncryptionCacheProvider() {
         return encryptionCacheProvider;
+    }
+
+    public List<StatisticsFactory> getStatisticList() {
+        return statisticList;
     }
 }

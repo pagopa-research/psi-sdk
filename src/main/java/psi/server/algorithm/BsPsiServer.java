@@ -16,6 +16,7 @@ import psi.model.BsServerSession;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
+import psi.utils.StatisticsFactory;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -28,6 +29,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BsPsiServer extends PsiAbstractServer {
 
@@ -36,6 +38,7 @@ public class BsPsiServer extends PsiAbstractServer {
     public BsPsiServer(BsServerSession bsServerSession, PsiCacheProvider encryptionCacheProvider) {
         this.serverSession = bsServerSession;
         this.threads = PsiAbstractServer.DEFAULT_THREADS;
+        this.statisticList = new LinkedList<>();
 
         if(encryptionCacheProvider != null){
             if(serverSession.getKeyId() == null)
@@ -109,6 +112,7 @@ public class BsPsiServer extends PsiAbstractServer {
     @Override
     public Set<String> encryptDataset(Set<String> inputSet) {
         log.debug("Called encryptDataset()");
+        StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.ENCRYPTION);
 
         if (!(serverSession instanceof BsServerSession))
             throw new PsiServerException("The serverSession passed as input of encryptDataset() should be an instance of the subclass BsServerSession");
@@ -130,14 +134,17 @@ public class BsPsiServer extends PsiAbstractServer {
                     // If the cache support is enabled, the result is searched in the cache
                     if(bsServerSession.getCacheEnabled()) {
                         Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.encryptionCacheProvider);
-                        if (encryptedCacheObjectOptional.isPresent())
+                        if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                            statistics.incrementCacheHit();
+                        }
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
                         encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
                         encryptedValue = encryptedValue.modPow(serverPrivateKey, modulus);
                         encryptedValue = hashFactory.hash(encryptedValue);
+                        statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (bsServerSession.getCacheEnabled()) {
                             PsiCacheUtils.putCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.encryptionCacheProvider);
@@ -159,12 +166,15 @@ public class BsPsiServer extends PsiAbstractServer {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
+
+        statisticList.add(statistics.close());
         return encryptedSet;
     }
 
     @Override
     public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
         log.debug("Called encryptDatasetMap()");
+        StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.DOUBLE_ENCRYPTION);
 
         if (!(serverSession instanceof BsServerSession))
             throw new PsiServerException("The serverSession passed as input of encryptDataset() should be an instance of the subclass BsServerSession");
@@ -184,12 +194,15 @@ public class BsPsiServer extends PsiAbstractServer {
                     // If the cache support is enabled, the result is searched in the cache
                     if (bsServerSession.getCacheEnabled()) {
                         Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.encryptionCacheProvider);
-                        if (encryptedCacheObjectOptional.isPresent())
+                        if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                            statistics.incrementCacheHit();
+                        }
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
                         encryptedValue = bigIntegerValue.modPow(serverPrivateKey, modulus);
+                        statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (bsServerSession.getCacheEnabled()) {
                             PsiCacheUtils.putCachedObject(bsServerSession.getKeyId(), PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.encryptionCacheProvider);
@@ -211,6 +224,8 @@ public class BsPsiServer extends PsiAbstractServer {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
+
+        statisticList.add(statistics.close());
         return encryptedMap;
     }
 }

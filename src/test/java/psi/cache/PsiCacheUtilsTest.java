@@ -12,12 +12,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 // This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
-public class EncryptionCacheUtilsTest {
+public class PsiCacheUtilsTest {
 
 
     @Test
     public void verifyCacheKeyIdCorrectnessTest(){
-        EncryptionCacheProviderImplementation cacheImpl = new EncryptionCacheProviderImplementation();
+        PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         long keyId1 = 1L;
         long keyId2 = 2L;
@@ -46,7 +46,7 @@ public class EncryptionCacheUtilsTest {
 
     @Test
     public void putGetCachedObjectTest(){
-        EncryptionCacheProviderImplementation cacheImpl = new EncryptionCacheProviderImplementation();
+        PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         long keyId1 = 1L;
         long keyId2 = 2L;
@@ -88,7 +88,7 @@ public class EncryptionCacheUtilsTest {
                 PsiCacheUtils.getCachedObject(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, emptyValue, RandomEncryptedCacheObject.class, cacheImpl);
         assertFalse(randomEncryptedCacheObjectCached.isPresent());
         randomEncryptedCacheObjectCached =
-                PsiCacheUtils.getCachedObject(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, clearValue, RandomEncryptedCacheObject.class, new EncryptionCacheProviderImplementation());
+                PsiCacheUtils.getCachedObject(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, clearValue, RandomEncryptedCacheObject.class, new PsiCacheProviderImplementation());
         assertFalse(randomEncryptedCacheObjectCached.isPresent());
     }
 

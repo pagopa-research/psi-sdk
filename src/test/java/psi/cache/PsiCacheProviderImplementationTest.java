@@ -6,12 +6,12 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import static org.junit.jupiter.api.Assertions.*;
 
 // This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
-public class EncryptionCacheProviderImplementationTest{
+public class PsiCacheProviderImplementationTest {
 
 
     @Test
     public void getCachedEncryptedValueTest(){
-        EncryptionCacheProviderImplementation cacheImpl = new EncryptionCacheProviderImplementation();
+        PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         long keyId0 = 0L;
         long keyId1 = 1L;
