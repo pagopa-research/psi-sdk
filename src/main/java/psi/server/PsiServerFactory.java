@@ -58,7 +58,7 @@ public class PsiServerFactory {
     private static ServerSession initSessionInner(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
         if (psiAlgorithmParameterDTO == null || psiAlgorithmParameterDTO.getAlgorithm() == null
                 || psiAlgorithmParameterDTO.getAlgorithm().isEmpty() || psiAlgorithmParameterDTO.getKeySize() == null)
-            throw new PsiServerInitException("Input sessionParameterDTO is null");
+            throw new PsiServerInitException("Input PsiAlgorithmParameterDTO is null");
 
         if (!Arrays.asList(supportedAlgorithms).contains(psiAlgorithmParameterDTO.getAlgorithm()))
             throw new PsiServerInitException("The algorithm defined in the input SessionParameterDTO is invalid or not supported");
