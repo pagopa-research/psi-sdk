@@ -45,9 +45,6 @@ public class PsiClientFactory {
 
     /**  Creates the specific client object based on the algorithm field defined in the input sessionDTO */
     private static PsiClient loadSessionInner(PsiSessionDTO psiSessionDTO, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
-        if(psiSessionDTO.getSessionId() == null || psiSessionDTO.getSessionId() <= 0)
-            throw new PsiClientException("The id of the input sessionDTO is invalid");
-
         if(!Arrays.asList(supportedAlgorithms).contains(psiSessionDTO.getSessionParameterDTO().getAlgorithm()))
             throw new PsiClientException("The algorithm defined in the input sessionDTO is invalid or not supported");
 

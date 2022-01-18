@@ -7,11 +7,10 @@ import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDtoMapper;
-import psi.server.model.ServerSession;
+import psi.server.model.PsiServerSession;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -22,24 +21,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BsClientServerBasicTest {
 
     private PsiClient psiClient;
-    private ServerSession serverSession;
+    private PsiServerSession psiServerSession;
 
     private Set<String> serverDataset;
-    private Map<Long, String> clientDatasetMap;
+    private Set<String> clientDataset;
 
 
     public void initClientDataset(){
-        Map<Long, String> localClientDatasetMap = new HashMap<>();
-        long last = 0;
-        long i;
-        for(i = 0; i < 1000; i ++){
-            localClientDatasetMap.put(i, "MATCHING-"+i);
-            last = i+1;
+        Set<String> localClientDataset = new HashSet<>();
+        for(long i = 0; i < 1000; i ++){
+            localClientDataset.add("MATCHING-"+i);
         }
-        for(; i < last+1000; i ++){
-            localClientDatasetMap.put(i, "CLIENT-ONLY-"+i);
+        for(long i = 0; i < 1000; i ++){
+            localClientDataset.add("CLIENT-ONLY-"+i);
         }
-        this.clientDatasetMap = localClientDatasetMap;
+        this.clientDataset = localClientDataset;
     }
 
     public void initServerDataset(){
@@ -58,9 +54,9 @@ public class BsClientServerBasicTest {
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
         psiAlgorithmParameterDTO.setAlgorithm("BS");
         psiAlgorithmParameterDTO.setKeySize(2048);
-        ServerSession serverSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
-        this.serverSession = serverSession;
-        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(serverSession, 1);
+        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
+        this.psiServerSession = psiServerSession;
+        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(psiServerSession);
         psiClient = PsiClientFactory.loadSession(psiSessionDTO);
     }
 
@@ -71,10 +67,10 @@ public class BsClientServerBasicTest {
         initServerAndClient();
 
         // Get server instance
-        PsiServer psiServer = PsiServerFactory.loadSession(serverSession);
+        PsiServer psiServer = PsiServerFactory.loadSession(psiServerSession);
 
         // Client loads the double encrypted client dataset map
-        Map<Long, String> clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDatasetMap);
+        Map<Long, String> clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDataset);
         Map<Long, String> doubleEncryptedClientDatasetMap = psiServer.encryptDatasetMap(clientEncryptedDatasetMap);
         psiClient.loadDoubleEncryptedClientDataset(doubleEncryptedClientDatasetMap);
 
@@ -85,6 +81,6 @@ public class BsClientServerBasicTest {
         // Compute PSI
         Set<String> psiResult = psiClient.computePsi();
         assertEquals(1000, psiResult.size());
-        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDatasetMap, psiResult));
+        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDataset, psiResult));
     }
 }

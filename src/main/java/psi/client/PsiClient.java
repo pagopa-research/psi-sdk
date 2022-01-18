@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface PsiClient {
 
-    Map<Long, String> loadAndEncryptClientDataset(Map<Long, String> clearClientDataset);
+    Map<Long, String> loadAndEncryptClientDataset(Set<String> clearClientDataset);
 
     void loadDoubleEncryptedClientDataset(Map<Long, String> doubleEncryptedClientDatasetMap);
 

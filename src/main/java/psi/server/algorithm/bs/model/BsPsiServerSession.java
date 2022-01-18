@@ -1,8 +1,8 @@
 package psi.server.algorithm.bs.model;
 
-import psi.server.model.ServerSession;
+import psi.server.model.PsiServerSession;
 
-public class BsServerSession extends ServerSession {
+public class BsPsiServerSession extends PsiServerSession {
 
     private String serverPrivateKey;
     private String serverPublicKey;

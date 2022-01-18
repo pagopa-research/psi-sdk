@@ -30,14 +30,14 @@ public class PsiValidationHelper {
         return smallerSet;
     }
 
-    public static boolean validateResult(Set<String> serverDataset, Map<Long, String> clientDatasetMap, Set<String> psiSet) {
+    public static boolean validateResult(Set<String> serverDataset, Set<String> clientDataset, Set<String> psiSet) {
 
-        if (psiSet == null || serverDataset == null || clientDatasetMap == null) {
+        if (psiSet == null || serverDataset == null || clientDataset == null) {
             log.error("Result is null...Have you run the PSI algorithm");
             return false;
         }
 
-        Set<String> validationSet = computeNaiveIntersection(serverDataset, clientDatasetMap);
+        Set<String> validationSet = computeNaiveIntersection(serverDataset, clientDataset);
 
         int sizeValidationSet = validationSet.size();
         int sizeResultSet = psiSet.size();

@@ -23,12 +23,15 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BsPsiClient extends PsiAbstractClient {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final int RANDOM_BITS = 2048;
+
+    private final AtomicLong keyAtomicCounter;
 
     private final SecureRandom secureRandom;
     private final Map<Long, BigInteger> clientClearDatasetMap;
@@ -41,7 +44,6 @@ public class BsPsiClient extends PsiAbstractClient {
     private final BigInteger serverPublicKey;
 
     public BsPsiClient(PsiSessionDTO psiSessionDTO, BsPsiClientKeyDescription bsPsiClientKeyDescription, PsiCacheProvider psiCacheProvider){
-        this.sessionId = psiSessionDTO.getSessionId();
         this.serverEncryptedDataset = new HashSet<>();
         this.clientClearDatasetMap = new HashMap<>();
         this.clientRandomDatasetMap = new HashMap<>();
@@ -50,7 +52,7 @@ public class BsPsiClient extends PsiAbstractClient {
         this.clientReversedDatasetMap = new HashMap<>();
         this.threads = DEFAULT_THREADS;
         this.secureRandom = new SecureRandom();
-
+        this.keyAtomicCounter = new AtomicLong(0);
         this.statisticList = new LinkedList<>();
 
         // keys are set from the psiSessionDTO
@@ -86,15 +88,15 @@ public class BsPsiClient extends PsiAbstractClient {
     }
 
     @Override
-    public Map<Long, String> loadAndEncryptClientDataset(Map<Long, String> clearClientDataset) {
+    public Map<Long, String> loadAndEncryptClientDataset(Set<String> clearClientDataset) {
         log.debug("Called loadAndEncryptClientDataset");
         StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.ENCRYPTION);
 
-        List<Map<Long, String>> clientDatasetPartitions = PartitionHelper.partitionMap(clearClientDataset, this.threads);
+        List<Set<String>> clientDatasetPartitions = PartitionHelper.partitionSet(clearClientDataset, this.threads);
         Map<Long, String> clientEncryptedDatasetMapConvertedToString = new HashMap<>();
 
         List<FutureTask<BsMapQuartet>> futureTaskList = new ArrayList<>(threads);
-        for(Map<Long, String> partition : clientDatasetPartitions) {
+        for(Set<String> partition : clientDatasetPartitions) {
             FutureTask<BsMapQuartet> futureTask = new FutureTask<>(() -> {
                 Map<Long, BigInteger> localClientClearDatasetMap = new HashMap<>();
                 Map<Long, BigInteger> localClientRandomDatasetMap = new HashMap<>();
@@ -102,8 +104,9 @@ public class BsPsiClient extends PsiAbstractClient {
                 Map<Long, String> localClientEncryptedDatasetMapConvertedToString = new HashMap<>();
                 HashFactory hashFactory = new HashFactory(modulus);
 
-                for(Map.Entry<Long, String> entry : partition.entrySet()){
-                    BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
+                for(String value : partition){
+                    Long key = keyAtomicCounter.incrementAndGet();
+                    BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(value);
                     BigInteger encryptedValue = null;
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
@@ -124,10 +127,10 @@ public class BsPsiClient extends PsiAbstractClient {
                             PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
                         }
                     }
-                     localClientClearDatasetMap.put(entry.getKey(), bigIntegerValue);
-                     localClientRandomDatasetMap.put(entry.getKey(), randomValue);
-                     localClientEncryptedDatasetMap.put(entry.getKey(), encryptedValue);
-                     localClientEncryptedDatasetMapConvertedToString.put(entry.getKey(), CustomTypeConverter.convertBigIntegerToString(encryptedValue));
+                     localClientClearDatasetMap.put(key, bigIntegerValue);
+                     localClientRandomDatasetMap.put(key, randomValue);
+                     localClientEncryptedDatasetMap.put(key, encryptedValue);
+                     localClientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                  }
 
                  BsMapQuartet bsMapQuartet = new BsMapQuartet();

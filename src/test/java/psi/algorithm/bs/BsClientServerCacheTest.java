@@ -1,7 +1,5 @@
 package psi.algorithm.bs;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import psi.cache.PsiCacheProviderImplementation;
 import psi.client.PsiClient;
@@ -16,8 +14,8 @@ import psi.mapper.SessionDtoMapper;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
-import psi.server.algorithm.bs.model.BsServerSession;
-import psi.server.model.ServerSession;
+import psi.server.algorithm.bs.model.BsPsiServerSession;
+import psi.server.model.PsiServerSession;
 import psi.utils.StatisticsFactory;
 
 import java.util.HashMap;
@@ -31,28 +29,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BsClientServerCacheTest {
 
     private PsiClient psiClient;
-    private ServerSession serverSession;
+    private PsiServerSession psiServerSession;
     private BsPsiServerKeyDescription psiServerKeyDescription;
     private PsiClientKeyDescription psiClientKeyDescription;
     private PsiAlgorithmParameterDTO psiAlgorithmParameterDTO;
 
     private Set<String> serverDataset;
-    private Map<Long, String> clientDatasetMap;
+    private Set<String> clientDataset;
 
     private PsiCacheProviderImplementation serverCache;
     private PsiCacheProviderImplementation clientCache;
-
-    private int sessionId;
 
     private void setup() {
         // Initializing key descriptions
         this.psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
         this.psiAlgorithmParameterDTO.setAlgorithm("BS");
         this.psiAlgorithmParameterDTO.setKeySize(2048);
-        ServerSession serverSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO);
-        if(!(serverSession instanceof BsServerSession))
+        PsiServerSession psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO);
+        if(!(psiServerSession instanceof BsPsiServerSession))
             throw new CustomRuntimeException("serverSession is not an instance of the subclass BsServerSession");
-        BsServerSession bsServerSession = (BsServerSession) serverSession;
+        BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
         BsPsiServerKeyDescription bsServerKeyDescription = new BsPsiServerKeyDescription();
         bsServerKeyDescription.setModulus(bsServerSession.getModulus());
         bsServerKeyDescription.setPrivateKey(bsServerSession.getServerPrivateKey());
@@ -69,8 +65,6 @@ public class BsClientServerCacheTest {
         // Initializing caches
         this.serverCache = new PsiCacheProviderImplementation();
         this.clientCache = new PsiCacheProviderImplementation();
-
-        this.sessionId = 1;
     }
 
     private void initDatasets(long serverSize, long clientSize, long intersectionSize) {
@@ -79,12 +73,11 @@ public class BsClientServerCacheTest {
     }
 
     private void initClientDataset(long matching, long mismatching){
-        this.clientDatasetMap = new HashMap<>();
+        this.clientDataset = new HashSet<>();
         for(long i = 0; i < matching; i ++)
-            this.clientDatasetMap.put(i, "MATCHING-"+i);
+            this.clientDataset.add("MATCHING-"+i);
         for(long i = matching; i < (matching + mismatching); i ++)
-            this.clientDatasetMap.put(i, "CLIENT-ONLY-"+i);
-
+            this.clientDataset.add("CLIENT-ONLY-"+i);
     }
 
     private void initServerDataset(long matching, long mismatching){
@@ -95,19 +88,10 @@ public class BsClientServerCacheTest {
             this.serverDataset.add("SERVER-ONLY-"+i);
     }
 
-    private void initServerAndClient(boolean cacheEnabledServer, boolean cacheEnabledClient, int sessionId ){
-        if(sessionId == 1) {
-            if (cacheEnabledServer)
-                this.serverSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO, this.psiServerKeyDescription, this.serverCache);
-            else
-                this.serverSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO, this.psiServerKeyDescription);
-        }
-        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(serverSession, sessionId);
-        if (cacheEnabledClient)
-            psiClient = PsiClientFactory.loadSession(psiSessionDTO,this.psiClientKeyDescription, this.clientCache);
-        else
-            psiClient = PsiClientFactory.loadSession(psiSessionDTO,this.psiClientKeyDescription);
-
+    private void initServerAndClientWithCachesEnabled(){
+        this.psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO, this.psiServerKeyDescription, this.serverCache);
+        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(psiServerSession);
+        psiClient = PsiClientFactory.loadSession(psiSessionDTO,this.psiClientKeyDescription, this.clientCache);
     }
 
     @Test
@@ -117,29 +101,31 @@ public class BsClientServerCacheTest {
         long clientSize = 1500;
         long intersectionSize = 1000;
         initDatasets(serverSize, clientSize, intersectionSize);
-        initServerAndClient(true, true, this.sessionId++);
+        initServerAndClientWithCachesEnabled();
 
         // Verify that the keys of the serverSession matches those of the keyDescription
-        if(!(serverSession instanceof BsServerSession))
+        if(!(psiServerSession instanceof BsPsiServerSession))
             throw new CustomRuntimeException("serverSession is not an instance of the subclass BsServerSession");
-        BsServerSession bsServerSession = (BsServerSession) serverSession;
-        if(!(psiServerKeyDescription instanceof BsPsiServerKeyDescription))
+        BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
+        if(psiServerKeyDescription == null)
             throw new CustomRuntimeException("keyDescription is not an instance of the subclass BsPsiServerKeyDescription");
-        BsPsiServerKeyDescription bsKeyDescription = (BsPsiServerKeyDescription) psiServerKeyDescription;
+        BsPsiServerKeyDescription bsKeyDescription = psiServerKeyDescription;
         assertEquals(bsServerSession.getServerPrivateKey(), bsKeyDescription.getPrivateKey());
         assertEquals(bsServerSession.getServerPublicKey(), bsKeyDescription.getPublicKey());
         assertEquals(bsServerSession.getModulus(), bsKeyDescription.getModulus());
 
         // Get server instance
-        PsiServer psiServer = PsiServerFactory.loadSession(serverSession, serverCache);
+        PsiServer psiServer = PsiServerFactory.loadSession(psiServerSession, serverCache);
         assertEquals(1, serverCache.size());
 
         // Server encrypts its dataset
+        if(psiServer == null)
+            throw new RuntimeException("PsiServer should not be null");
         Set<String> serverEncryptedDataset = psiServer.encryptDataset(serverDataset);
         assertEquals(serverSize + 1, serverCache.size());
 
         // Client loads the double encrypted client dataset map
-        Map<Long, String> clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDatasetMap);
+        Map<Long, String> clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDataset);
         Map<Long, String> doubleEncryptedClientDatasetMap = psiServer.encryptDatasetMap(clientEncryptedDatasetMap);
         psiClient.loadDoubleEncryptedClientDataset(doubleEncryptedClientDatasetMap);
         assertEquals(serverSize + clientSize + 1, serverCache.size());
@@ -150,24 +136,22 @@ public class BsClientServerCacheTest {
         // Compute PSI
         Set<String> psiResult = psiClient.computePsi();
         assertEquals(intersectionSize, psiResult.size());
-        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDatasetMap, psiResult));
+        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDataset, psiResult));
 
-        // At this point I want to repeat entirely the procedure to see its effect on the cache
-
-        // Get server instance
-        //initServerAndClient(true, true, this.sessionId++);
-
-        psiServer = PsiServerFactory.loadSession(this.serverSession, this.serverCache);
-        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(this.serverSession, this.sessionId++);
+        // We repeat the entire procedure to verify its effect on the cache
+        psiServer = PsiServerFactory.loadSession(this.psiServerSession, this.serverCache);
+        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(this.psiServerSession);
         psiClient = PsiClientFactory.loadSession(psiSessionDTO,this.psiClientKeyDescription, this.clientCache);
         assertEquals(serverSize + clientSize + 1, serverCache.size());
 
         // Server encrypts its dataset
+        if(psiServer == null)
+            throw new RuntimeException("PsiServer should not be null");
         serverEncryptedDataset = psiServer.encryptDataset(serverDataset);
         assertEquals(serverSize + clientSize + 1, serverCache.size());
 
         // Client loads the double encrypted client dataset map
-        clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDatasetMap);
+        clientEncryptedDatasetMap = psiClient.loadAndEncryptClientDataset(clientDataset);
         doubleEncryptedClientDatasetMap = psiServer.encryptDatasetMap(clientEncryptedDatasetMap);
         psiClient.loadDoubleEncryptedClientDataset(doubleEncryptedClientDatasetMap);
         assertEquals(serverSize + clientSize + 1, serverCache.size());
@@ -178,8 +162,9 @@ public class BsClientServerCacheTest {
         // Compute PSI
         psiResult = psiClient.computePsi();
         assertEquals(intersectionSize, psiResult.size());
-        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDatasetMap, psiResult));
+        assertTrue(PsiValidationHelper.validateResult(serverDataset, clientDataset, psiResult));
 
+        // We check whether the cache was used correctly by reading stats acquired during the execution
         for(StatisticsFactory sf : psiServer.getStatisticList()) {
             if (sf.getDescription().equals(StatisticsFactory.PsiPhase.ENCRYPTION)) {
                 assertEquals(serverSize, sf.getCacheHit());

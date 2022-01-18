@@ -8,8 +8,8 @@ public class StatisticsFactory {
 
     public enum PsiPhase {ENCRYPTION, DOUBLE_ENCRYPTION, REVERSE_MAP, PSI}
 
-    private PsiPhase description;
-    private Instant startTime;
+    private final PsiPhase description;
+    private final Instant startTime;
     private Instant endTime;
     private AtomicLong cacheHit;
     private AtomicLong cacheMiss;

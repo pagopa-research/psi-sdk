@@ -3,8 +3,8 @@ package psi.mapper;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.exception.PsiServerException;
-import psi.server.algorithm.bs.model.BsServerSession;
-import psi.server.model.ServerSession;
+import psi.server.algorithm.bs.model.BsPsiServerSession;
+import psi.server.model.PsiServerSession;
 
 import java.util.Arrays;
 
@@ -12,29 +12,25 @@ import static psi.server.PsiServerFactory.supportedAlgorithms;
 
 public class SessionDtoMapper {
 
-    public static PsiSessionDTO getSessionDtoFromServerSession(ServerSession serverSession, long sessionId){
-        if(serverSession == null || serverSession.getCacheEnabled() == null || serverSession.getAlgorithm() == null
-                || serverSession.getKeySize() == null)
-            throw new PsiServerException("The fields algorithm, keySize and cacheEnabled of serverSession cannot be null");
+    public static PsiSessionDTO getSessionDtoFromServerSession(PsiServerSession psiServerSession){
+        if(psiServerSession == null || psiServerSession.getCacheEnabled() == null || psiServerSession.getAlgorithm() == null
+                || psiServerSession.getKeySize() == null)
+            throw new PsiServerException("The fields algorithm, keySize and cacheEnabled of psiServerSession cannot be null");
 
-        if(!Arrays.asList(supportedAlgorithms).contains(serverSession.getAlgorithm()))
-            throw new PsiServerException("The algorithm in serverSession is unsupported or invalid");
-
-        if(sessionId < 0)
-            throw new PsiServerException("The input sessionId is negative but should always be positive");
+        if(!Arrays.asList(supportedAlgorithms).contains(psiServerSession.getAlgorithm()))
+            throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
 
         PsiSessionDTO psiSessionDTO = new PsiSessionDTO();
-        psiSessionDTO.setSessionId(sessionId);
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(serverSession.getAlgorithm());
-        psiAlgorithmParameterDTO.setKeySize(serverSession.getKeySize());
+        psiAlgorithmParameterDTO.setAlgorithm(psiServerSession.getAlgorithm());
+        psiAlgorithmParameterDTO.setKeySize(psiServerSession.getKeySize());
         psiSessionDTO.setSessionParameterDTO(psiAlgorithmParameterDTO);
 
-        switch(serverSession.getAlgorithm()){
+        switch(psiServerSession.getAlgorithm()){
             case "BS":
-                if(!(serverSession instanceof  BsServerSession))
-                    throw new PsiServerException("The serverSession passed as input of getSessionDtoFromServerSession() should be an instance of the subclass BsServerSession");
-                BsServerSession bsServerSession = (BsServerSession) serverSession;
+                if(!(psiServerSession instanceof BsPsiServerSession))
+                    throw new PsiServerException("The psiServerSession passed as input of getSessionDtoFromServerSession() should be an instance of the subclass BsServerSession");
+                BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
                 if(bsServerSession.getModulus() == null)
                     throw new PsiServerException("The field modulus of bsServerSection cannot be null");
                 psiSessionDTO.setModulus(bsServerSession.getModulus());
@@ -45,7 +41,7 @@ public class SessionDtoMapper {
             case "DH":
 
             default:
-                throw new PsiServerException("The algorithm in serverSession is unsupported or invalid");
+                throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
         }
 
         return psiSessionDTO;

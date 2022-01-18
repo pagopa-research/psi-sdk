@@ -12,7 +12,7 @@ import psi.exception.PsiServerException;
 import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
 import psi.exception.MismatchedCacheKeyIdException;
 import psi.server.PsiAbstractServer;
-import psi.server.algorithm.bs.model.BsServerSession;
+import psi.server.algorithm.bs.model.BsPsiServerSession;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
@@ -34,21 +34,21 @@ public class BsPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(PsiAbstractServer.class);
 
-    public BsPsiServer(BsServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
-        this.serverSession = bsServerSession;
+    public BsPsiServer(BsPsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
+        this.psiServerSession = bsServerSession;
         this.threads = PsiAbstractServer.DEFAULT_THREADS;
         this.statisticList = new LinkedList<>();
 
         if(psiCacheProvider != null){
-            if(serverSession.getKeyId() == null)
+            if(psiServerSession.getKeyId() == null)
                 throw new PsiServerException("The field keyId of serverSession should always be different than null when cache is enabled");
             // TODO: add cache validation call
             this.psiCacheProvider = psiCacheProvider;
         }
     }
 
-    public static BsServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, BsPsiServerKeyDescription bsServerKeyDescription, PsiCacheProvider psiCacheProvider) {
-        BsServerSession bsServerSession = new BsServerSession();
+    public static BsPsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, BsPsiServerKeyDescription bsServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+        BsPsiServerSession bsServerSession = new BsPsiServerSession();
         bsServerSession.setAlgorithm(psiAlgorithmParameterDTO.getAlgorithm());
         bsServerSession.setKeySize(psiAlgorithmParameterDTO.getKeySize());
 
@@ -113,9 +113,9 @@ public class BsPsiServer extends PsiAbstractServer {
         log.debug("Called encryptDataset()");
         StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.ENCRYPTION);
 
-        if (!(serverSession instanceof BsServerSession))
+        if (!(psiServerSession instanceof BsPsiServerSession))
             throw new PsiServerException("The serverSession passed as input of encryptDataset() should be an instance of the subclass BsServerSession");
-        BsServerSession bsServerSession = (BsServerSession) serverSession;
+        BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getServerPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getModulus());
 
@@ -175,9 +175,9 @@ public class BsPsiServer extends PsiAbstractServer {
         log.debug("Called encryptDatasetMap()");
         StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.DOUBLE_ENCRYPTION);
 
-        if (!(serverSession instanceof BsServerSession))
+        if (!(psiServerSession instanceof BsPsiServerSession))
             throw new PsiServerException("The serverSession passed as input of encryptDataset() should be an instance of the subclass BsServerSession");
-        BsServerSession bsServerSession = (BsServerSession) serverSession;
+        BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getServerPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(bsServerSession.getModulus());
 

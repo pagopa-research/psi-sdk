@@ -2,7 +2,7 @@ package psi.server;
 
 import psi.cache.PsiCacheProvider;
 import psi.utils.StatisticsFactory;
-import psi.server.model.ServerSession;
+import psi.server.model.PsiServerSession;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ public interface PsiServer {
 
     void setThreads(int threads);
 
-    ServerSession getServerSession();
+    PsiServerSession getServerSession();
 
     PsiCacheProvider getPsiCacheProvider();
 

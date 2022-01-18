@@ -1,6 +1,6 @@
 package psi.server.model;
 
-public abstract class ServerSession {
+public abstract class PsiServerSession {
 
     private Long keyId;
     private String algorithm;

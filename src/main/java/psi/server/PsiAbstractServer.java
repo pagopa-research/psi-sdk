@@ -4,14 +4,14 @@ import psi.cache.PsiCacheProvider;
 import psi.utils.StatisticsFactory;
 
 import java.util.List;
-import psi.server.model.ServerSession;
+import psi.server.model.PsiServerSession;
 
 public abstract class PsiAbstractServer implements PsiServer {
 
     protected static final int DEFAULT_THREADS = 4;
     protected int threads;
 
-    protected ServerSession serverSession;
+    protected PsiServerSession psiServerSession;
     protected PsiCacheProvider psiCacheProvider;
 
     protected List<StatisticsFactory> statisticList;
@@ -24,8 +24,8 @@ public abstract class PsiAbstractServer implements PsiServer {
         this.threads = threads;
     }
 
-    public ServerSession getServerSession() {
-        return serverSession;
+    public PsiServerSession getServerSession() {
+        return psiServerSession;
     }
 
     public PsiCacheProvider getPsiCacheProvider() {
