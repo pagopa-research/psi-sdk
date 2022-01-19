@@ -4,10 +4,6 @@ import psi.cache.PsiCacheProvider;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
-import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
-import psi.server.algorithm.bs.model.BsPsiServerSession;
-import psi.server.model.PsiServerKeyDescription;
-import psi.server.model.PsiServerSession;
 import psi.server.algorithm.bs.BsPsiServer;
 
 import java.util.Arrays;
@@ -64,9 +60,7 @@ public class PsiServerFactory {
 
         switch (psiAlgorithmParameterDTO.getAlgorithm()) {
             case BS:
-                if (psiServerKeyDescription != null && !(psiServerKeyDescription instanceof BsPsiServerKeyDescription))
-                    throw new PsiServerInitException("The subclass of the input serverKeyDescription does not match the algorithm. Should pass as serverKeyDescription an instance of BsServerKeyDescription.");
-                return BsPsiServer.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription != null ? (BsPsiServerKeyDescription) psiServerKeyDescription : null, psiCacheProvider);
+                return BsPsiServer.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription, psiCacheProvider);
 
             case DH:
 
@@ -86,8 +80,8 @@ public class PsiServerFactory {
         if (psiServerSession.getCacheEnabled() && psiCacheProvider == null)
             throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
-        if(psiServerSession.getCacheEnabled() && psiServerSession.getKeyId() == null){
-            throw new PsiServerException("The field keyId of serverSession cannot be null if the cache is enabled");
+        if(psiServerSession.getCacheEnabled() && psiServerSession.getPsiServerKeyDescription().getKeyId() == null){
+            throw new PsiServerException("The field keyId of the PsiServerKeyDescription of the psiServerSession cannot be null if the cache is enabled");
         }
 
         if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null)
@@ -95,9 +89,7 @@ public class PsiServerFactory {
 
         switch (psiServerSession.getAlgorithm()) {
             case "BS":
-                if (!(psiServerSession instanceof BsPsiServerSession))
-                    throw new PsiServerInitException("The subclass of the input serverSession does not match the algorithm. Should pass as serverSession an instance of BsServerSession.");
-                return new BsPsiServer((BsPsiServerSession) psiServerSession, psiCacheProvider);
+                return new BsPsiServer(psiServerSession, psiCacheProvider);
 
             case "DH":
 

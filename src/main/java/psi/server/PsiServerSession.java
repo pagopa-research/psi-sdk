@@ -1,19 +1,11 @@
-package psi.server.model;
+package psi.server;
 
-public abstract class PsiServerSession {
+public class PsiServerSession {
 
-    private Long keyId;
     private String algorithm;
     private Integer keySize;
     private Boolean cacheEnabled;
-
-    public Long getKeyId() {
-        return keyId;
-    }
-
-    public void setKeyId(Long keyId) {
-        this.keyId = keyId;
-    }
+    private PsiServerKeyDescription psiServerKeyDescription;
 
     public String getAlgorithm() {
         return algorithm;
@@ -39,13 +31,21 @@ public abstract class PsiServerSession {
         this.cacheEnabled = cacheEnabled;
     }
 
+    public PsiServerKeyDescription getPsiServerKeyDescription() {
+        return psiServerKeyDescription;
+    }
+
+    public void setPsiServerKeyDescription(PsiServerKeyDescription psiServerKeyDescription) {
+        this.psiServerKeyDescription = psiServerKeyDescription;
+    }
+
     @Override
     public String toString() {
-        return "ServerSession{" +
-                "keyId=" + keyId +
-                ", algorithm='" + algorithm + '\'' +
+        return "PsiServerSession{" +
+                "algorithm='" + algorithm + '\'' +
                 ", keySize=" + keySize +
                 ", cacheEnabled=" + cacheEnabled +
+                ", psiServerKeyDescription=" + psiServerKeyDescription +
                 '}';
     }
 }

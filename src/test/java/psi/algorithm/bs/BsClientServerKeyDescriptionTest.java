@@ -3,20 +3,14 @@ package psi.algorithm.bs;
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
-import psi.client.algorithm.bs.model.BsPsiClientKeyDescription;
-import psi.client.model.PsiClientKeyDescription;
+import psi.client.PsiClientKeyDescriptionFactory;
+import psi.client.PsiClientKeyDescription;
 import psi.dto.PsiAlgorithmDTO;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
-import psi.exception.CustomRuntimeException;
 import psi.helper.PsiValidationHelper;
-import psi.mapper.SessionDtoMapper;
-import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
-import psi.server.algorithm.bs.model.BsPsiServerSession;
-import psi.server.model.PsiServerKeyDescription;
-import psi.server.model.PsiServerSession;
-import psi.server.PsiServer;
-import psi.server.PsiServerFactory;
+import psi.mapper.SessionDTOMapper;
+import psi.server.*;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -65,19 +59,9 @@ public class BsClientServerKeyDescriptionTest {
         psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
-        if(!(psiServerSession instanceof BsPsiServerSession))
-            throw new CustomRuntimeException("serverSession is not an instance of the subclass BsServerSession");
-        BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
-        BsPsiServerKeyDescription bsServerKeyDescription = new BsPsiServerKeyDescription();
-        bsServerKeyDescription.setModulus(bsServerSession.getModulus());
-        bsServerKeyDescription.setPrivateKey(bsServerSession.getServerPrivateKey());
-        bsServerKeyDescription.setPublicKey(bsServerSession.getServerPublicKey());
-        this.psiServerKeyDescription = bsServerKeyDescription;
-
-        BsPsiClientKeyDescription bsPsiClientKeyDescription = new BsPsiClientKeyDescription();
-        bsPsiClientKeyDescription.setServerPublicKey(bsServerKeyDescription.getPublicKey());
-        bsPsiClientKeyDescription.setModulus(bsServerKeyDescription.getModulus());
-        this.psiClientKeyDescription = bsPsiClientKeyDescription;
+        this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
+        this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
+                this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
     }
 
     public void initServerAndClient(){
@@ -86,7 +70,7 @@ public class BsClientServerKeyDescriptionTest {
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription);
         this.psiServerSession = psiServerSession;
-        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(psiServerSession);
+        PsiSessionDTO psiSessionDTO = SessionDTOMapper.getSessionDtoFromServerSession(psiServerSession);
         psiClient = PsiClientFactory.loadSession(psiSessionDTO, psiClientKeyDescription);
     }
 
@@ -98,15 +82,9 @@ public class BsClientServerKeyDescriptionTest {
         initServerAndClient();
 
         // Verify that the keys of the serverSession match those of the keyDescription
-        if(!(psiServerSession instanceof BsPsiServerSession))
-            throw new CustomRuntimeException("serverSession is not an instance of the subclass BsServerSession");
-        BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
-        if(!(psiServerKeyDescription instanceof BsPsiServerKeyDescription))
-            throw new CustomRuntimeException("keyDescription is not an instance of the subclass BsKeyDescription");
-        BsPsiServerKeyDescription bsKeyDescription = (BsPsiServerKeyDescription) psiServerKeyDescription;
-        assertEquals(bsServerSession.getServerPrivateKey(), bsKeyDescription.getPrivateKey());
-        assertEquals(bsServerSession.getServerPublicKey(), bsKeyDescription.getPublicKey());
-        assertEquals(bsServerSession.getModulus(), bsKeyDescription.getModulus());
+        assertEquals(this.psiServerSession.getPsiServerKeyDescription().getPrivateKey(), psiServerKeyDescription.getPrivateKey());
+        assertEquals(this.psiServerSession.getPsiServerKeyDescription().getPublicKey(), psiServerKeyDescription.getPublicKey());
+        assertEquals(this.psiServerSession.getPsiServerKeyDescription().getModulus(), psiServerKeyDescription.getModulus());
 
         // Get server instance
         PsiServer psiServer = PsiServerFactory.loadSession(psiServerSession);

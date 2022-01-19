@@ -1,13 +1,16 @@
-package psi.server.algorithm.bs.model;
+package psi.server;
 
-import psi.server.model.PsiServerKeyDescription;
+import psi.model.PsiKeyDescription;
 
-public class BsPsiServerKeyDescription implements PsiServerKeyDescription {
+public class PsiServerKeyDescription implements PsiKeyDescription {
 
     private String privateKey;
     private String publicKey;
     private String modulus;
     private Long keyId;
+
+    protected PsiServerKeyDescription() {
+    }
 
     public String getPrivateKey() {
         return privateKey;
@@ -50,4 +53,5 @@ public class BsPsiServerKeyDescription implements PsiServerKeyDescription {
                 ", keyId=" + keyId +
                 '}';
     }
+
 }

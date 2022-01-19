@@ -3,7 +3,8 @@ package psi.cache;
 import org.junit.jupiter.api.Test;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.RandomEncryptedCacheObject;
-import psi.server.algorithm.bs.model.BsPsiServerKeyDescription;
+import psi.server.PsiServerKeyDescription;
+import psi.server.PsiServerKeyDescriptionFactory;
 import psi.utils.CustomTypeConverter;
 
 import java.math.BigInteger;
@@ -14,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 // This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
 public class PsiCacheUtilsTest {
 
-
     @Test
     public void verifyCacheKeyIdCorrectnessTest(){
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
@@ -22,16 +22,17 @@ public class PsiCacheUtilsTest {
         long keyId1 = 1L;
         long keyId2 = 2L;
 
-        BsPsiServerKeyDescription bsKeyDescription1 = new BsPsiServerKeyDescription();
-        bsKeyDescription1.setKeyId(keyId1);
-        bsKeyDescription1.setPrivateKey("privateKey1");
-        bsKeyDescription1.setPublicKey("publicKey1");
-        bsKeyDescription1.setModulus("modulus1");
-        BsPsiServerKeyDescription bsKeyDescription2 = new BsPsiServerKeyDescription();
-        bsKeyDescription2.setKeyId(keyId2);
-        bsKeyDescription2.setPrivateKey("privateKey2");
-        bsKeyDescription2.setPublicKey("publicKey2");
-        bsKeyDescription2.setModulus("modulus2");
+        PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
+                "privateKey1",
+                "publicKey1",
+                "modulus1",
+                keyId1);
+
+        PsiServerKeyDescription bsKeyDescription2 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
+                "privateKey2",
+                "publicKey2",
+                "modulus2",
+                keyId2);
 
         assertTrue(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId1, bsKeyDescription1, cacheImpl));
         assertTrue(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId2, bsKeyDescription2, cacheImpl));
@@ -51,16 +52,17 @@ public class PsiCacheUtilsTest {
         long keyId1 = 1L;
         long keyId2 = 2L;
 
-        BsPsiServerKeyDescription bsKeyDescription1 = new BsPsiServerKeyDescription();
-        bsKeyDescription1.setKeyId(keyId1);
-        bsKeyDescription1.setPrivateKey("privateKey1");
-        bsKeyDescription1.setPublicKey("publicKey1");
-        bsKeyDescription1.setModulus("modulus1");
-        BsPsiServerKeyDescription bsKeyDescription2 = new BsPsiServerKeyDescription();
-        bsKeyDescription2.setKeyId(keyId2);
-        bsKeyDescription2.setPrivateKey("privateKey2");
-        bsKeyDescription2.setPublicKey("publicKey2");
-        bsKeyDescription2.setModulus("modulus2");
+        PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
+                "privateKey1",
+                "publicKey1",
+                "modulus1",
+                keyId1);
+
+        PsiServerKeyDescription bsKeyDescription2 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
+                "privateKey2",
+                "publicKey2",
+                "modulus2",
+                keyId2);
 
         PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId1, bsKeyDescription1, cacheImpl);
         PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId2, bsKeyDescription2, cacheImpl);

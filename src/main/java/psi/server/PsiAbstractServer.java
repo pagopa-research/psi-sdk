@@ -4,7 +4,6 @@ import psi.cache.PsiCacheProvider;
 import psi.utils.StatisticsFactory;
 
 import java.util.List;
-import psi.server.model.PsiServerSession;
 
 public abstract class PsiAbstractServer implements PsiServer {
 

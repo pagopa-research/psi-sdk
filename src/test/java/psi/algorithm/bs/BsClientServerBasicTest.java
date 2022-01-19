@@ -7,8 +7,8 @@ import psi.dto.PsiAlgorithmDTO;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.helper.PsiValidationHelper;
-import psi.mapper.SessionDtoMapper;
-import psi.server.model.PsiServerSession;
+import psi.mapper.SessionDTOMapper;
+import psi.server.PsiServerSession;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 
@@ -57,7 +57,7 @@ public class BsClientServerBasicTest {
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
         this.psiServerSession = psiServerSession;
-        PsiSessionDTO psiSessionDTO = SessionDtoMapper.getSessionDtoFromServerSession(psiServerSession);
+        PsiSessionDTO psiSessionDTO = SessionDTOMapper.getSessionDtoFromServerSession(psiServerSession);
         psiClient = PsiClientFactory.loadSession(psiSessionDTO);
     }
 

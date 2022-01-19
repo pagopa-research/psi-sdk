@@ -1,6 +1,5 @@
 package psi.client;
 
-import psi.client.model.PsiClientKeyDescription;
 import psi.utils.StatisticsFactory;
 
 import java.util.List;

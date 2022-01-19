@@ -3,7 +3,7 @@ package psi.mapper;
 import psi.dto.PsiAlgorithmDTO;
 import psi.exception.CustomRuntimeException;
 
-public class AlgorithmMapper {
+public class AlgorithmDTOMapper {
 
     public static String toString(PsiAlgorithmDTO algorithmDTO){
         return algorithmDTO.toString();

@@ -2,41 +2,41 @@ package psi.mapper;
 
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
+import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
-import psi.server.algorithm.bs.model.BsPsiServerSession;
-import psi.server.model.PsiServerSession;
+import psi.server.PsiServerSession;
 
 import java.util.Arrays;
 
 import static psi.server.PsiServerFactory.supportedAlgorithms;
 
-public class SessionDtoMapper {
+public class SessionDTOMapper {
 
     public static PsiSessionDTO getSessionDtoFromServerSession(PsiServerSession psiServerSession){
         if(psiServerSession == null || psiServerSession.getCacheEnabled() == null || psiServerSession.getAlgorithm() == null
                 || psiServerSession.getKeySize() == null)
             throw new PsiServerException("The fields algorithm, keySize and cacheEnabled of psiServerSession cannot be null");
 
+        if(psiServerSession.getPsiServerKeyDescription() == null)
+            throw new CustomRuntimeException("The PsiServerKeyDescription of the psiServerSession should not be null");
+
         if(!Arrays.asList(supportedAlgorithms).contains(psiServerSession.getAlgorithm()))
             throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
 
         PsiSessionDTO psiSessionDTO = new PsiSessionDTO();
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(AlgorithmMapper.toDTO(psiServerSession.getAlgorithm()));
+        psiAlgorithmParameterDTO.setAlgorithm(AlgorithmDTOMapper.toDTO(psiServerSession.getAlgorithm()));
         psiAlgorithmParameterDTO.setKeySize(psiServerSession.getKeySize());
         psiSessionDTO.setPsiAlgorithmParameterDTO(psiAlgorithmParameterDTO);
 
         switch(psiServerSession.getAlgorithm()){
             case "BS":
-                if(!(psiServerSession instanceof BsPsiServerSession))
-                    throw new PsiServerException("The psiServerSession passed as input of getSessionDtoFromServerSession() should be an instance of the subclass BsServerSession");
-                BsPsiServerSession bsServerSession = (BsPsiServerSession) psiServerSession;
-                if(bsServerSession.getModulus() == null)
-                    throw new PsiServerException("The field modulus of bsServerSection cannot be null");
-                psiSessionDTO.setModulus(bsServerSession.getModulus());
-                if(bsServerSession.getServerPublicKey() == null)
-                    throw new PsiServerException("The field serverPublicKey of bsServerSection cannot be null");
-                psiSessionDTO.setServerPublicKey(bsServerSession.getServerPublicKey());
+                if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
+                    throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
+                psiSessionDTO.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
+                if(psiServerSession.getPsiServerKeyDescription().getPublicKey() == null)
+                    throw new PsiServerException("The field publicKey of psiServerKeyDescription cannot be null");
+                psiSessionDTO.setServerPublicKey(psiServerSession.getPsiServerKeyDescription().getPublicKey());
                 break;
             case "DH":
 

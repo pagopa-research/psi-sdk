@@ -1,8 +1,8 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
+import psi.client.PsiClientKeyDescription;
 import psi.utils.StatisticsFactory;
-import psi.server.model.PsiServerSession;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +21,8 @@ public interface PsiServer {
     PsiServerSession getServerSession();
 
     PsiCacheProvider getPsiCacheProvider();
+
+    PsiServerKeyDescription getServerKeyDescription();
 
     public List<StatisticsFactory> getStatisticList();
 

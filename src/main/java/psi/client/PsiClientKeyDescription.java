@@ -1,19 +1,22 @@
-package psi.server.algorithm.bs.model;
+package psi.client;
 
-import psi.server.model.PsiServerSession;
+import psi.model.PsiKeyDescription;
 
-public class BsPsiServerSession extends PsiServerSession {
+public class PsiClientKeyDescription implements PsiKeyDescription {
 
-    private String serverPrivateKey;
+    private Long keyId;
     private String serverPublicKey;
     private String modulus;
 
-    public String getServerPrivateKey() {
-        return serverPrivateKey;
+    protected PsiClientKeyDescription() {
     }
 
-    public void setServerPrivateKey(String serverPrivateKey) {
-        this.serverPrivateKey = serverPrivateKey;
+    public Long getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(Long keyId) {
+        this.keyId = keyId;
     }
 
     public String getServerPublicKey() {
@@ -34,9 +37,8 @@ public class BsPsiServerSession extends PsiServerSession {
 
     @Override
     public String toString() {
-        return super.toString()+'\''+
-                "BsServerSession{" +
-                "serverPrivateKey='" + serverPrivateKey + '\'' +
+        return "PsiClientKeyDescription{" +
+                "keyId=" + keyId +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
                 '}';
