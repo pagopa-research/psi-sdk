@@ -45,15 +45,15 @@ public class PsiClientFactory {
 
     /**  Creates the specific client object based on the algorithm field defined in the input sessionDTO */
     private static PsiClient loadSessionInner(PsiSessionDTO psiSessionDTO, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
-        if(!Arrays.asList(supportedAlgorithms).contains(psiSessionDTO.getSessionParameterDTO().getAlgorithm()))
+        if(!Arrays.asList(supportedAlgorithms).contains(psiSessionDTO.getPsiAlgorithmParameterDTO().getAlgorithm().toString()))
             throw new PsiClientException("The algorithm defined in the input sessionDTO is invalid or not supported");
 
-        switch(psiSessionDTO.getSessionParameterDTO().getAlgorithm()){
-            case "BS":
+        switch(psiSessionDTO.getPsiAlgorithmParameterDTO().getAlgorithm()){
+            case BS:
                 if(psiClientKeyDescription != null && !(psiClientKeyDescription instanceof BsPsiClientKeyDescription))
                     throw new PsiClientException("The subclass of the input clientKeyDescription does not match the algorithm. Should pass as clientKeyDescription an instance of BsClientKeyDescription.");
                 return new BsPsiClient(psiSessionDTO, psiClientKeyDescription != null ? (BsPsiClientKeyDescription) psiClientKeyDescription : null, psiCacheProvider);
-            case "DH":
+            case DH:
 
             default:
                 return null;

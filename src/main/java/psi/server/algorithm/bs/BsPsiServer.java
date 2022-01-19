@@ -49,7 +49,7 @@ public class BsPsiServer extends PsiAbstractServer {
 
     public static BsPsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, BsPsiServerKeyDescription bsServerKeyDescription, PsiCacheProvider psiCacheProvider) {
         BsPsiServerSession bsServerSession = new BsPsiServerSession();
-        bsServerSession.setAlgorithm(psiAlgorithmParameterDTO.getAlgorithm());
+        bsServerSession.setAlgorithm(psiAlgorithmParameterDTO.getAlgorithm().toString());
         bsServerSession.setKeySize(psiAlgorithmParameterDTO.getKeySize());
 
         // keys are created from scratch

@@ -22,9 +22,9 @@ public class SessionDtoMapper {
 
         PsiSessionDTO psiSessionDTO = new PsiSessionDTO();
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(psiServerSession.getAlgorithm());
+        psiAlgorithmParameterDTO.setAlgorithm(AlgorithmMapper.toDTO(psiServerSession.getAlgorithm()));
         psiAlgorithmParameterDTO.setKeySize(psiServerSession.getKeySize());
-        psiSessionDTO.setSessionParameterDTO(psiAlgorithmParameterDTO);
+        psiSessionDTO.setPsiAlgorithmParameterDTO(psiAlgorithmParameterDTO);
 
         switch(psiServerSession.getAlgorithm()){
             case "BS":

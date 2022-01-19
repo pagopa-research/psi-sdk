@@ -24,11 +24,11 @@ public class PsiSessionDTO {
         this.serverPublicKey = serverPublicKey;
     }
 
-    public PsiAlgorithmParameterDTO getSessionParameterDTO() {
+    public PsiAlgorithmParameterDTO getPsiAlgorithmParameterDTO() {
         return psiAlgorithmParameterDTO;
     }
 
-    public void setSessionParameterDTO(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO) {
+    public void setPsiAlgorithmParameterDTO(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO) {
         this.psiAlgorithmParameterDTO = psiAlgorithmParameterDTO;
     }
 

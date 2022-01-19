@@ -56,20 +56,19 @@ public class PsiServerFactory {
      * in the sessionParameter DTO.
      */
     private static PsiServerSession initSessionInner(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
-        if (psiAlgorithmParameterDTO == null || psiAlgorithmParameterDTO.getAlgorithm() == null
-                || psiAlgorithmParameterDTO.getAlgorithm().isEmpty() || psiAlgorithmParameterDTO.getKeySize() == null)
+        if (psiAlgorithmParameterDTO == null || psiAlgorithmParameterDTO.getAlgorithm() == null || psiAlgorithmParameterDTO.getKeySize() == null)
             throw new PsiServerInitException("Input PsiAlgorithmParameterDTO is null");
 
-        if (!Arrays.asList(supportedAlgorithms).contains(psiAlgorithmParameterDTO.getAlgorithm()))
+        if (!Arrays.asList(supportedAlgorithms).contains(psiAlgorithmParameterDTO.getAlgorithm().toString()))
             throw new PsiServerInitException("The algorithm defined in the input SessionParameterDTO is invalid or not supported");
 
         switch (psiAlgorithmParameterDTO.getAlgorithm()) {
-            case "BS":
+            case BS:
                 if (psiServerKeyDescription != null && !(psiServerKeyDescription instanceof BsPsiServerKeyDescription))
                     throw new PsiServerInitException("The subclass of the input serverKeyDescription does not match the algorithm. Should pass as serverKeyDescription an instance of BsServerKeyDescription.");
                 return BsPsiServer.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription != null ? (BsPsiServerKeyDescription) psiServerKeyDescription : null, psiCacheProvider);
 
-            case "DH":
+            case DH:
 
             default:
                 return null;

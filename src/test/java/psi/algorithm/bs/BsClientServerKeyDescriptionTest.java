@@ -5,6 +5,7 @@ import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.algorithm.bs.model.BsPsiClientKeyDescription;
 import psi.client.model.PsiClientKeyDescription;
+import psi.dto.PsiAlgorithmDTO;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.exception.CustomRuntimeException;
@@ -61,7 +62,7 @@ public class BsClientServerKeyDescriptionTest {
 
     public void initKeyDescriptions(){
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm("BS");
+        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
         if(!(psiServerSession instanceof BsPsiServerSession))
@@ -81,7 +82,7 @@ public class BsClientServerKeyDescriptionTest {
 
     public void initServerAndClient(){
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm("BS");
+        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription);
         this.psiServerSession = psiServerSession;
