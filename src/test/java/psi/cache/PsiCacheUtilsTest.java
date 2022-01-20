@@ -19,29 +19,23 @@ public class PsiCacheUtilsTest {
     public void verifyCacheKeyIdCorrectnessTest(){
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
-        long keyId1 = 1L;
-        long keyId2 = 2L;
-
         PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
                 "privateKey1",
                 "publicKey1",
-                "modulus1",
-                keyId1);
+                "modulus1");
 
         PsiServerKeyDescription bsKeyDescription2 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
                 "privateKey2",
                 "publicKey2",
-                "modulus2",
-                keyId2);
+                "modulus2");
 
-        assertTrue(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId1, bsKeyDescription1, cacheImpl));
-        assertTrue(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId2, bsKeyDescription2, cacheImpl));
+        Long keyId1 = PsiCacheUtils.getKeyId(bsKeyDescription1, cacheImpl);
+        assertEquals(keyId1, PsiCacheUtils.getKeyId(bsKeyDescription1, cacheImpl));
 
-        assertTrue(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId1, bsKeyDescription1, cacheImpl));
-        assertTrue(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId2, bsKeyDescription2, cacheImpl));
+        Long keyId2 = PsiCacheUtils.getKeyId(bsKeyDescription2, cacheImpl);
+        assertEquals(keyId2, PsiCacheUtils.getKeyId(bsKeyDescription2, cacheImpl));
 
-        assertFalse(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId1, bsKeyDescription2, cacheImpl));
-        assertFalse(PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId2, bsKeyDescription1, cacheImpl));
+        assertNotEquals(keyId1, keyId2);
     }
 
 
@@ -49,23 +43,18 @@ public class PsiCacheUtilsTest {
     public void putGetCachedObjectTest(){
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
-        long keyId1 = 1L;
-        long keyId2 = 2L;
-
         PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
                 "privateKey1",
                 "publicKey1",
-                "modulus1",
-                keyId1);
+                "modulus1");
 
         PsiServerKeyDescription bsKeyDescription2 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
                 "privateKey2",
                 "publicKey2",
-                "modulus2",
-                keyId2);
+                "modulus2");
 
-        PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId1, bsKeyDescription1, cacheImpl);
-        PsiCacheUtils.verifyCacheKeyIdCorrectness(keyId2, bsKeyDescription2, cacheImpl);
+        Long keyId1 = PsiCacheUtils.getKeyId(bsKeyDescription1, cacheImpl);
+        Long keyId2 = PsiCacheUtils.getKeyId(bsKeyDescription2, cacheImpl);
 
 
         BigInteger emptyValue = CustomTypeConverter.convertStringToBigInteger("empty");

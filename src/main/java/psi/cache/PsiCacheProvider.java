@@ -12,7 +12,7 @@ public interface PsiCacheProvider {
      * @return an Optional containing the cached value to which the specified key is mapped,
      *          or Optional.empty() otherwise if the cache contains no mapping for the key
      */
-    public abstract Optional<String> get(String key);
+    public Optional<String> get(String key);
 
     /**
      * If the specified key is not present into the cache, stores it linked to the input value.
@@ -20,5 +20,5 @@ public interface PsiCacheProvider {
      * @param key key with which the specified value is to be associated
      * @param value alue to be associated with the specified key
      */
-    public abstract void put(String key, String value);
+    public void put(String key, String value);
 }

@@ -7,7 +7,6 @@ public class PsiServerKeyDescription implements PsiKeyDescription {
     private String privateKey;
     private String publicKey;
     private String modulus;
-    private Long keyId;
 
     protected PsiServerKeyDescription() {
     }
@@ -36,13 +35,6 @@ public class PsiServerKeyDescription implements PsiKeyDescription {
         this.modulus = modulus;
     }
 
-    public Long getKeyId() {
-        return keyId;
-    }
-
-    public void setKeyId(Long keyId) {
-        this.keyId = keyId;
-    }
 
     @Override
     public String toString() {
@@ -50,7 +42,6 @@ public class PsiServerKeyDescription implements PsiKeyDescription {
                 "privateKey='" + privateKey + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
-                ", keyId=" + keyId +
                 '}';
     }
 

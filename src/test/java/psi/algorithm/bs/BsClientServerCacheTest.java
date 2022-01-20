@@ -45,10 +45,9 @@ public class BsClientServerCacheTest {
         this.psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
         this.psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO);
-        psiServerSession.getPsiServerKeyDescription().setKeyId(1L);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
         this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
-                this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus(), 2L);
+                this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
 
         // Initializing caches
         this.serverCache = new PsiCacheProviderImplementation();

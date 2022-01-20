@@ -4,19 +4,10 @@ import psi.model.PsiKeyDescription;
 
 public class PsiClientKeyDescription implements PsiKeyDescription {
 
-    private Long keyId;
     private String serverPublicKey;
     private String modulus;
 
     protected PsiClientKeyDescription() {
-    }
-
-    public Long getKeyId() {
-        return keyId;
-    }
-
-    public void setKeyId(Long keyId) {
-        this.keyId = keyId;
     }
 
     public String getServerPublicKey() {
@@ -38,7 +29,6 @@ public class PsiClientKeyDescription implements PsiKeyDescription {
     @Override
     public String toString() {
         return "PsiClientKeyDescription{" +
-                "keyId=" + keyId +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
                 '}';

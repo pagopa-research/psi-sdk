@@ -66,8 +66,6 @@ public class BsPsiClient extends PsiAbstractClient {
                 throw new PsiClientException("The fields modulus and serverPrivateKey in the input bsClientKeyDescription cannot be null");
             if(!psiSessionDTO.getModulus().equals(psiClientKeyDescription.getModulus()) || !psiSessionDTO.getServerPublicKey().equals(psiClientKeyDescription.getServerPublicKey()))
                 throw new PsiClientException("The fields modulus and/or serverPrivateKey in the bsClientKeyDescription does not match those in the psiSessionDTO");
-            if(psiClientKeyDescription.getKeyId() != null)
-                this.keyId = psiClientKeyDescription.getKeyId();
             this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getModulus());
             this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getServerPublicKey());
         }
@@ -78,10 +76,7 @@ public class BsPsiClient extends PsiAbstractClient {
         if(psiCacheProvider == null)
             this.cacheEnabled = false;
         else{
-            if(this.keyId == null)
-                throw new PsiClientException("The keyId of the input bsClientKeyDescription is null despite being required to enable the cache");
-            if(!PsiCacheUtils.verifyCacheKeyIdCorrectness(this.keyId, psiClientKeyDescription, psiCacheProvider))
-                    throw new MismatchedCacheKeyIdException();
+            this.keyId = PsiCacheUtils.getKeyId(psiClientKeyDescription, psiCacheProvider);
             this.cacheEnabled = true;
             this.encryptionCacheProvider = psiCacheProvider;
         }
@@ -260,8 +255,7 @@ public class BsPsiClient extends PsiAbstractClient {
     public PsiClientKeyDescription getClientKeyDescription() {
         return PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
                 CustomTypeConverter.convertBigIntegerToString(this.serverPublicKey),
-                CustomTypeConverter.convertBigIntegerToString(this.modulus),
-                this.keyId);
+                CustomTypeConverter.convertBigIntegerToString(this.modulus));
     }
 
     // Helper class that bundles a quartet of maps. Three <Long, BigInteger> and one <Long, String>

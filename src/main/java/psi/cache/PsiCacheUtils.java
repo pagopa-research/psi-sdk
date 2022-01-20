@@ -11,38 +11,34 @@ import psi.utils.CustomTypeConverter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Optional;
 
 public class PsiCacheUtils {
 
-    private static final String CACHE_VALIDATION_KEY_INPUT = "CANARY";
-
     private PsiCacheUtils() {}
 
     /**
-     * Verifies that the keyId associated to the pair <key,modulus> is correct respect tha cache content and implementation
+     * Retrieves the keyId corresponding to the keyDescription is present, otherwise a new keyId is generated and stored.
      *
-     * @param cacheKeyId        id identifying the key actually used by the algorithm.
-     * @param keyDescription               key (public or private) used by the encryption function and associated to the cacheKeyId.
-     * @param encryptionCacheProvider   encryption cache implementation.
+     * @param keyDescription key (public or private) used by the encryption function.
+     * @param encryptionCacheProvider encryption cache implementation.
      *
-     * @return false if the check value is present in the cache for the specified cacheKeyId and it is different respect the one expected, true otherwise
+     * @return the keyId corresponding to the keyDescription
      */
-    public static boolean verifyCacheKeyIdCorrectness(Long cacheKeyId, PsiKeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
-        if(cacheKeyId == null)
-            throw new MissingCacheKeyIdException();
+    public static Long getKeyId(PsiKeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
         String base64KeyDescription = Base64EncoderHelper.objectToBase64(keyDescription);
-        String key = cacheKeyId.toString() + PsiCacheOperationType.KEY_VALIDATION + CACHE_VALIDATION_KEY_INPUT;
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            String hashedBase64 = new String(messageDigest.digest(base64KeyDescription.getBytes()));
+            String keyDescriptionDigest = new String(messageDigest.digest(base64KeyDescription.getBytes()));
             Optional<String> cachedValue =
-                    encryptionCacheProvider.get(key);
+                    encryptionCacheProvider.get(keyDescriptionDigest);
             if(!cachedValue.isPresent()){
-                encryptionCacheProvider.put(key, hashedBase64);
-                return true;
+                Long keyId = (new SecureRandom()).nextLong();
+                encryptionCacheProvider.put(keyDescriptionDigest, keyId.toString());
+                return keyId;
             }
-            return cachedValue.get().equals(hashedBase64);
+            return Long.parseLong(cachedValue.get());
         } catch (NoSuchAlgorithmException e) {
             throw new CustomRuntimeException("SHA-256 not supported");
         }

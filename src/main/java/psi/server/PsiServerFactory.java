@@ -80,10 +80,6 @@ public class PsiServerFactory {
         if (psiServerSession.getCacheEnabled() && psiCacheProvider == null)
             throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
-        if(psiServerSession.getCacheEnabled() && psiServerSession.getPsiServerKeyDescription().getKeyId() == null){
-            throw new PsiServerException("The field keyId of the PsiServerKeyDescription of the psiServerSession cannot be null if the cache is enabled");
-        }
-
         if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null)
             throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 

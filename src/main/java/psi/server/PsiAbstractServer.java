@@ -13,6 +13,8 @@ public abstract class PsiAbstractServer implements PsiServer {
     protected PsiServerSession psiServerSession;
     protected PsiCacheProvider psiCacheProvider;
 
+    protected Long keyId; // TODO: è da togliere dal keyDescription, ma non sono sicuro sia questo il punto dove vada specificato
+
     protected List<StatisticsFactory> statisticList;
 
     public int getThreads() {
@@ -33,5 +35,13 @@ public abstract class PsiAbstractServer implements PsiServer {
 
     public List<StatisticsFactory> getStatisticList() {
         return statisticList;
+    }
+
+    public Long getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(Long keyId) {
+        this.keyId = keyId;
     }
 }
