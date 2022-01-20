@@ -32,13 +32,14 @@ public class PsiCacheUtils {
         if(cacheKeyId == null)
             throw new MissingCacheKeyIdException();
         String base64KeyDescription = Base64EncoderHelper.objectToBase64(keyDescription);
+        String key = cacheKeyId.toString() + PsiCacheOperationType.KEY_VALIDATION + CACHE_VALIDATION_KEY_INPUT;
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             String hashedBase64 = new String(messageDigest.digest(base64KeyDescription.getBytes()));
             Optional<String> cachedValue =
-                    encryptionCacheProvider.get(cacheKeyId, PsiCacheOperationType.KEY_VALIDATION, CACHE_VALIDATION_KEY_INPUT);
+                    encryptionCacheProvider.get(key);
             if(!cachedValue.isPresent()){
-                encryptionCacheProvider.put(cacheKeyId, PsiCacheOperationType.KEY_VALIDATION, CACHE_VALIDATION_KEY_INPUT, hashedBase64);
+                encryptionCacheProvider.put(key, hashedBase64);
                 return true;
             }
             return cachedValue.get().equals(hashedBase64);
@@ -47,9 +48,13 @@ public class PsiCacheUtils {
         }
     }
 
+    private static String generateKeyString(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input){
+        return keyId + cacheObjectType.toString() + CustomTypeConverter.convertBigIntegerToString(input);
+    }
+
     public static <T> Optional<T> getCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass, PsiCacheProvider psiCacheProvider){
-        String inputString = CustomTypeConverter.convertBigIntegerToString(input);
-        Optional<String> cachedValueBase64 = psiCacheProvider.get(keyId, cacheObjectType, inputString);
+        String key = generateKeyString(keyId, cacheObjectType, input);
+        Optional<String> cachedValueBase64 = psiCacheProvider.get(key);
         if(!cachedValueBase64.isPresent())
             return Optional.empty();
         T cachedObject = Base64EncoderHelper.base64ToObject(cachedValueBase64.get(), typeParameterClass);
@@ -57,8 +62,8 @@ public class PsiCacheUtils {
     }
 
     public static void putCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, PsiCacheObject output, PsiCacheProvider psiCacheProvider){
-        String inputString = CustomTypeConverter.convertBigIntegerToString(input);
-        String outputString = Base64EncoderHelper.objectToBase64(output);
-        psiCacheProvider.put(keyId,cacheObjectType,inputString,outputString);
+        String key = generateKeyString(keyId, cacheObjectType, input);
+        String value = Base64EncoderHelper.objectToBase64(output);
+        psiCacheProvider.put(key, value);
     }
 }

@@ -2,59 +2,41 @@ package psi.cache;
 
 import psi.cache.enumeration.PsiCacheOperationType;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PsiCacheProviderImplementation implements PsiCacheProvider {
 
-    private Map<Long, Map<PsiCacheOperationType, Map<String,String>>> rootMap = new ConcurrentHashMap<>();
+    private Map<String, String> cache = new ConcurrentHashMap<>();
 
     /**
-     * Retrieve the output of the operation applied to an input value, using a given key.
+     * Retrieve the value linked to a given key.
      *
-     * @param keyId             id identifying the key actually used by the algorithm.
-     * @param cacheObjectType   enum identifying the operation corresponding to the result to be retrieved.
-     * @param input             input value of the operation which result has to be retrieved.
+     * @param key   key corresponding to the value to be retrieved
      *
-     * @return an Optional containing the the cached result of the operation if present, Optional.empty() otherwise
+     * @return an Optional containing the the cached value if present, Optional.empty() otherwise
      */
-    public Optional<String> get(long keyId, PsiCacheOperationType cacheObjectType, String input){
-        Map<PsiCacheOperationType, Map<String, String>> keyIdMap = rootMap.get(keyId);
-        if (keyIdMap == null)
-            return Optional.empty();
-        Map<String, String> optTypeMap = keyIdMap.get(cacheObjectType);
-        if (optTypeMap == null)
-            return Optional.empty();
-        String output = optTypeMap.get(input);
+    public Optional<String> get(String key){
+        String output = cache.get(key);
         if (output == null)
             return Optional.empty();
         else
             return Optional.of(output);
-
     }
 
     /**
-     * Stores the result of the operation applied to an input value, using a given key.
+     * Stores the pair <key, value> into the cache. If the key exists, it is not replaced
      *
-     * @param keyId             id identifying the key actually used by the algorithm.
-     * @param cacheObjectType   enum identifying the operation corresponding to the result to be stored.
-     * @param input             input value of the operation which result has to be stored.
-     * @param output            resulting value of the operation applied to the input value.
+     * @param key       key corresponding to the value to be stored.
+     * @param value     value to be stored.
      */
-    public void put(long keyId, PsiCacheOperationType cacheObjectType, String input, String output){
-        Map<PsiCacheOperationType, Map<String, String>> keyIdMap = rootMap.computeIfAbsent(keyId, k -> new ConcurrentHashMap<>());
-        Map<String, String> optTypeMap = keyIdMap.computeIfAbsent(cacheObjectType, k -> new ConcurrentHashMap<>());
-        optTypeMap.put(input, output);
+    public void put(String key, String value){
+        cache.putIfAbsent(key, value);
     }
 
     public long size (){
-        long size = 0;
-        for(Long keyId : rootMap.keySet())
-            for(PsiCacheOperationType opt : rootMap.get(keyId).keySet())
-                size += rootMap.get(keyId).get(opt).size();
-        return size;
+        return cache.size();
     }
 
 }

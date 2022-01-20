@@ -1,28 +1,24 @@
 package psi.cache;
 
-import psi.cache.enumeration.PsiCacheOperationType;
 import java.util.Optional;
 
 public interface PsiCacheProvider {
 
     /**
-     * Retrieve the output of the operation applied to an input value, using a given key.
+     * Retrieves the value to which the specified key is mapped.
      *
-     * @param keyId             id identifying the key actually used by the algorithm.
-     * @param cacheObjectType   enum identifying the operation corresponding to the result to be retrieved.
-     * @param input             input value of the operation which result has to be retrieved.
+     * @param key the key whose associated value is to be returned
      *
-     * @return an Optional containing the the cached result of the operation if present, Optional.empty() otherwise
+     * @return an Optional containing the cached value to which the specified key is mapped,
+     *          or Optional.empty() otherwise if the cache contains no mapping for the key
      */
-    public abstract Optional<String> get(long keyId, PsiCacheOperationType cacheObjectType, String input);
+    public abstract Optional<String> get(String key);
 
     /**
-     * Stores the result of the operation applied to an input value, using a given key.
+     * If the specified key is not present into the cache, stores it linked to the input value.
      *
-     * @param keyId             id identifying the key actually used by the algorithm.
-     * @param cacheObjectType   enum identifying the operation corresponding to the result to be stored.
-     * @param input             input value of the operation which result has to be stored.
-     * @param output            resulting value of the operation applied to the input value.
+     * @param key key with which the specified value is to be associated
+     * @param value alue to be associated with the specified key
      */
-    public abstract void put(long keyId, PsiCacheOperationType cacheObjectType, String input, String output);
+    public abstract void put(String key, String value);
 }
