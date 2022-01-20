@@ -31,20 +31,12 @@ public class PsiServerFactory {
     }
 
     public static PsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiCacheProvider psiCacheProvider) {
-        if (psiCacheProvider == null) {
-            throw new PsiServerInitException("Input psiCacheProvider is null");
-        }
-
         return initSessionInner(psiAlgorithmParameterDTO, null, psiCacheProvider);
     }
 
     public static PsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
         if (psiServerKeyDescription == null) {
             throw new PsiServerInitException("Input serverKeyDescription is null");
-        }
-
-        if (psiCacheProvider == null) {
-            throw new PsiServerInitException("Input psiCacheProvider is null");
         }
 
         return initSessionInner(psiAlgorithmParameterDTO, psiServerKeyDescription, psiCacheProvider);
