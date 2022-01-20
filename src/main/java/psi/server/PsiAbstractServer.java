@@ -13,7 +13,7 @@ public abstract class PsiAbstractServer implements PsiServer {
     protected PsiServerSession psiServerSession;
     protected PsiCacheProvider psiCacheProvider;
 
-    protected Long keyId; // TODO: è da togliere dal keyDescription, ma non sono sicuro sia questo il punto dove vada specificato
+    protected Long keyId;
 
     protected List<StatisticsFactory> statisticList;
 

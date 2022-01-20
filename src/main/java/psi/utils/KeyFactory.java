@@ -15,7 +15,7 @@ public class KeyFactory {
 
     private KeyFactory() {}
 
-    //TODO: introdurre una rappresentazione intermedia?
+    //TODO: should we introduce an intermediate representation?
     public static PsiServerKeyDescription generateKey(PsiAlgorithmDTO algorithm, int keySize) {
         KeyPairGenerator keyGenerator;
         java.security.KeyFactory keyFactory;
@@ -57,7 +57,4 @@ public class KeyFactory {
 
         return PsiServerKeyDescriptionFactory.createBsServerKeyDescription(privateKey, publicKey, modulus);
     }
-
-    public class XXX{}
-
 }

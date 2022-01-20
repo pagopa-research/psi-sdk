@@ -11,7 +11,6 @@ import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
 import psi.dto.PsiSessionDTO;
-import psi.exception.MismatchedCacheKeyIdException;
 import psi.exception.PsiClientException;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
@@ -76,7 +75,7 @@ public class BsPsiClient extends PsiAbstractClient {
         if(psiCacheProvider == null)
             this.cacheEnabled = false;
         else{
-            this.keyId = PsiCacheUtils.getKeyId(psiClientKeyDescription, psiCacheProvider);
+            this.keyId = PsiCacheUtils.getKeyId(getClientKeyDescription(), psiCacheProvider);
             this.cacheEnabled = true;
             this.encryptionCacheProvider = psiCacheProvider;
         }

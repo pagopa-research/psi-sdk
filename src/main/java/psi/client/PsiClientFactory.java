@@ -31,6 +31,13 @@ public class PsiClientFactory {
         return loadSessionInner(psiSessionDTO, psiClientKeyDescription, null);
     }
 
+    public static PsiClient loadSession(PsiSessionDTO psiSessionDTO, PsiCacheProvider psiCacheProvider){
+        if(psiCacheProvider == null)
+            throw new PsiClientException("Input psiCacheProvider is null");
+
+        return loadSessionInner(psiSessionDTO, null, psiCacheProvider);
+    }
+
     public static PsiClient loadSession(PsiSessionDTO psiSessionDTO, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
         if(psiClientKeyDescription == null)
             throw new PsiClientException("Input clientKeyDescription is null");
