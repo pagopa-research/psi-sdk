@@ -3,10 +3,9 @@ package psi.algorithm.bs;
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
-import psi.dto.PsiSessionDTO;
-import psi.dto.PsiAlgorithmParameterDTO;
+import psi.model.PsiClientSession;
+import psi.model.PsiAlgorithmParameter;
 import psi.helper.PsiValidationHelper;
-import psi.mapper.SessionDTOMapper;
 import psi.model.PsiAlgorithm;
 import psi.server.PsiServerSession;
 import psi.server.PsiServer;
@@ -52,13 +51,13 @@ public class BsClientServerBasicTest {
     }
 
     public void initServerAndClient(){
-        PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
-        psiAlgorithmParameterDTO.setKeySize(2048);
-        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
+        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
+        psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.BS);
+        psiAlgorithmParameter.setKeySize(2048);
+        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerSession = psiServerSession;
-        PsiSessionDTO psiSessionDTO = SessionDTOMapper.getSessionDtoFromServerSession(psiServerSession);
-        psiClient = PsiClientFactory.loadSession(psiSessionDTO);
+        PsiClientSession psiClientSession = PsiClientSession.getFromServerSession(psiServerSession);
+        psiClient = PsiClientFactory.loadSession(psiClientSession);
     }
 
     @Test

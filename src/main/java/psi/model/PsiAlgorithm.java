@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum PsiAlgorithm {
+
     DH(2048,4096),
     BS(2048,4096);
 
@@ -17,6 +18,4 @@ public enum PsiAlgorithm {
     private PsiAlgorithm(Integer ... supportedKeySize){
         this.supportedKeySize= Arrays.asList(supportedKeySize);
     }
-
-
 }

@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class StatisticsFactory {
+public class PsiPhaseStatistics {
 
     public enum PsiPhase {ENCRYPTION, DOUBLE_ENCRYPTION, REVERSE_MAP, PSI}
 
@@ -15,7 +15,7 @@ public class StatisticsFactory {
     private AtomicLong cacheMiss;
     private long totalTimeElapsed = 0L;
 
-    public StatisticsFactory(PsiPhase description) {
+    public PsiPhaseStatistics(PsiPhase description) {
         this.description = description;
         this.startTime = Instant.now();
         cacheHit = new AtomicLong(0);
@@ -38,13 +38,13 @@ public class StatisticsFactory {
         this.cacheHit.addAndGet(cacheHit);
     }
 
-    public StatisticsFactory close(long cacheHit, long cacheMiss){
+    public PsiPhaseStatistics close(long cacheHit, long cacheMiss){
         this.cacheHit = new AtomicLong(cacheHit);
         this.cacheMiss = new AtomicLong(cacheMiss);
         return close();
     }
 
-    public StatisticsFactory close(){
+    public PsiPhaseStatistics close(){
         this.endTime = Instant.now();
         this.totalTimeElapsed = startTime.until(endTime, ChronoUnit.MILLIS);
         return this;
@@ -80,14 +80,13 @@ public class StatisticsFactory {
 
     @Override
     public String toString() {
-        return "StatisticsFactory{" +
-                "description='" + description + '\'' +
+        return "PsiPhaseStatistics{" +
+                "description=" + description +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
+                ", cacheHit=" + cacheHit +
+                ", cacheMiss=" + cacheMiss +
                 ", totalTimeElapsed=" + totalTimeElapsed +
-                ", processedElements=" + (cacheHit.get() + cacheMiss.get()) +
-                ", cacheHit=" + cacheHit.get() +
-                ", cacheMiss=" + cacheMiss.get() +
                 '}';
     }
 }

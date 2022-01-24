@@ -5,10 +5,9 @@ import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
-import psi.dto.PsiSessionDTO;
-import psi.dto.PsiAlgorithmParameterDTO;
+import psi.model.PsiClientSession;
+import psi.model.PsiAlgorithmParameter;
 import psi.helper.PsiValidationHelper;
-import psi.mapper.SessionDTOMapper;
 import psi.model.PsiAlgorithm;
 import psi.server.*;
 
@@ -55,23 +54,23 @@ public class BsClientServerKeyDescriptionTest {
     }
 
     public void initKeyDescriptions(){
-        PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
-        psiAlgorithmParameterDTO.setKeySize(2048);
-        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
+        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
+        psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.BS);
+        psiAlgorithmParameter.setKeySize(2048);
+        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
         this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
                 this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
     }
 
     public void initServerAndClient(){
-        PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
-        psiAlgorithmParameterDTO.setKeySize(2048);
-        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription);
+        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
+        psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.BS);
+        psiAlgorithmParameter.setKeySize(2048);
+        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter, psiServerKeyDescription);
         this.psiServerSession = psiServerSession;
-        PsiSessionDTO psiSessionDTO = SessionDTOMapper.getSessionDtoFromServerSession(psiServerSession);
-        psiClient = PsiClientFactory.loadSession(psiSessionDTO, psiClientKeyDescription);
+        PsiClientSession psiClientSession = PsiClientSession.getFromServerSession(psiServerSession);
+        psiClient = PsiClientFactory.loadSession(psiClientSession, psiClientKeyDescription);
     }
 
     @Test

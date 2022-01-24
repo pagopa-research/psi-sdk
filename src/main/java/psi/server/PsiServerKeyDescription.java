@@ -35,14 +35,12 @@ public class PsiServerKeyDescription implements PsiKeyDescription {
         this.modulus = modulus;
     }
 
-
     @Override
     public String toString() {
-        return "BsKeyDescription{" +
+        return "PsiServerKeyDescription{" +
                 "privateKey='" + privateKey + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
                 '}';
     }
-
 }

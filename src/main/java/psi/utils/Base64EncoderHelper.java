@@ -11,9 +11,9 @@ public class Base64EncoderHelper {
 
     private Base64EncoderHelper(){}
 
-    public static <T> String objectToBase64(T dto){
+    public static <T> String objectToBase64(T object){
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNodeJSON = objectMapper.valueToTree(dto);
+        JsonNode jsonNodeJSON = objectMapper.valueToTree(object);
         try {
             byte[] jsonNodeBytes = objectMapper.writeValueAsBytes(jsonNodeJSON);
             return Base64.getEncoder().encodeToString(jsonNodeBytes);

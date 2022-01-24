@@ -1,38 +1,36 @@
 package psi.server;
 
 import psi.model.PsiAlgorithm;
+import psi.model.PsiAlgorithmParameter;
 
 public class PsiServerSession {
 
-    private PsiAlgorithm algorithm;
-    private Integer keySize;
+    private PsiAlgorithmParameter psiAlgorithmParameter;
     private Boolean cacheEnabled;
     private PsiServerKeyDescription psiServerKeyDescription;
 
     public PsiServerSession() {
     }
 
+    public PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter) {
+        this.psiAlgorithmParameter = psiAlgorithmParameter;
+    }
+
     public PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
-        this.algorithm = algorithm;
-        this.keySize = keySize;
+        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
+        psiAlgorithmParameter.setAlgorithm(algorithm);
+        psiAlgorithmParameter.setKeySize(keySize);
+        this.psiAlgorithmParameter = psiAlgorithmParameter;
         this.cacheEnabled = cacheEnabled;
         this.psiServerKeyDescription = psiServerKeyDescription;
     }
 
-    public PsiAlgorithm getAlgorithm() {
-        return algorithm;
+    public PsiAlgorithmParameter getPsiAlgorithmParameter() {
+        return psiAlgorithmParameter;
     }
 
-    public void setAlgorithm(PsiAlgorithm algorithm) {
-        this.algorithm = algorithm;
-    }
-
-    public Integer getKeySize() {
-        return keySize;
-    }
-
-    public void setKeySize(Integer keySize) {
-        this.keySize = keySize;
+    public void setPsiAlgorithmParameter(PsiAlgorithmParameter psiAlgorithmParameter) {
+        this.psiAlgorithmParameter = psiAlgorithmParameter;
     }
 
     public Boolean getCacheEnabled() {
@@ -54,8 +52,7 @@ public class PsiServerSession {
     @Override
     public String toString() {
         return "PsiServerSession{" +
-                "algorithm='" + algorithm + '\'' +
-                ", keySize=" + keySize +
+                "psiAlgorithmParameter=" + psiAlgorithmParameter +
                 ", cacheEnabled=" + cacheEnabled +
                 ", psiServerKeyDescription=" + psiServerKeyDescription +
                 '}';

@@ -1,7 +1,7 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
-import psi.utils.StatisticsFactory;
+import psi.utils.PsiPhaseStatistics;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +23,6 @@ public interface PsiServer {
 
     PsiServerKeyDescription getServerKeyDescription();
 
-    public List<StatisticsFactory> getStatisticList();
+    public List<PsiPhaseStatistics> getStatisticList();
 
 }

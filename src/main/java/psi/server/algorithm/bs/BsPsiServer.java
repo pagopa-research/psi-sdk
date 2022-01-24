@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import psi.cache.PsiCacheUtils;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
-import psi.dto.PsiAlgorithmParameterDTO;
+import psi.model.PsiAlgorithmParameter;
 import psi.cache.PsiCacheProvider;
 import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
@@ -13,7 +13,7 @@ import psi.server.*;
 import psi.utils.CustomTypeConverter;
 import psi.utils.HashFactory;
 import psi.utils.PartitionHelper;
-import psi.utils.StatisticsFactory;
+import psi.utils.PsiPhaseStatistics;
 import psi.utils.KeyFactory;
 
 import java.math.BigInteger;
@@ -36,14 +36,12 @@ public class BsPsiServer extends PsiAbstractServer {
         }
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
-        PsiServerSession psiServerSession = new PsiServerSession();
-        psiServerSession.setAlgorithm(psiAlgorithmParameterDTO.getAlgorithm());
-        psiServerSession.setKeySize(psiAlgorithmParameterDTO.getKeySize());
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+        PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
         if (psiServerKeyDescription == null) {
-            psiServerKeyDescription = KeyFactory.generateKey(psiServerSession.getAlgorithm(), psiAlgorithmParameterDTO.getKeySize());
+            psiServerKeyDescription = KeyFactory.generateKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from bsServerKeyDescription
         else {
             if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getModulus().isEmpty()
@@ -65,7 +63,7 @@ public class BsPsiServer extends PsiAbstractServer {
         log.debug("Called encryptDataset()");
 
         validatePsiServerKeyDescription();
-        StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.ENCRYPTION);
+        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
@@ -125,7 +123,7 @@ public class BsPsiServer extends PsiAbstractServer {
     public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
         log.debug("Called encryptDatasetMap()");
         validatePsiServerKeyDescription();
-        StatisticsFactory statistics = new StatisticsFactory(StatisticsFactory.PsiPhase.DOUBLE_ENCRYPTION);
+        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());

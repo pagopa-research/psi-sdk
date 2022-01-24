@@ -1,19 +1,17 @@
-package psi.dto;
-
-import psi.model.PsiAlgorithm;
+package psi.model;
 
 import java.util.Objects;
 
-public class PsiAlgorithmParameterDTO {
+public class PsiAlgorithmParameter {
 
     private PsiAlgorithm algorithm;
 
     private Integer keySize;
 
-    public PsiAlgorithmParameterDTO() {
+    public PsiAlgorithmParameter() {
     }
 
-    public PsiAlgorithmParameterDTO(PsiAlgorithm algorithm, Integer keySize) {
+    public PsiAlgorithmParameter(PsiAlgorithm algorithm, Integer keySize) {
         this.algorithm = algorithm;
         this.keySize = keySize;
     }
@@ -38,7 +36,7 @@ public class PsiAlgorithmParameterDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PsiAlgorithmParameterDTO that = (PsiAlgorithmParameterDTO) o;
+        PsiAlgorithmParameter that = (PsiAlgorithmParameter) o;
         return algorithm == that.algorithm &&
                 Objects.equals(keySize, that.keySize);
     }
@@ -50,8 +48,8 @@ public class PsiAlgorithmParameterDTO {
 
     @Override
     public String toString() {
-        return "SessionParameterDTO{" +
-                "algorithm='" + algorithm + '\'' +
+        return "PsiAlgorithmParameter{" +
+                "algorithm=" + algorithm +
                 ", keySize=" + keySize +
                 '}';
     }
