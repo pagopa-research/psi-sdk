@@ -4,11 +4,10 @@ import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
+import psi.model.PsiAlgorithm;
 import psi.server.PsiServerSession;
 
 import java.util.Arrays;
-
-import static psi.server.PsiServerFactory.supportedAlgorithms;
 
 public class SessionDTOMapper {
 
@@ -20,17 +19,17 @@ public class SessionDTOMapper {
         if(psiServerSession.getPsiServerKeyDescription() == null)
             throw new CustomRuntimeException("The PsiServerKeyDescription of the psiServerSession should not be null");
 
-        if(!Arrays.asList(supportedAlgorithms).contains(psiServerSession.getAlgorithm()))
+        if(!Arrays.asList(PsiAlgorithm.values()).contains(psiServerSession.getAlgorithm()))
             throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
 
         PsiSessionDTO psiSessionDTO = new PsiSessionDTO();
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(AlgorithmDTOMapper.toDTO(psiServerSession.getAlgorithm()));
+        psiAlgorithmParameterDTO.setAlgorithm((psiServerSession.getAlgorithm()));
         psiAlgorithmParameterDTO.setKeySize(psiServerSession.getKeySize());
         psiSessionDTO.setPsiAlgorithmParameterDTO(psiAlgorithmParameterDTO);
 
         switch(psiServerSession.getAlgorithm()){
-            case "BS":
+            case BS:
                 if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
                     throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
                 psiSessionDTO.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
@@ -38,7 +37,7 @@ public class SessionDTOMapper {
                     throw new PsiServerException("The field publicKey of psiServerKeyDescription cannot be null");
                 psiSessionDTO.setServerPublicKey(psiServerSession.getPsiServerKeyDescription().getPublicKey());
                 break;
-            case "DH":
+            case DH:
 
             default:
                 throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");

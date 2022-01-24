@@ -3,11 +3,11 @@ package psi.algorithm.bs;
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
-import psi.dto.PsiAlgorithmDTO;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDTOMapper;
+import psi.model.PsiAlgorithm;
 import psi.server.PsiServerSession;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
@@ -53,7 +53,7 @@ public class BsClientServerBasicTest {
 
     public void initServerAndClient(){
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
+        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
         this.psiServerSession = psiServerSession;

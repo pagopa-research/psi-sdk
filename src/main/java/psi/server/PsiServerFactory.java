@@ -4,19 +4,14 @@ import psi.cache.PsiCacheProvider;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
+import psi.model.PsiAlgorithm;
 import psi.server.algorithm.bs.BsPsiServer;
 
 import java.util.Arrays;
 
 public class PsiServerFactory {
 
-    public static String[] supportedAlgorithms =
-            {
-                    "BS",
-                    "ECBS",
-                    "DH",
-                    "ECDH"
-            };
+    private PsiServerFactory() {}
 
     public static PsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO) {
         return initSessionInner(psiAlgorithmParameterDTO, null, null);
@@ -55,7 +50,7 @@ public class PsiServerFactory {
         if (psiAlgorithmParameterDTO == null || psiAlgorithmParameterDTO.getAlgorithm() == null || psiAlgorithmParameterDTO.getKeySize() == null)
             throw new PsiServerInitException("Input PsiAlgorithmParameterDTO is null");
 
-        if (!Arrays.asList(supportedAlgorithms).contains(psiAlgorithmParameterDTO.getAlgorithm().toString()))
+        if (Arrays.asList(PsiAlgorithm.values()).contains(psiAlgorithmParameterDTO.getAlgorithm().toString()))
             throw new PsiServerInitException("The algorithm defined in the input SessionParameterDTO is invalid or not supported");
 
         switch (psiAlgorithmParameterDTO.getAlgorithm()) {
@@ -84,10 +79,10 @@ public class PsiServerFactory {
             throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 
         switch (psiServerSession.getAlgorithm()) {
-            case "BS":
+            case BS:
                 return new BsPsiServer(psiServerSession, psiCacheProvider);
 
-            case "DH":
+            case DH:
 
             default:
                 return null;

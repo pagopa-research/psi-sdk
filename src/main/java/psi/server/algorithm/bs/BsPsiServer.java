@@ -17,12 +17,6 @@ import psi.utils.StatisticsFactory;
 import psi.utils.KeyFactory;
 
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -44,12 +38,12 @@ public class BsPsiServer extends PsiAbstractServer {
 
     public static PsiServerSession initSession(PsiAlgorithmParameterDTO psiAlgorithmParameterDTO, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
         PsiServerSession psiServerSession = new PsiServerSession();
-        psiServerSession.setAlgorithm(psiAlgorithmParameterDTO.getAlgorithm().toString());
+        psiServerSession.setAlgorithm(psiAlgorithmParameterDTO.getAlgorithm());
         psiServerSession.setKeySize(psiAlgorithmParameterDTO.getKeySize());
 
         // keys are created from scratch
         if (psiServerKeyDescription == null) {
-            psiServerKeyDescription = KeyFactory.generateKey(psiAlgorithmParameterDTO.getAlgorithm(), psiAlgorithmParameterDTO.getKeySize());
+            psiServerKeyDescription = KeyFactory.generateKey(psiServerSession.getAlgorithm(), psiAlgorithmParameterDTO.getKeySize());
         } // keys are loaded from bsServerKeyDescription
         else {
             if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getModulus().isEmpty()

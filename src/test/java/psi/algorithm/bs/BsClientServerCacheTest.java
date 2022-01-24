@@ -6,12 +6,12 @@ import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
-import psi.dto.PsiAlgorithmDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.dto.PsiSessionDTO;
 import psi.exception.CustomRuntimeException;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDTOMapper;
+import psi.model.PsiAlgorithm;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 import psi.server.PsiServerKeyDescription;
@@ -42,7 +42,7 @@ public class BsClientServerCacheTest {
     private void setup() {
         // Initializing key descriptions
         this.psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        this.psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
+        this.psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
         this.psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameterDTO);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();

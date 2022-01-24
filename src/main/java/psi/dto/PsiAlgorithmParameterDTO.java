@@ -1,26 +1,28 @@
 package psi.dto;
 
+import psi.model.PsiAlgorithm;
+
 import java.util.Objects;
 
 public class PsiAlgorithmParameterDTO {
 
-    private PsiAlgorithmDTO algorithm;
+    private PsiAlgorithm algorithm;
 
     private Integer keySize;
 
     public PsiAlgorithmParameterDTO() {
     }
 
-    public PsiAlgorithmParameterDTO(PsiAlgorithmDTO algorithm, Integer keySize) {
+    public PsiAlgorithmParameterDTO(PsiAlgorithm algorithm, Integer keySize) {
         this.algorithm = algorithm;
         this.keySize = keySize;
     }
 
-    public PsiAlgorithmDTO getAlgorithm() {
+    public PsiAlgorithm getAlgorithm() {
         return algorithm;
     }
 
-    public void setAlgorithm(PsiAlgorithmDTO algorithm) {
+    public void setAlgorithm(PsiAlgorithm algorithm) {
         this.algorithm = algorithm;
     }
 

@@ -4,18 +4,13 @@ import psi.cache.PsiCacheProvider;
 import psi.client.algorithm.bs.BsPsiClient;
 import psi.dto.PsiSessionDTO;
 import psi.exception.PsiClientException;
+import psi.model.PsiAlgorithm;
 
 import java.util.Arrays;
 
 public class PsiClientFactory {
 
-    static String[] supportedAlgorithms =
-        {
-                "BS",
-                "ECBS",
-                "DH",
-                "ECDH"
-        };
+    private PsiClientFactory() {}
 
     /**  Creates the specific client object based on the algorithm field defined in the input sessionDTO */
     public static PsiClient loadSession(PsiSessionDTO psiSessionDTO){
@@ -50,7 +45,7 @@ public class PsiClientFactory {
 
     /**  Creates the specific client object based on the algorithm field defined in the input sessionDTO */
     private static PsiClient loadSessionInner(PsiSessionDTO psiSessionDTO, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
-        if(!Arrays.asList(supportedAlgorithms).contains(psiSessionDTO.getPsiAlgorithmParameterDTO().getAlgorithm().toString()))
+        if(!Arrays.asList(PsiAlgorithm.values()).contains(psiSessionDTO.getPsiAlgorithmParameterDTO().getAlgorithm()))
             throw new PsiClientException("The algorithm defined in the input sessionDTO is invalid or not supported");
 
         switch(psiSessionDTO.getPsiAlgorithmParameterDTO().getAlgorithm()){

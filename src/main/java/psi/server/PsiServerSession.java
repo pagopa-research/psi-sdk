@@ -1,17 +1,19 @@
 package psi.server;
 
+import psi.model.PsiAlgorithm;
+
 public class PsiServerSession {
 
-    private String algorithm;
+    private PsiAlgorithm algorithm;
     private Integer keySize;
     private Boolean cacheEnabled;
     private PsiServerKeyDescription psiServerKeyDescription;
 
-    public String getAlgorithm() {
+    public PsiAlgorithm getAlgorithm() {
         return algorithm;
     }
 
-    public void setAlgorithm(String algorithm) {
+    public void setAlgorithm(PsiAlgorithm algorithm) {
         this.algorithm = algorithm;
     }
 

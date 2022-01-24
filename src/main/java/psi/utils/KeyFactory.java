@@ -1,7 +1,7 @@
 package psi.utils;
 
-import psi.dto.PsiAlgorithmDTO;
 import psi.exception.PsiServerInitException;
+import psi.model.PsiAlgorithm;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerKeyDescriptionFactory;
 
@@ -16,7 +16,7 @@ public class KeyFactory {
     private KeyFactory() {}
 
     //TODO: should we introduce an intermediate representation?
-    public static PsiServerKeyDescription generateKey(PsiAlgorithmDTO algorithm, int keySize) {
+    public static PsiServerKeyDescription generateKey(PsiAlgorithm algorithm, int keySize) {
         KeyPairGenerator keyGenerator;
         java.security.KeyFactory keyFactory;
         try {

@@ -5,11 +5,11 @@ import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
-import psi.dto.PsiAlgorithmDTO;
 import psi.dto.PsiSessionDTO;
 import psi.dto.PsiAlgorithmParameterDTO;
 import psi.helper.PsiValidationHelper;
 import psi.mapper.SessionDTOMapper;
+import psi.model.PsiAlgorithm;
 import psi.server.*;
 
 import java.util.HashSet;
@@ -56,7 +56,7 @@ public class BsClientServerKeyDescriptionTest {
 
     public void initKeyDescriptions(){
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
+        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
@@ -66,7 +66,7 @@ public class BsClientServerKeyDescriptionTest {
 
     public void initServerAndClient(){
         PsiAlgorithmParameterDTO psiAlgorithmParameterDTO = new PsiAlgorithmParameterDTO();
-        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithmDTO.BS);
+        psiAlgorithmParameterDTO.setAlgorithm(PsiAlgorithm.BS);
         psiAlgorithmParameterDTO.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameterDTO, psiServerKeyDescription);
         this.psiServerSession = psiServerSession;
