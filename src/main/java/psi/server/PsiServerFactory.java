@@ -50,7 +50,7 @@ public class PsiServerFactory {
         if (psiAlgorithmParameter == null || psiAlgorithmParameter.getAlgorithm() == null || psiAlgorithmParameter.getKeySize() == null)
             throw new PsiServerInitException("Input psiAlgorithmParameter or its fields are null");
 
-        if (Arrays.asList(PsiAlgorithm.values()).contains(psiAlgorithmParameter.getAlgorithm()))
+        if (!Arrays.asList(PsiAlgorithm.values()).contains(psiAlgorithmParameter.getAlgorithm()))
             throw new PsiServerInitException("The algorithm defined in the input psiAlgorithmParameter is invalid or not supported");
 
         switch (psiAlgorithmParameter.getAlgorithm()) {
