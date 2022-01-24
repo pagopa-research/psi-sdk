@@ -9,6 +9,16 @@ public class PsiServerSession {
     private Boolean cacheEnabled;
     private PsiServerKeyDescription psiServerKeyDescription;
 
+    public PsiServerSession() {
+    }
+
+    public PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
+        this.algorithm = algorithm;
+        this.keySize = keySize;
+        this.cacheEnabled = cacheEnabled;
+        this.psiServerKeyDescription = psiServerKeyDescription;
+    }
+
     public PsiAlgorithm getAlgorithm() {
         return algorithm;
     }
