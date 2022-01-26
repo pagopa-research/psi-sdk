@@ -41,7 +41,7 @@ public class BsPsiServer extends PsiAbstractServer {
 
         // keys are created from scratch
         if (psiServerKeyDescription == null) {
-            psiServerKeyDescription = AsymmetricKeyFactory.generateKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
+            psiServerKeyDescription = AsymmetricKeyFactory.generateServerKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
             if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getModulus().isEmpty()

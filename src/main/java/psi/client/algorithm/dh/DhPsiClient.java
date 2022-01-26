@@ -51,10 +51,11 @@ public class DhPsiClient extends PsiAbstractClient {
         if (psiClientKeyDescription == null) {
             //TODO: non è corretto...generare la chiave a partire dal modulo
             this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
-            String tmpClientPrivateKey =
-                    AsymmetricKeyFactory.generateKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize())
-                    .getPrivateKey();
-            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(tmpClientPrivateKey); //TODO
+            AsymmetricKeyFactory.AsymmetricKey asymmetricKey =
+                    AsymmetricKeyFactory.generateKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize());
+            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(asymmetricKey.privateKey); //TODO
+            //TODO: for some reason the modulus does not change
+            //TODO: maybe it's enough that the privateKey is smaller than the module?
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {

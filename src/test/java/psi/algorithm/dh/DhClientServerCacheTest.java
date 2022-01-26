@@ -48,7 +48,7 @@ public class DhClientServerCacheTest {
         PsiServerSession psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
         this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
-                AsymmetricKeyFactory.generateKey(PsiAlgorithm.DH, 2048).getPrivateKey(),
+                AsymmetricKeyFactory.generateServerKey(PsiAlgorithm.DH, 2048).getPrivateKey(),
                 this.psiServerKeyDescription.getModulus());
 
         // Initializing caches

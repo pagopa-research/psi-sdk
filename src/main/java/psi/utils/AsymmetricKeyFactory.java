@@ -1,5 +1,7 @@
 package psi.utils;
 
+import psi.client.PsiClient;
+import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiServerInitException;
 import psi.model.PsiAlgorithm;
 import psi.server.PsiServerKeyDescription;
@@ -15,8 +17,21 @@ public class AsymmetricKeyFactory {
 
     private AsymmetricKeyFactory() {}
 
-    //TODO: should we introduce an intermediate representation used by server and client
-    public static PsiServerKeyDescription generateKey(PsiAlgorithm algorithm, int keySize) {
+    public static PsiServerKeyDescription generateServerKey (PsiAlgorithm algorithm, int keySize) {
+        AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
+        switch (algorithm) {
+            case BS:
+                return PsiServerKeyDescriptionFactory
+                        .createBsServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.publicKey, asymmetricKey.modulus);
+            case DH:
+                return PsiServerKeyDescriptionFactory
+                        .createDhServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.modulus);
+            default:
+                throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
+        }
+    }
+
+    public static AsymmetricKey generateKey(PsiAlgorithm algorithm, int keySize) {
         KeyPairGenerator keyGenerator;
         java.security.KeyFactory keyFactory;
         try {
@@ -42,17 +57,31 @@ public class AsymmetricKeyFactory {
                     modulus = (CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getModulus()));
                     privateKey = (CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getPrivateExponent()));
                     publicKey = (CustomTypeConverter.convertBigIntegerToString(rsaPublicKeySpec.getPublicExponent()));
-                    return PsiServerKeyDescriptionFactory.createBsServerKeyDescription(privateKey, publicKey, modulus);
+                    break;
                 case DH:
                     DHPrivateKeySpec dhPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), DHPrivateKeySpec.class);
                     modulus = (CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getP()));
                     privateKey = (CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getX()));
-                    return PsiServerKeyDescriptionFactory.createDhServerKeyDescription(privateKey, modulus);
+                    break;
                 default:
                     throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
             }
         } catch (InvalidKeySpecException e) {
             throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
+        }
+
+        return new AsymmetricKey(privateKey, publicKey, modulus);
+    }
+
+    public static class AsymmetricKey{
+        public String privateKey;
+        public String publicKey;
+        public String modulus;
+
+        AsymmetricKey(String privateKey, String publicKey, String modulus) {
+            this.privateKey = privateKey;
+            this.publicKey = publicKey;
+            this.modulus = modulus;
         }
     }
 }

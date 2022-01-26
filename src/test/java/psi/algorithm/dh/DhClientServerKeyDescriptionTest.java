@@ -65,7 +65,7 @@ public class DhClientServerKeyDescriptionTest {
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
         //TODO: this is not correct and is used only for testing purposes
         this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
-                AsymmetricKeyFactory.generateKey(PsiAlgorithm.DH, 2048).getPrivateKey(),
+                AsymmetricKeyFactory.generateServerKey(PsiAlgorithm.DH, 2048).getPrivateKey(),
                 this.psiServerKeyDescription.getModulus());
     }
 
