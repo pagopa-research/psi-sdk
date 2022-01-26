@@ -15,7 +15,11 @@ public class PsiPhaseStatistics {
     private AtomicLong cacheMiss;
     private long totalTimeElapsed = 0L;
 
-    public PsiPhaseStatistics(PsiPhase description) {
+    public static PsiPhaseStatistics startStatistic(PsiPhase description){
+        return new PsiPhaseStatistics(description);
+    }
+
+    private PsiPhaseStatistics(PsiPhase description) {
         this.description = description;
         this.startTime = Instant.now();
         cacheHit = new AtomicLong(0);

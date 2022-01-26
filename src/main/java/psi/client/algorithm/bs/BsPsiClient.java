@@ -86,17 +86,15 @@ public class BsPsiClient extends PsiAbstractClient {
     @Override
     public Map<Long, String> loadAndEncryptClientDataset(Set<String> clearClientDataset) {
         log.debug("Called loadAndEncryptClientDataset");
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         List<Set<String>> clientDatasetPartitions = PartitionHelper.partitionSet(clearClientDataset, this.threads);
-        Map<Long, String> clientEncryptedDatasetMapConvertedToString = new HashMap<>();
+        Map<Long, String> clientEncryptedDatasetMapConvertedToString = new ConcurrentHashMap<>();
 
-        List<FutureTask<BsMapQuartet>> futureTaskList = new ArrayList<>(threads);
+        List<Thread> threadList = new ArrayList<>(threads);
         for(Set<String> partition : clientDatasetPartitions) {
-            FutureTask<BsMapQuartet> futureTask = new FutureTask<>(() -> {
+            Thread thread = new Thread(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
-
-                BsMapQuartet bsMapQuartet = new BsMapQuartet();
 
                 for(String value : partition){
                     Long key = keyAtomicCounter.incrementAndGet();
@@ -121,23 +119,19 @@ public class BsPsiClient extends PsiAbstractClient {
                             PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.psiCacheProvider);
                         }
                     }
-                    bsMapQuartet.clearMap.put(key, bigIntegerValue);
-                    bsMapQuartet.randomMap.put(key, randomValue);
-                    bsMapQuartet.encryptedMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
+                    clientClearDatasetMap.put(key, bigIntegerValue);
+                    clientRandomDatasetMap.put(key, randomValue);
+                    clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                  }
-                 return bsMapQuartet;
             });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            thread.start();
+            threadList.add(thread);
         }
 
-        // Collect results from the different threads
-        for (FutureTask<BsMapQuartet> ft : futureTaskList) {
+        for (Thread thread : threadList) {
             try {
-                clientClearDatasetMap.putAll(ft.get().clearMap);
-                clientRandomDatasetMap.putAll(ft.get().randomMap);
-                clientEncryptedDatasetMapConvertedToString.putAll(ft.get().encryptedMapConvertedToString);
-            } catch (InterruptedException | ExecutionException e) {
+                thread.join();
+            } catch (InterruptedException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
@@ -163,15 +157,15 @@ public class BsPsiClient extends PsiAbstractClient {
 
     // Loads the clientReversedDatasetMap which contains a decryption of the clientDoubleEncryptedDatasetMap entries
     private void computeReversedMap(){
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.REVERSE_MAP);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.REVERSE_MAP);
 
         log.debug("Called computeReversedMap");
         List<Map<Long, BigInteger>> doubleEncryptedMapPartition = PartitionHelper.partitionMap(clientDoubleEncryptedDatasetMap, threads);
-        List<FutureTask<Map<Long, BigInteger>>> futureTaskList = new ArrayList<>(threads);
+        List<Thread> threadList = new ArrayList<>(threads);
         for(Map<Long, BigInteger> partition : doubleEncryptedMapPartition){
-            FutureTask<Map<Long, BigInteger>> futureTask = new FutureTask<>(() -> {
+            Thread thread = new Thread(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
-                Map<Long, BigInteger> localClientReversedDatasetMap = new HashMap<>();
+
                 for(Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
                     BigInteger reversedValue = null;
                     if (this.cacheEnabled) {
@@ -189,19 +183,17 @@ public class BsPsiClient extends PsiAbstractClient {
                             PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.psiCacheProvider); //TODO, come sopra
                         }
                     }
-                    localClientReversedDatasetMap.put(entry.getKey(), reversedValue);
+                    clientReversedDatasetMap.put(entry.getKey(), reversedValue);
                 }
-                return localClientReversedDatasetMap;
             });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            thread.start();
+            threadList.add(thread);
         }
 
-        // Collect results from the different threads
-        for (FutureTask<Map<Long, BigInteger>> ft : futureTaskList) {
+        for (Thread thread : threadList) {
             try {
-                clientReversedDatasetMap.putAll(ft.get());
-            } catch (InterruptedException | ExecutionException e) {
+                thread.join();
+            } catch (InterruptedException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
@@ -245,12 +237,5 @@ public class BsPsiClient extends PsiAbstractClient {
         return PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
                 CustomTypeConverter.convertBigIntegerToString(this.serverPublicKey),
                 CustomTypeConverter.convertBigIntegerToString(this.modulus));
-    }
-
-    // Helper class that bundles a quartet of maps. Three <Long, BigInteger> and one <Long, String>
-     static class BsMapQuartet{
-        Map<Long, BigInteger> clearMap = new HashMap<>();
-        Map<Long, BigInteger> randomMap = new HashMap<>();
-        Map<Long, String> encryptedMapConvertedToString = new HashMap<>();
     }
 }

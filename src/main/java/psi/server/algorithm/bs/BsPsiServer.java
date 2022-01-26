@@ -63,7 +63,7 @@ public class BsPsiServer extends PsiAbstractServer {
         log.debug("Called encryptDataset()");
 
         validatePsiServerKeyDescription();
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
@@ -123,7 +123,7 @@ public class BsPsiServer extends PsiAbstractServer {
     public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
         log.debug("Called encryptDatasetMap()");
         validatePsiServerKeyDescription();
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());

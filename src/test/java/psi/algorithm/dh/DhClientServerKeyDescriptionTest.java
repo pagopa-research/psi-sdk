@@ -13,6 +13,7 @@ import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
+import psi.utils.AsymmetricKeyFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -64,7 +65,8 @@ public class DhClientServerKeyDescriptionTest {
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
         //TODO: this is not correct and is used only for testing purposes
         this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
-                this.psiServerKeyDescription.getPrivateKey(), this.psiServerKeyDescription.getModulus());
+                AsymmetricKeyFactory.generateKey(PsiAlgorithm.DH, 2048).getPrivateKey(),
+                this.psiServerKeyDescription.getModulus());
     }
 
     public void initServerAndClient(){

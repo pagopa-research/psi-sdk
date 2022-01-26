@@ -15,6 +15,7 @@ import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
+import psi.utils.AsymmetricKeyFactory;
 import psi.utils.PsiPhaseStatistics;
 
 import java.util.HashSet;
@@ -47,7 +48,8 @@ public class DhClientServerCacheTest {
         PsiServerSession psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
         this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
-                this.psiServerKeyDescription.getPrivateKey(), this.psiServerKeyDescription.getModulus());
+                AsymmetricKeyFactory.generateKey(PsiAlgorithm.DH, 2048).getPrivateKey(),
+                this.psiServerKeyDescription.getModulus());
 
         // Initializing caches
         this.serverCache = new PsiCacheProviderImplementation();

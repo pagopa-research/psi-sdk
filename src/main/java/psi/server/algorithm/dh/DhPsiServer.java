@@ -58,7 +58,7 @@ public class DhPsiServer extends PsiAbstractServer {
     @Override
     public Set<String> encryptDataset(Set<String> inputSet) {
         log.debug("Called encryptDataset()");
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         validatePsiServerKeyDescription();
 
@@ -119,7 +119,7 @@ public class DhPsiServer extends PsiAbstractServer {
     public Map<Long, String> encryptDatasetMap(Map<Long, String> inputMap) {
         log.debug("Called encryptDatasetMap()");
         validatePsiServerKeyDescription();
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());

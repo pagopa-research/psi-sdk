@@ -9,12 +9,14 @@ import psi.cache.model.EncryptedCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
+import psi.exception.CustomRuntimeException;
 import psi.exception.PsiClientException;
 import psi.model.PsiClientSession;
 import psi.server.PsiServerKeyDescription;
 import psi.utils.*;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -49,9 +51,10 @@ public class DhPsiClient extends PsiAbstractClient {
         if (psiClientKeyDescription == null) {
             //TODO: non è corretto...generare la chiave a partire dal modulo
             this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
-            PsiServerKeyDescription psiServerKeyDescription = AsymmetricKeyFactory.generateKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize());
-            //    throw new CustomRuntimeException("IL MODULO NON COINCIDE");
-            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerKeyDescription.getPrivateKey()); //TODO
+            String tmpClientPrivateKey =
+                    AsymmetricKeyFactory.generateKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize())
+                    .getPrivateKey();
+            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(tmpClientPrivateKey); //TODO
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {
@@ -78,17 +81,15 @@ public class DhPsiClient extends PsiAbstractClient {
     @Override
     public Map<Long, String> loadAndEncryptClientDataset(Set<String> clearClientDataset) {
         log.debug("Called loadAndEncryptClientDataset");
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         List<Set<String>> clientDatasetPartitions = PartitionHelper.partitionSet(clearClientDataset, this.threads);
         Map<Long, String> clientEncryptedDatasetMapConvertedToString = new ConcurrentHashMap<>();
 
-        List<FutureTask<BsMapQuartet>> futureTaskList = new ArrayList<>(threads);
+        List<Thread> threadList = new ArrayList<>(threads);
         for (Set<String> partition : clientDatasetPartitions) {
-            FutureTask<BsMapQuartet> futureTask = new FutureTask<>(() -> {
+            Thread thread = new Thread(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
-
-                BsMapQuartet bsMapQuartet = new BsMapQuartet();
 
                 for (String stringValue : partition) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
@@ -112,21 +113,18 @@ public class DhPsiClient extends PsiAbstractClient {
                         }
                     }
                     Long key = keyAtomicCounter.incrementAndGet();
-                    bsMapQuartet.clearMap.put(key, bigIntegerValue);
-                    bsMapQuartet.encryptedMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
+                    clientClearDatasetMap.put(key, bigIntegerValue);
+                    clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
-                return bsMapQuartet;
             });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            thread.start();
+            threadList.add(thread);
         }
 
-        // Collect results from the different threads
-        for (FutureTask<BsMapQuartet> ft : futureTaskList) {
+        for (Thread thread : threadList) {
             try {
-                clientClearDatasetMap.putAll(ft.get().clearMap);
-                clientEncryptedDatasetMapConvertedToString.putAll(ft.get().encryptedMapConvertedToString);
-            } catch (InterruptedException | ExecutionException e) {
+                thread.join();
+            } catch (InterruptedException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
@@ -146,14 +144,13 @@ public class DhPsiClient extends PsiAbstractClient {
     @Override
     public void loadAndProcessServerDataset(Set<String> serverEncryptedDataset) {
         log.debug("Called loadServerDataset");
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
         List<Set<String>> partitionList = PartitionHelper.partitionSet(serverEncryptedDataset, this.threads);
 
-        List<FutureTask<Set<BigInteger>>> futureTaskList = new ArrayList<>(threads);
+        List<Thread> threadList = new ArrayList<>(threads);
         for (Set<String> partition : partitionList) {
-            FutureTask<Set<BigInteger>> futureTask = new FutureTask<>(() -> {
-                Set<BigInteger> localServerDoubleEncryptedDataset = new HashSet<>(partition.size());
+            Thread thread = new Thread(() -> {
                 for (String serverEncryptedEntry : partition) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry);
                     BigInteger encryptedValue = null;
@@ -172,20 +169,18 @@ public class DhPsiClient extends PsiAbstractClient {
                             PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.psiCacheProvider);
                         }
                     }
-                    localServerDoubleEncryptedDataset.add(encryptedValue);
+                    serverDoubleEncryptedDataset.add(encryptedValue);
 
                 }
-                return localServerDoubleEncryptedDataset;
             });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            thread.start();
+            threadList.add(thread);
         }
 
-        // Collect results from the different threads
-        for (FutureTask<Set<BigInteger>> ft : futureTaskList) {
+        for (Thread thread : threadList) {
             try {
-                serverDoubleEncryptedDataset.addAll(ft.get());
-            } catch (InterruptedException | ExecutionException e) {
+                thread.join();
+            } catch (InterruptedException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
@@ -200,30 +195,27 @@ public class DhPsiClient extends PsiAbstractClient {
     @Override
     public Set<String> computePsi() {
         log.debug("Called loadServerDataset");
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.PSI);
+        PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.PSI);
 
         computeReversedMap();
-        Set<String> psi = new HashSet<>();
+        Set<String> psi = ConcurrentHashMap.newKeySet();
         List<Map<Long, BigInteger>> reversedMapPartition = PartitionHelper.partitionMap(clientDoubleEncryptedDatasetMap, threads);
-        List<FutureTask<Set<String>>> futureTaskList = new ArrayList<>(threads);
+        List<Thread> threadList = new ArrayList<>(threads);
         for (Map<Long, BigInteger> partition : reversedMapPartition) {
-            FutureTask<Set<String>> futureTask = new FutureTask<>(() -> {
-                Set<String> partitionPsiSet = new HashSet<>();
+            Thread thread = new Thread(() -> {
                 for (Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
                     if (serverDoubleEncryptedDataset.contains(entry.getValue()))
-                        partitionPsiSet.add(CustomTypeConverter.convertBigIntegerToString(clientClearDatasetMap.get(entry.getKey())));
+                        psi.add(CustomTypeConverter.convertBigIntegerToString(clientClearDatasetMap.get(entry.getKey())));
                 }
-                return partitionPsiSet;
             });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            thread.start();
+            threadList.add(thread);
         }
 
-        // Collect results from the different threads
-        for (FutureTask<Set<String>> ft : futureTaskList) {
+        for (Thread thread : threadList) {
             try {
-                psi.addAll(ft.get());
-            } catch (InterruptedException | ExecutionException e) {
+                thread.join();
+            } catch (InterruptedException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
@@ -239,9 +231,4 @@ public class DhPsiClient extends PsiAbstractClient {
                 CustomTypeConverter.convertBigIntegerToString(this.modulus));
     }
 
-    // Helper class that bundles a quartet of maps. Three <Long, BigInteger> and one <Long, String>
-    static class BsMapQuartet {
-        Map<Long, BigInteger> clearMap = new HashMap<>();
-        Map<Long, String> encryptedMapConvertedToString = new HashMap<>();
-    }
 }

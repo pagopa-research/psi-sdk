@@ -15,7 +15,7 @@ public class AsymmetricKeyFactory {
 
     private AsymmetricKeyFactory() {}
 
-    //TODO: should we introduce an intermediate representation?
+    //TODO: should we introduce an intermediate representation used by server and client
     public static PsiServerKeyDescription generateKey(PsiAlgorithm algorithm, int keySize) {
         KeyPairGenerator keyGenerator;
         java.security.KeyFactory keyFactory;
@@ -54,6 +54,5 @@ public class AsymmetricKeyFactory {
         } catch (InvalidKeySpecException e) {
             throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
         }
-
     }
 }

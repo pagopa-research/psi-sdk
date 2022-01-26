@@ -2,6 +2,7 @@ package psi.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.exception.CustomRuntimeException;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -22,9 +23,13 @@ public class HashFactory {
 
     private String hashingAlgorithm = "SHA-256";
 
-    public HashFactory(BigInteger modulus) throws NoSuchAlgorithmException {
+    public HashFactory(BigInteger modulus){
         this.modulusByteLength = (int) Math.ceil(modulus.bitLength() / 8.0) + 1;
-        this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
+        try {
+            this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CustomRuntimeException("The algorithm "+hashingAlgorithm+" is not supported as hashing function");
+        }
     }
 
     public BigInteger hashFullDomain(BigInteger input) {
