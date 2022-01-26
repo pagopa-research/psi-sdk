@@ -20,6 +20,8 @@ import psi.utils.PsiPhaseStatistics;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,15 +46,15 @@ public class BsPsiClient extends PsiAbstractClient {
     private final BigInteger serverPublicKey;
 
     public BsPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
-        this.serverEncryptedDataset = new HashSet<>();
-        this.clientClearDatasetMap = new HashMap<>();
-        this.clientRandomDatasetMap = new HashMap<>();
-        this.clientDoubleEncryptedDatasetMap = new HashMap<>();
-        this.clientReversedDatasetMap = new HashMap<>();
-        this.threads = DEFAULT_THREADS;
+        this.serverEncryptedDataset = ConcurrentHashMap.newKeySet();
+        this.clientClearDatasetMap = new ConcurrentHashMap<>();
+        this.clientRandomDatasetMap = new ConcurrentHashMap<>();
+        this.clientDoubleEncryptedDatasetMap = new ConcurrentHashMap<>();
+        this.clientReversedDatasetMap = new ConcurrentHashMap<>();
         this.secureRandom = new SecureRandom();
+        this.statisticList = new ConcurrentLinkedQueue<>();
         this.keyAtomicCounter = new AtomicLong(0);
-        this.statisticList = new LinkedList<>();
+        this.threads = DEFAULT_THREADS;
 
         // keys are set from the psiClientSession
         if(psiClientKeyDescription == null) {
