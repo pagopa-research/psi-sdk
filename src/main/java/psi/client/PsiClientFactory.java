@@ -2,6 +2,7 @@ package psi.client;
 
 import psi.cache.PsiCacheProvider;
 import psi.client.algorithm.bs.BsPsiClient;
+import psi.client.algorithm.dh.DhPsiClient;
 import psi.model.PsiClientSession;
 import psi.exception.PsiClientException;
 import psi.model.PsiAlgorithm;
@@ -52,6 +53,7 @@ public class PsiClientFactory {
             case BS:
                 return new BsPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
             case DH:
+                return new DhPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
 
             default:
                 return null;

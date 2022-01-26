@@ -2,6 +2,7 @@ package psi.client;
 
 import psi.utils.PsiPhaseStatistics;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,11 +13,11 @@ public interface PsiClient {
 
     void loadDoubleEncryptedClientDataset(Map<Long, String> doubleEncryptedClientDatasetMap);
 
-    void loadServerDataset(Set<String> serverEncryptedDataset);
+    void loadAndProcessServerDataset(Set<String> serverEncryptedDataset);
 
     Set<String> computePsi();
 
     PsiClientKeyDescription getClientKeyDescription();
 
-    public List<PsiPhaseStatistics> getStatisticList();
+    public Iterator<PsiPhaseStatistics> getStatisticList();
 }

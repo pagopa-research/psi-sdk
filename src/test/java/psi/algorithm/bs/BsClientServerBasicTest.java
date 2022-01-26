@@ -76,7 +76,7 @@ public class BsClientServerBasicTest {
 
         // Client loads the encrypted server dataset
         Set<String> serverEncryptedDataset = psiServer.encryptDataset(serverDataset);
-        psiClient.loadServerDataset(serverEncryptedDataset);
+        psiClient.loadAndProcessServerDataset(serverEncryptedDataset);
 
         // Compute PSI
         Set<String> psiResult = psiClient.computePsi();

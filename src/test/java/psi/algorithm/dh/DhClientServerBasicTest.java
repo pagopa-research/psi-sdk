@@ -1,15 +1,15 @@
-package psi.algorithm.bs;
+package psi.algorithm.dh;
 
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
-import psi.client.PsiClientKeyDescriptionFactory;
-import psi.client.PsiClientKeyDescription;
-import psi.model.PsiClientSession;
-import psi.model.PsiAlgorithmParameter;
 import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
-import psi.server.*;
+import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiClientSession;
+import psi.server.PsiServer;
+import psi.server.PsiServerFactory;
+import psi.server.PsiServerSession;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -18,12 +18,10 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BsClientServerKeyDescriptionTest {
+public class DhClientServerBasicTest {
 
     private PsiClient psiClient;
     private PsiServerSession psiServerSession;
-    private PsiServerKeyDescription psiServerKeyDescription;
-    private PsiClientKeyDescription psiClientKeyDescription;
 
     private Set<String> serverDataset;
     private Set<String> clientDataset;
@@ -40,7 +38,6 @@ public class BsClientServerKeyDescriptionTest {
         this.clientDataset = localClientDataset;
     }
 
-
     public void initServerDataset(){
         Set<String> localServerDataset = new HashSet<>();
         for(long i = 0; i < 1000; i ++){
@@ -53,37 +50,21 @@ public class BsClientServerKeyDescriptionTest {
         this.serverDataset = localServerDataset;
     }
 
-    public void initKeyDescriptions(){
-        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
-        psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.BS);
-        psiAlgorithmParameter.setKeySize(2048);
-        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
-        this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
-        this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
-                this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
-    }
-
     public void initServerAndClient(){
         PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
-        psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.BS);
+        psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.DH);
         psiAlgorithmParameter.setKeySize(2048);
-        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter, psiServerKeyDescription);
+        PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerSession = psiServerSession;
         PsiClientSession psiClientSession = PsiClientSession.getFromServerSession(psiServerSession);
-        psiClient = PsiClientFactory.loadSession(psiClientSession, psiClientKeyDescription);
+        psiClient = PsiClientFactory.loadSession(psiClientSession);
     }
 
     @Test
-    public void computeBsPsi(){
-        initKeyDescriptions();
+    public void computeDhPsi(){
         initServerDataset();
         initClientDataset();
         initServerAndClient();
-
-        // Verify that the keys of the serverSession match those of the keyDescription
-        assertEquals(this.psiServerSession.getPsiServerKeyDescription().getPrivateKey(), psiServerKeyDescription.getPrivateKey());
-        assertEquals(this.psiServerSession.getPsiServerKeyDescription().getPublicKey(), psiServerKeyDescription.getPublicKey());
-        assertEquals(this.psiServerSession.getPsiServerKeyDescription().getModulus(), psiServerKeyDescription.getModulus());
 
         // Get server instance
         PsiServer psiServer = PsiServerFactory.loadSession(psiServerSession);

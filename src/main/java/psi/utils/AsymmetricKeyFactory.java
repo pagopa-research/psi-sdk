@@ -11,9 +11,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
-public class KeyFactory {
+public class AsymmetricKeyFactory {
 
-    private KeyFactory() {}
+    private AsymmetricKeyFactory() {}
 
     //TODO: should we introduce an intermediate representation?
     public static PsiServerKeyDescription generateKey(PsiAlgorithm algorithm, int keySize) {
@@ -23,7 +23,7 @@ public class KeyFactory {
             String keyType = algorithm.toString();
             if(keyType.equals("BS")) keyType = "RSA";
             keyGenerator = KeyPairGenerator.getInstance(keyType);
-            keyFactory = java.security.KeyFactory.getInstance(keyType);
+            keyFactory = KeyFactory.getInstance(keyType);
         } catch (NoSuchAlgorithmException e) {
             throw new PsiServerInitException(algorithm + " key generator not available");
         }
@@ -42,12 +42,12 @@ public class KeyFactory {
                     modulus = (CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getModulus()));
                     privateKey = (CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getPrivateExponent()));
                     publicKey = (CustomTypeConverter.convertBigIntegerToString(rsaPublicKeySpec.getPublicExponent()));
-                    break;
+                    return PsiServerKeyDescriptionFactory.createBsServerKeyDescription(privateKey, publicKey, modulus);
                 case DH:
                     DHPrivateKeySpec dhPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), DHPrivateKeySpec.class);
                     modulus = (CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getP()));
                     privateKey = (CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getX()));
-                    break;
+                    return PsiServerKeyDescriptionFactory.createDhServerKeyDescription(privateKey, modulus);
                 default:
                     throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
             }
@@ -55,6 +55,5 @@ public class KeyFactory {
             throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
         }
 
-        return PsiServerKeyDescriptionFactory.createBsServerKeyDescription(privateKey, publicKey, modulus);
     }
 }

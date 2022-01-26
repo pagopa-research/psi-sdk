@@ -1,16 +1,16 @@
-package psi.algorithm.bs;
+package psi.algorithm.dh;
 
 import org.junit.jupiter.api.Test;
 import psi.cache.PsiCacheProviderImplementation;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
-import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
-import psi.model.PsiAlgorithmParameter;
-import psi.model.PsiClientSession;
+import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.CustomRuntimeException;
 import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
+import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiClientSession;
 import psi.server.PsiServer;
 import psi.server.PsiServerFactory;
 import psi.server.PsiServerKeyDescription;
@@ -25,7 +25,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BsClientServerCacheTest {
+public class DhClientServerCacheTest {
 
     private PsiClient psiClient;
     private PsiServerSession psiServerSession;
@@ -42,12 +42,12 @@ public class BsClientServerCacheTest {
     private void setup() {
         // Initializing key descriptions
         this.psiAlgorithmParameter = new PsiAlgorithmParameter();
-        this.psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.BS);
+        this.psiAlgorithmParameter.setAlgorithm(PsiAlgorithm.DH);
         this.psiAlgorithmParameter.setKeySize(2048);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(this.psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
-        this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
-                this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
+        this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
+                this.psiServerKeyDescription.getPrivateKey(), this.psiServerKeyDescription.getModulus());
 
         // Initializing caches
         this.serverCache = new PsiCacheProviderImplementation();
@@ -82,7 +82,7 @@ public class BsClientServerCacheTest {
     }
 
     @Test
-    public void computeBsPsi(){
+    public void computeDhPsi(){
         setup();
         long serverSize = 3000;
         long clientSize = 1500;
@@ -94,7 +94,6 @@ public class BsClientServerCacheTest {
         if(psiServerKeyDescription == null)
             throw new CustomRuntimeException("keyDescription should not be null");
         assertEquals(psiServerSession.getPsiServerKeyDescription().getPrivateKey(), psiServerKeyDescription.getPrivateKey());
-        assertEquals(psiServerSession.getPsiServerKeyDescription().getPublicKey(), psiServerKeyDescription.getPublicKey());
         assertEquals(psiServerSession.getPsiServerKeyDescription().getModulus(), psiServerKeyDescription.getModulus());
 
         // Get server instance

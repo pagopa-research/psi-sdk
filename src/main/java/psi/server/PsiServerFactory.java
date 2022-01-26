@@ -6,6 +6,7 @@ import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
 import psi.model.PsiAlgorithm;
 import psi.server.algorithm.bs.BsPsiServer;
+import psi.server.algorithm.dh.DhPsiServer;
 
 import java.util.Arrays;
 
@@ -58,6 +59,7 @@ public class PsiServerFactory {
                 return BsPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
 
             case DH:
+                return DhPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
 
             default:
                 return null;
@@ -86,6 +88,7 @@ public class PsiServerFactory {
                 return new BsPsiServer(psiServerSession, psiCacheProvider);
 
             case DH:
+                return new DhPsiServer(psiServerSession, psiCacheProvider);
 
             default:
                 return null;

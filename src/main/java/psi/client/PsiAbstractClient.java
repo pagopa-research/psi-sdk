@@ -3,22 +3,20 @@ package psi.client;
 import psi.cache.PsiCacheProvider;
 import psi.utils.PsiPhaseStatistics;
 
-import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Queue;
 
 public abstract class PsiAbstractClient implements PsiClient {
 
     protected static final int DEFAULT_THREADS = 4;
 
-    protected Long sessionId;
     protected Integer threads;
-    protected Set<BigInteger> serverEncryptedDataset;
     protected Boolean cacheEnabled;
     protected Long keyId;
-    protected PsiCacheProvider encryptionCacheProvider;
+    protected PsiCacheProvider psiCacheProvider;
 
-    protected List<PsiPhaseStatistics> statisticList;
+    protected Queue<PsiPhaseStatistics> statisticList;
 
     public Integer getThreads() {
         return threads;
@@ -26,18 +24,6 @@ public abstract class PsiAbstractClient implements PsiClient {
 
     public void setThreads(Integer threads) {
         this.threads = threads;
-    }
-
-    public Long getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public Set<BigInteger> getServerEncryptedDataset() {
-        return serverEncryptedDataset;
     }
 
     public Boolean getCacheEnabled() {
@@ -48,23 +34,21 @@ public abstract class PsiAbstractClient implements PsiClient {
         return keyId;
     }
 
-    public PsiCacheProvider getEncryptionCacheProvider() {
-        return encryptionCacheProvider;
+    public PsiCacheProvider getPsiCacheProvider() {
+        return psiCacheProvider;
     }
 
-    public List<PsiPhaseStatistics> getStatisticList() {
-        return statisticList;
+    public Iterator<PsiPhaseStatistics> getStatisticList() {
+        return statisticList.iterator();
     }
 
     @Override
     public String toString() {
         return "PsiAbstractClient{" +
-                "sessionId=" + sessionId +
                 ", threads=" + threads +
-                ", serverEncryptedDataset=" + serverEncryptedDataset +
                 ", cacheEnabled=" + cacheEnabled +
                 ", keyId=" + keyId +
-                ", encryptionCacheProvider=" + encryptionCacheProvider +
+                ", psiCacheProvider=" + psiCacheProvider +
                 '}';
     }
 }

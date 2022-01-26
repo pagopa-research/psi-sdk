@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class BsPsiClient extends PsiAbstractClient {
 
@@ -35,9 +36,9 @@ public class BsPsiClient extends PsiAbstractClient {
     private final SecureRandom secureRandom;
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, BigInteger> clientRandomDatasetMap;
-    private final Map<Long, BigInteger> clientEncryptedDatasetMap;
     private final Map<Long, BigInteger> clientDoubleEncryptedDatasetMap;
     private final Map<Long, BigInteger> clientReversedDatasetMap;
+    private final Set<BigInteger> serverEncryptedDataset;
 
     private final BigInteger modulus;
     private final BigInteger serverPublicKey;
@@ -46,7 +47,6 @@ public class BsPsiClient extends PsiAbstractClient {
         this.serverEncryptedDataset = new HashSet<>();
         this.clientClearDatasetMap = new HashMap<>();
         this.clientRandomDatasetMap = new HashMap<>();
-        this.clientEncryptedDatasetMap = new HashMap<>();
         this.clientDoubleEncryptedDatasetMap = new HashMap<>();
         this.clientReversedDatasetMap = new HashMap<>();
         this.threads = DEFAULT_THREADS;
@@ -62,9 +62,9 @@ public class BsPsiClient extends PsiAbstractClient {
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else{
             if(psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getServerPublicKey() == null)
-                throw new PsiClientException("The fields modulus and serverPrivateKey in the input psiClientKeyDescription cannot be null");
+                throw new PsiClientException("The fields modulus and serverPublicKey in the input psiClientKeyDescription cannot be null");
             if(!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()) || !psiClientSession.getServerPublicKey().equals(psiClientKeyDescription.getServerPublicKey()))
-                throw new PsiClientException("The fields modulus and/or serverPrivateKey in the psiClientKeyDescription does not match those in the psiClientSession");
+                throw new PsiClientException("The fields modulus and/or serverPublicKey in the psiClientKeyDescription does not match those in the psiClientSession");
             this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getModulus());
             this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getServerPublicKey());
         }
@@ -77,7 +77,7 @@ public class BsPsiClient extends PsiAbstractClient {
         else{
             this.keyId = PsiCacheUtils.getKeyId(getClientKeyDescription(), psiCacheProvider);
             this.cacheEnabled = true;
-            this.encryptionCacheProvider = psiCacheProvider;
+            this.psiCacheProvider = psiCacheProvider;
         }
     }
 
@@ -92,11 +92,9 @@ public class BsPsiClient extends PsiAbstractClient {
         List<FutureTask<BsMapQuartet>> futureTaskList = new ArrayList<>(threads);
         for(Set<String> partition : clientDatasetPartitions) {
             FutureTask<BsMapQuartet> futureTask = new FutureTask<>(() -> {
-                Map<Long, BigInteger> localClientClearDatasetMap = new HashMap<>();
-                Map<Long, BigInteger> localClientRandomDatasetMap = new HashMap<>();
-                Map<Long, BigInteger> localClientEncryptedDatasetMap = new HashMap<>();
-                Map<Long, String> localClientEncryptedDatasetMapConvertedToString = new HashMap<>();
                 HashFactory hashFactory = new HashFactory(modulus);
+
+                BsMapQuartet bsMapQuartet = new BsMapQuartet();
 
                 for(String value : partition){
                     Long key = keyAtomicCounter.incrementAndGet();
@@ -105,7 +103,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(this.cacheEnabled) {
-                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<RandomEncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             randomValue = encryptedCacheObjectOptional.get().getRandomValue();
@@ -118,20 +116,13 @@ public class BsPsiClient extends PsiAbstractClient {
                         encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         statistics.incrementCacheMiss();
                         if(this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.encryptionCacheProvider);
+                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedCacheObject(randomValue, encryptedValue),this.psiCacheProvider);
                         }
                     }
-                     localClientClearDatasetMap.put(key, bigIntegerValue);
-                     localClientRandomDatasetMap.put(key, randomValue);
-                     localClientEncryptedDatasetMap.put(key, encryptedValue);
-                     localClientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
+                    bsMapQuartet.clearMap.put(key, bigIntegerValue);
+                    bsMapQuartet.randomMap.put(key, randomValue);
+                    bsMapQuartet.encryptedMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                  }
-
-                 BsMapQuartet bsMapQuartet = new BsMapQuartet();
-                 bsMapQuartet.clearMap = localClientClearDatasetMap;
-                 bsMapQuartet.randomMap = localClientRandomDatasetMap;
-                 bsMapQuartet.encryptedMap = localClientEncryptedDatasetMap;
-                 bsMapQuartet.encryptedMapConvertedToString = localClientEncryptedDatasetMapConvertedToString;
                  return bsMapQuartet;
             });
             (new Thread(futureTask)).start();
@@ -143,7 +134,6 @@ public class BsPsiClient extends PsiAbstractClient {
             try {
                 clientClearDatasetMap.putAll(ft.get().clearMap);
                 clientRandomDatasetMap.putAll(ft.get().randomMap);
-                clientEncryptedDatasetMap.putAll(ft.get().encryptedMap);
                 clientEncryptedDatasetMapConvertedToString.putAll(ft.get().encryptedMapConvertedToString);
             } catch (InterruptedException | ExecutionException e) {
                 log.error("Error while collecting the results of threads: ", e);
@@ -163,11 +153,10 @@ public class BsPsiClient extends PsiAbstractClient {
     }
 
     @Override
-    public void loadServerDataset(Set<String> serverEncryptedDataset) {
+    public void loadAndProcessServerDataset(Set<String> serverEncryptedDataset) {
         log.debug("Called loadServerDataset");
-        for(String value : serverEncryptedDataset) {
-            this.serverEncryptedDataset.add(CustomTypeConverter.convertStringToBigInteger(value));
-        }
+        this.serverEncryptedDataset.addAll(
+                serverEncryptedDataset.stream().map(CustomTypeConverter::convertStringToBigInteger).collect(Collectors.toSet()));
     }
 
     // Loads the clientReversedDatasetMap which contains a decryption of the clientDoubleEncryptedDatasetMap entries
@@ -185,7 +174,7 @@ public class BsPsiClient extends PsiAbstractClient {
                     BigInteger reversedValue = null;
                     if (this.cacheEnabled) {
                         //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.encryptionCacheProvider);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
@@ -195,7 +184,7 @@ public class BsPsiClient extends PsiAbstractClient {
                         reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.encryptionCacheProvider); //TODO, come sopra
+                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.psiCacheProvider); //TODO, come sopra
                         }
                     }
                     localClientReversedDatasetMap.put(entry.getKey(), reversedValue);
@@ -220,7 +209,6 @@ public class BsPsiClient extends PsiAbstractClient {
     @Override
     public Set<String> computePsi(){
         log.debug("Called loadServerDataset");
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.PSI);
 
         computeReversedMap();
         Set<String> psi = new HashSet<>();
@@ -259,9 +247,8 @@ public class BsPsiClient extends PsiAbstractClient {
 
     // Helper class that bundles a quartet of maps. Three <Long, BigInteger> and one <Long, String>
      static class BsMapQuartet{
-        public Map<Long, BigInteger> clearMap;
-        public Map<Long, BigInteger> randomMap;
-        public Map<Long, BigInteger> encryptedMap;
-        public Map<Long, String> encryptedMapConvertedToString;
+        Map<Long, BigInteger> clearMap = new HashMap<>();
+        Map<Long, BigInteger> randomMap = new HashMap<>();
+        Map<Long, String> encryptedMapConvertedToString = new HashMap<>();
     }
 }

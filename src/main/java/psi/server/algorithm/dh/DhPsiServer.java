@@ -1,31 +1,29 @@
-package psi.server.algorithm.bs;
+package psi.server.algorithm.dh;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.cache.PsiCacheProvider;
 import psi.cache.PsiCacheUtils;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
-import psi.model.PsiAlgorithmParameter;
-import psi.cache.PsiCacheProvider;
-import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
-import psi.server.*;
-import psi.utils.CustomTypeConverter;
-import psi.utils.HashFactory;
-import psi.utils.PartitionHelper;
-import psi.utils.PsiPhaseStatistics;
-import psi.utils.AsymmetricKeyFactory;
+import psi.exception.PsiServerInitException;
+import psi.model.PsiAlgorithmParameter;
+import psi.server.PsiAbstractServer;
+import psi.server.PsiServerKeyDescription;
+import psi.server.PsiServerSession;
+import psi.utils.*;
 
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-public class BsPsiServer extends PsiAbstractServer {
+public class DhPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(PsiAbstractServer.class);
 
-    public BsPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
+    public DhPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
         this.psiServerSession = bsServerSession;
         this.threads = PsiAbstractServer.DEFAULT_THREADS;
         this.statisticList = new LinkedList<>();
@@ -45,9 +43,8 @@ public class BsPsiServer extends PsiAbstractServer {
         } // keys are loaded from serverKeyDescription
         else {
             if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getModulus().isEmpty()
-                    || psiServerKeyDescription.getPrivateKey() == null || psiServerKeyDescription.getPrivateKey().isEmpty()
-                    || psiServerKeyDescription.getPublicKey() == null || psiServerKeyDescription.getPublicKey().isEmpty())
-                throw new PsiServerInitException("The keys and/or modulus passed in the input psiServerKeyDescription are either null or empty");
+                    || psiServerKeyDescription.getPrivateKey() == null || psiServerKeyDescription.getPrivateKey().isEmpty())
+                throw new PsiServerInitException("The private key and/or modulus passed in the input psiServerKeyDescription are either null or empty");
             // TODO: check whether keys are valid wrt each other
         }
         psiServerSession.setPsiServerKeyDescription(psiServerKeyDescription);
@@ -61,9 +58,9 @@ public class BsPsiServer extends PsiAbstractServer {
     @Override
     public Set<String> encryptDataset(Set<String> inputSet) {
         log.debug("Called encryptDataset()");
+        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         validatePsiServerKeyDescription();
-        PsiPhaseStatistics statistics = new PsiPhaseStatistics(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
@@ -91,7 +88,6 @@ public class BsPsiServer extends PsiAbstractServer {
                     if (encryptedValue == null) {
                         encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
                         encryptedValue = encryptedValue.modPow(serverPrivateKey, modulus);
-                        encryptedValue = hashFactory.hash(encryptedValue);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (psiServerSession.getCacheEnabled()) {
@@ -184,8 +180,7 @@ public class BsPsiServer extends PsiAbstractServer {
     private void validatePsiServerKeyDescription(){
         if(psiServerSession.getPsiServerKeyDescription() == null
                 || psiServerSession.getPsiServerKeyDescription().getPrivateKey() == null
-                || psiServerSession.getPsiServerKeyDescription().getPublicKey() == null
                 || psiServerSession.getPsiServerKeyDescription().getModulus() == null
-        ) throw new PsiServerException("The fields privateKey, publicKey and modulus of the PsiServerKeyDescription for BS should not be null");
+        ) throw new PsiServerException("The fields privateKey and modulus of the PsiServerKeyDescription for DH should not be null");
     }
 }

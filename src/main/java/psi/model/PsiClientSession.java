@@ -67,6 +67,10 @@ public class PsiClientSession {
                 psiClientSession.setServerPublicKey(psiServerSession.getPsiServerKeyDescription().getPublicKey());
                 break;
             case DH:
+                if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
+                    throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
+                psiClientSession.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
+                break;
 
             default:
                 throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
