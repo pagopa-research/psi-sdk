@@ -10,6 +10,7 @@ import java.util.Queue;
 public abstract class PsiAbstractClient implements PsiClient {
 
     protected static final int DEFAULT_THREADS = 4;
+    protected static final int THREAD_MAX_SECONDS_LIFETIME = 10800;
 
     protected Integer threads;
     protected Boolean cacheEnabled;

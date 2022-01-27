@@ -17,11 +17,9 @@ import psi.utils.*;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DhPsiClient extends PsiAbstractClient {
@@ -87,9 +85,9 @@ public class DhPsiClient extends PsiAbstractClient {
         List<Set<String>> clientDatasetPartitions = PartitionHelper.partitionSet(clearClientDataset, this.threads);
         Map<Long, String> clientEncryptedDatasetMapConvertedToString = new ConcurrentHashMap<>();
 
-        List<Thread> threadList = new ArrayList<>(threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(clientDatasetPartitions.size());
         for (Set<String> partition : clientDatasetPartitions) {
-            Thread thread = new Thread(() -> {
+            executorService.submit(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
 
                 for (String stringValue : partition) {
@@ -118,16 +116,15 @@ public class DhPsiClient extends PsiAbstractClient {
                     clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
             });
-            thread.start();
-            threadList.add(thread);
         }
 
-        for (Thread thread : threadList) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                log.error("Error while collecting the results of threads: ", e);
-            }
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("Error while collecting the results of threads: ", e);
+        } finally {
+            executorService.shutdown();
         }
 
         statisticList.add(statistics.close());
@@ -149,9 +146,9 @@ public class DhPsiClient extends PsiAbstractClient {
 
         List<Set<String>> partitionList = PartitionHelper.partitionSet(serverEncryptedDataset, this.threads);
 
-        List<Thread> threadList = new ArrayList<>(threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
         for (Set<String> partition : partitionList) {
-            Thread thread = new Thread(() -> {
+            executorService.submit(() -> {
                 for (String serverEncryptedEntry : partition) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry);
                     BigInteger encryptedValue = null;
@@ -174,17 +171,17 @@ public class DhPsiClient extends PsiAbstractClient {
 
                 }
             });
-            thread.start();
-            threadList.add(thread);
         }
 
-        for (Thread thread : threadList) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                log.error("Error while collecting the results of threads: ", e);
-            }
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("Error while collecting the results of threads: ", e);
+        } finally {
+            executorService.shutdown();
         }
+
         statisticList.add(statistics.close());
     }
 
@@ -201,24 +198,23 @@ public class DhPsiClient extends PsiAbstractClient {
         computeReversedMap();
         Set<String> psi = ConcurrentHashMap.newKeySet();
         List<Map<Long, BigInteger>> reversedMapPartition = PartitionHelper.partitionMap(clientDoubleEncryptedDatasetMap, threads);
-        List<Thread> threadList = new ArrayList<>(threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(reversedMapPartition.size());
         for (Map<Long, BigInteger> partition : reversedMapPartition) {
-            Thread thread = new Thread(() -> {
+            executorService.submit(() -> {
                 for (Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
                     if (serverDoubleEncryptedDataset.contains(entry.getValue()))
                         psi.add(CustomTypeConverter.convertBigIntegerToString(clientClearDatasetMap.get(entry.getKey())));
                 }
             });
-            thread.start();
-            threadList.add(thread);
         }
 
-        for (Thread thread : threadList) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                log.error("Error while collecting the results of threads: ", e);
-            }
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("Error while collecting the results of threads: ", e);
+        } finally {
+            executorService.shutdown();
         }
 
         statisticList.add(statistics.close());

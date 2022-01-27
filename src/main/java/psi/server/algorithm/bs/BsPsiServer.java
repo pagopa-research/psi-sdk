@@ -19,7 +19,9 @@ import psi.utils.AsymmetricKeyFactory;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class BsPsiServer extends PsiAbstractServer {
 
@@ -70,9 +72,10 @@ public class BsPsiServer extends PsiAbstractServer {
 
         Set<String> encryptedSet = new HashSet<>();
         List<Set<String>> partitionList = PartitionHelper.partitionSet(inputSet, this.threads);
-        List<FutureTask<Set<String>>> futureTaskList = new ArrayList<>(threads);
+        List<Future<Set<String>>> futureTaskList = new ArrayList<>(threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
         for(Set<String> partition : partitionList) {
-            FutureTask<Set<String>> futureTask = new FutureTask<>(() -> {
+            futureTaskList.add(executorService.submit(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
                 Set<String> localDataset = new HashSet<>();
 
@@ -101,19 +104,18 @@ public class BsPsiServer extends PsiAbstractServer {
                     localDataset.add(CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
                 return localDataset;
-            });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            }));
         }
 
         // Collect results from the different threads
-        for (FutureTask<Set<String>> ft : futureTaskList) {
+        for (Future<Set<String>> ft : futureTaskList) {
             try {
                 encryptedSet.addAll(ft.get());
             } catch (InterruptedException | ExecutionException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
+        executorService.shutdownNow();
 
         statisticList.add(statistics.close());
         return encryptedSet;
@@ -130,9 +132,10 @@ public class BsPsiServer extends PsiAbstractServer {
 
         Map<Long, String> encryptedMap = new HashMap<>();
         List<Map<Long, String>> partitionList = PartitionHelper.partitionMap(inputMap, this.threads);
-        List<FutureTask<Map<Long, String>>> futureTaskList = new ArrayList<>(threads);
+        List<Future<Map<Long, String>>> futureTaskList = new ArrayList<>(threads);
+        ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
         for(Map<Long, String> partition : partitionList) {
-            FutureTask<Map<Long, String>> futureTask = new FutureTask<>(() -> {
+            futureTaskList.add(executorService.submit(() -> {
                 Map<Long, String> localDatasetMap = new HashMap<>();
                 for(Map.Entry<Long, String> entry : partition.entrySet()){
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
@@ -157,19 +160,18 @@ public class BsPsiServer extends PsiAbstractServer {
                     localDatasetMap.put(entry.getKey(), CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                 }
                 return localDatasetMap;
-            });
-            (new Thread(futureTask)).start();
-            futureTaskList.add(futureTask);
+            }));
         }
 
         // Collect results from the different threads
-        for (FutureTask<Map<Long, String>> ft : futureTaskList) {
+        for (Future<Map<Long, String>> ft : futureTaskList) {
             try {
                 encryptedMap.putAll(ft.get());
             } catch (InterruptedException | ExecutionException e) {
                 log.error("Error while collecting the results of threads: ", e);
             }
         }
+        executorService.shutdownNow();
 
         statisticList.add(statistics.close());
         return encryptedMap;

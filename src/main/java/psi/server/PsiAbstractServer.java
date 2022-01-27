@@ -8,6 +8,7 @@ import java.util.List;
 public abstract class PsiAbstractServer implements PsiServer {
 
     protected static final int DEFAULT_THREADS = 4;
+    protected static final int THREAD_MAX_SECONDS_LIFETIME = 10800;
     protected int threads;
 
     protected PsiServerSession psiServerSession;
