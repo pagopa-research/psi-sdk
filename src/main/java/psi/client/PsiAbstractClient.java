@@ -1,28 +1,27 @@
 package psi.client;
 
 import psi.cache.PsiCacheProvider;
+import psi.model.PsiRuntimeConfiguration;
 import psi.utils.PsiPhaseStatistics;
 
 import java.util.*;
 
 public abstract class PsiAbstractClient implements PsiClient {
 
-    protected static final int DEFAULT_THREADS = 4;
-    protected static final int THREAD_MAX_SECONDS_LIFETIME = 10800;
+    private static final int DEFAULT_THREADS = 4;
+    private static final int DEFAULT_THREAD_TIMEOUT_SECONDS = 10800;
 
-    protected Integer threads;
     protected Boolean cacheEnabled;
     protected Long keyId;
     protected PsiCacheProvider psiCacheProvider;
+
+    protected int threads = DEFAULT_THREADS;
+    protected int threadTimeoutSeconds = DEFAULT_THREAD_TIMEOUT_SECONDS;
 
     protected Queue<PsiPhaseStatistics> statisticList;
 
     public Integer getThreads() {
         return threads;
-    }
-
-    public void setThreads(Integer threads) {
-        this.threads = threads;
     }
 
     public Boolean getCacheEnabled() {
@@ -41,6 +40,13 @@ public abstract class PsiAbstractClient implements PsiClient {
         List<PsiPhaseStatistics> psiPhaseStatisticsList = new ArrayList<>(statisticList.size());
         statisticList.iterator().forEachRemaining(elem -> psiPhaseStatisticsList.add(0, elem));
         return psiPhaseStatisticsList;
+    }
+
+    public void setConfiguration(PsiRuntimeConfiguration configuration){
+        this.threads = configuration.getThreads() != null ?
+                configuration.getThreads() : DEFAULT_THREADS;
+        this.threadTimeoutSeconds = configuration.getThreadTimeoutSeconds() != null ?
+                configuration.getThreadTimeoutSeconds() : DEFAULT_THREAD_TIMEOUT_SECONDS;
     }
 
     @Override

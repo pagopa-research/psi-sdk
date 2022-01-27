@@ -1,29 +1,28 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
+import psi.model.PsiRuntimeConfiguration;
 import psi.utils.PsiPhaseStatistics;
 
 import java.util.List;
 
 public abstract class PsiAbstractServer implements PsiServer {
 
-    protected static final int DEFAULT_THREADS = 4;
-    protected static final int THREAD_MAX_SECONDS_LIFETIME = 10800;
-    protected int threads;
+    private static final int DEFAULT_THREADS = 4;
+    private static final int DEFAULT_THREAD_TIMEOUT_SECONDS = 10800;
 
     protected PsiServerSession psiServerSession;
     protected PsiCacheProvider psiCacheProvider;
 
     protected Long keyId;
 
+    protected int threads = DEFAULT_THREADS;
+    protected int threadTimeoutSeconds = DEFAULT_THREAD_TIMEOUT_SECONDS;
+
     protected List<PsiPhaseStatistics> statisticList;
 
     public int getThreads() {
         return threads;
-    }
-
-    public void setThreads(int threads) {
-        this.threads = threads;
     }
 
     public PsiServerSession getServerSession() {
@@ -36,6 +35,13 @@ public abstract class PsiAbstractServer implements PsiServer {
 
     public List<PsiPhaseStatistics> getStatisticList() {
         return statisticList;
+    }
+
+    public void setConfiguration(PsiRuntimeConfiguration configuration){
+        this.threads = configuration.getThreads() != null ?
+                configuration.getThreads() : DEFAULT_THREADS;
+        this.threadTimeoutSeconds = configuration.getThreadTimeoutSeconds() != null ?
+                configuration.getThreadTimeoutSeconds() : DEFAULT_THREAD_TIMEOUT_SECONDS;
     }
 
     public Long getKeyId() {

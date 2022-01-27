@@ -1,6 +1,7 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
+import psi.model.PsiRuntimeConfiguration;
 import psi.utils.PsiPhaseStatistics;
 
 import java.util.List;
@@ -15,14 +16,14 @@ public interface PsiServer {
 
     int getThreads();
 
-    void setThreads(int threads);
-
     PsiServerSession getServerSession();
 
     PsiCacheProvider getPsiCacheProvider();
 
     PsiServerKeyDescription getServerKeyDescription();
 
-    public List<PsiPhaseStatistics> getStatisticList();
+    List<PsiPhaseStatistics> getStatisticList();
+
+    void setConfiguration(PsiRuntimeConfiguration configuration);
 
 }

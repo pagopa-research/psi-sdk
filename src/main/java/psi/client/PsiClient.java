@@ -1,5 +1,6 @@
 package psi.client;
 
+import psi.model.PsiRuntimeConfiguration;
 import psi.utils.PsiPhaseStatistics;
 
 import java.util.List;
@@ -18,5 +19,7 @@ public interface PsiClient {
 
     PsiClientKeyDescription getClientKeyDescription();
 
-    public List<PsiPhaseStatistics> getStatisticList();
+    List<PsiPhaseStatistics> getStatisticList();
+
+    void setConfiguration(PsiRuntimeConfiguration configuration);
 }

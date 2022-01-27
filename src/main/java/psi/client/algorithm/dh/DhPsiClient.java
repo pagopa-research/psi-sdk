@@ -9,15 +9,11 @@ import psi.cache.model.EncryptedCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
-import psi.exception.CustomRuntimeException;
 import psi.exception.PsiClientException;
 import psi.model.PsiClientSession;
-import psi.server.PsiServerKeyDescription;
 import psi.utils.*;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,7 +39,6 @@ public class DhPsiClient extends PsiAbstractClient {
 
         this.statisticList = new ConcurrentLinkedQueue<>();
         this.keyAtomicCounter = new AtomicLong(0);
-        this.threads = DEFAULT_THREADS;
 
         // keys are set from the psiClientSession
         if (psiClientKeyDescription == null) {
@@ -118,7 +113,7 @@ public class DhPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -166,7 +161,7 @@ public class DhPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
     }
@@ -194,7 +189,7 @@ public class DhPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return psi;

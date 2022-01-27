@@ -48,7 +48,6 @@ public class BsPsiClient extends PsiAbstractClient {
         this.secureRandom = new SecureRandom();
         this.statisticList = new ConcurrentLinkedQueue<>();
         this.keyAtomicCounter = new AtomicLong(0);
-        this.threads = DEFAULT_THREADS;
 
         // keys are set from the psiClientSession
         if(psiClientKeyDescription == null) {
@@ -120,7 +119,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -174,7 +173,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
     }
@@ -196,7 +195,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         return psi;
     }

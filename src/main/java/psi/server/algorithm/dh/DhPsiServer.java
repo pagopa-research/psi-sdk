@@ -24,7 +24,6 @@ public class DhPsiServer extends PsiAbstractServer {
 
     public DhPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
         this.psiServerSession = bsServerSession;
-        this.threads = PsiAbstractServer.DEFAULT_THREADS;
         this.statisticList = new LinkedList<>();
 
         if(psiCacheProvider != null){
@@ -96,7 +95,7 @@ public class DhPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedSet;
@@ -140,7 +139,7 @@ public class DhPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
+        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedMap;
