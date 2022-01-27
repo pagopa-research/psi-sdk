@@ -12,10 +12,7 @@ import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
 import psi.model.PsiClientSession;
 import psi.exception.PsiClientException;
-import psi.utils.CustomTypeConverter;
-import psi.utils.HashFactory;
-import psi.utils.PartitionHelper;
-import psi.utils.PsiPhaseStatistics;
+import psi.utils.*;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -123,14 +120,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("Error while collecting the results of threads: ", e);
-        } finally {
-            executorService.shutdown();
-        }
+        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
 
         statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -184,14 +174,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("Error while collecting the results of threads: ", e);
-        } finally {
-            executorService.shutdown();
-        }
+        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
 
         statisticList.add(statistics.close());
     }
@@ -213,14 +196,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("Error while collecting the results of threads: ", e);
-        } finally {
-            executorService.shutdown();
-        }
+        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
 
         return psi;
     }

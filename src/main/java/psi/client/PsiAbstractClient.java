@@ -3,9 +3,7 @@ package psi.client;
 import psi.cache.PsiCacheProvider;
 import psi.utils.PsiPhaseStatistics;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public abstract class PsiAbstractClient implements PsiClient {
 
@@ -39,8 +37,10 @@ public abstract class PsiAbstractClient implements PsiClient {
         return psiCacheProvider;
     }
 
-    public Iterator<PsiPhaseStatistics> getStatisticList() {
-        return statisticList.iterator();
+    public List<PsiPhaseStatistics> getStatisticList() {
+        List<PsiPhaseStatistics> psiPhaseStatisticsList = new ArrayList<>(statisticList.size());
+        statisticList.iterator().forEachRemaining(elem -> psiPhaseStatisticsList.add(0, elem));
+        return psiPhaseStatisticsList;
     }
 
     @Override

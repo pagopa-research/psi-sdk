@@ -160,9 +160,7 @@ public class DhClientServerCacheTest {
             }
         }
 
-        Iterator<PsiPhaseStatistics> iterator = psiClient.getStatisticList();
-        while(iterator. hasNext()) {
-            PsiPhaseStatistics sf = iterator.next();
+        for(PsiPhaseStatistics sf : psiClient.getStatisticList()) {
             if (sf.getDescription().equals(PsiPhaseStatistics.PsiPhase.ENCRYPTION)) {
                 assertEquals(clientSize, sf.getCacheHit());
                 assertEquals(0, sf.getCacheMiss());

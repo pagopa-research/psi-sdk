@@ -2,7 +2,6 @@ package psi.client;
 
 import psi.utils.PsiPhaseStatistics;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,5 +18,5 @@ public interface PsiClient {
 
     PsiClientKeyDescription getClientKeyDescription();
 
-    public Iterator<PsiPhaseStatistics> getStatisticList();
+    public List<PsiPhaseStatistics> getStatisticList();
 }

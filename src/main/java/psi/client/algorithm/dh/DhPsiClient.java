@@ -118,14 +118,7 @@ public class DhPsiClient extends PsiAbstractClient {
             });
         }
 
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("Error while collecting the results of threads: ", e);
-        } finally {
-            executorService.shutdown();
-        }
+        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
 
         statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -173,14 +166,7 @@ public class DhPsiClient extends PsiAbstractClient {
             });
         }
 
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("Error while collecting the results of threads: ", e);
-        } finally {
-            executorService.shutdown();
-        }
+        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
 
         statisticList.add(statistics.close());
     }
@@ -208,14 +194,7 @@ public class DhPsiClient extends PsiAbstractClient {
             });
         }
 
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(THREAD_MAX_SECONDS_LIFETIME, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error("Error while collecting the results of threads: ", e);
-        } finally {
-            executorService.shutdown();
-        }
+        MultithreadingUtils.awaitTermination(executorService, THREAD_MAX_SECONDS_LIFETIME, log);
 
         statisticList.add(statistics.close());
         return psi;
