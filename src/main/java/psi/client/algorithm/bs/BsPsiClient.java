@@ -49,19 +49,23 @@ public class BsPsiClient extends PsiAbstractClient {
         this.statisticList = new ConcurrentLinkedQueue<>();
         this.keyAtomicCounter = new AtomicLong(0);
 
+        BigInteger psiClientSessionModulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
+        BigInteger psiClientSessionServerPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getServerPublicKey());
         // keys are set from the psiClientSession
         if(psiClientKeyDescription == null) {
-            this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
-            this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getServerPublicKey());
+            this.modulus = psiClientSessionModulus;
+            this.serverPublicKey = psiClientSessionServerPublicKey;
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else{
             if(psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getServerPublicKey() == null)
                 throw new PsiClientException("The fields modulus and serverPublicKey in the input psiClientKeyDescription cannot be null");
-            if(!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()) || !psiClientSession.getServerPublicKey().equals(psiClientKeyDescription.getServerPublicKey()))
+            //TODO: mi da un warning su tipi incompatibili, ma non capisco perchè
+            if(!psiClientSessionModulus.equals(psiClientKeyDescription.getModulus()) ||
+                    !psiClientSessionServerPublicKey.equals(psiClientKeyDescription.getServerPublicKey()))
                 throw new PsiClientException("The fields modulus and/or serverPublicKey in the psiClientKeyDescription does not match those in the psiClientSession");
-            this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getModulus());
-            this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getServerPublicKey());
+            this.modulus = psiClientKeyDescription.getModulus();
+            this.serverPublicKey = psiClientKeyDescription.getServerPublicKey();
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession

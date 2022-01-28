@@ -2,36 +2,38 @@ package psi.client;
 
 import psi.model.PsiKeyDescription;
 
+import java.math.BigInteger;
+
 public class PsiClientKeyDescription implements PsiKeyDescription {
 
-    private String clientPrivateKey;
-    private String serverPublicKey;
-    private String modulus;
+    private BigInteger clientPrivateKey;
+    private BigInteger serverPublicKey;
+    private BigInteger modulus;
 
     protected PsiClientKeyDescription() {
     }
 
-    public String getServerPublicKey() {
+    public BigInteger getServerPublicKey() {
         return serverPublicKey;
     }
 
-    public void setServerPublicKey(String serverPublicKey) {
+    public void setServerPublicKey(BigInteger serverPublicKey) {
         this.serverPublicKey = serverPublicKey;
     }
 
-    public String getModulus() {
+    public BigInteger getModulus() {
         return modulus;
     }
 
-    public void setModulus(String modulus) {
+    public void setModulus(BigInteger modulus) {
         this.modulus = modulus;
     }
 
-    public String getClientPrivateKey() {
+    public BigInteger getClientPrivateKey() {
         return clientPrivateKey;
     }
 
-    public void setClientPrivateKey(String clientPrivateKey) {
+    public void setClientPrivateKey(BigInteger clientPrivateKey) {
         this.clientPrivateKey = clientPrivateKey;
     }
 

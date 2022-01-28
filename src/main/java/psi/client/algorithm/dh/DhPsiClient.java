@@ -46,7 +46,7 @@ public class DhPsiClient extends PsiAbstractClient {
             this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
             AsymmetricKeyFactory.AsymmetricKey asymmetricKey =
                     AsymmetricKeyFactory.generateKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize());
-            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(asymmetricKey.privateKey); //TODO
+            this.clientPrivateKey = asymmetricKey.privateKey; //TODO
             //TODO: for some reason the modulus does not change
             //TODO: maybe it's enough that the privateKey is smaller than the module?
         }
@@ -54,10 +54,11 @@ public class DhPsiClient extends PsiAbstractClient {
         else {
             if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getClientPrivateKey() == null)
                 throw new PsiClientException("The fields modulus and clientPrivateKey in the input psiClientKeyDescription cannot be null");
-            if (!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()))
+            if (!CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus())
+                    .equals(psiClientKeyDescription.getModulus()))
                 throw new PsiClientException("The field modulus in the psiClientKeyDescription does not match the one in the psiClientSession");
-            this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getModulus());
-            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateKey());
+            this.modulus = psiClientKeyDescription.getModulus();
+            this.clientPrivateKey = psiClientKeyDescription.getClientPrivateKey();
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession

@@ -1,34 +1,44 @@
 package psi.utils;
 
-import psi.client.PsiClient;
-import psi.client.PsiClientKeyDescriptionFactory;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.interfaces.ECPrivateKey;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.PsiServerInitException;
 import psi.model.PsiAlgorithm;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerKeyDescriptionFactory;
 
 import javax.crypto.spec.DHPrivateKeySpec;
+import java.math.BigInteger;
 import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.*;
 
 public class AsymmetricKeyFactory {
 
     private AsymmetricKeyFactory() {}
 
     public static PsiServerKeyDescription generateServerKey (PsiAlgorithm algorithm, int keySize) {
-        AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
-        switch (algorithm) {
-            case BS:
+        AsymmetricKey asymmetricKey;
+
+        if (algorithm.equals(PsiAlgorithm.BS) || algorithm.equals(PsiAlgorithm.DH)) {
+            asymmetricKey = generateKey(algorithm, keySize);
+            if(algorithm.equals(PsiAlgorithm.BS))
                 return PsiServerKeyDescriptionFactory
                         .createBsServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.publicKey, asymmetricKey.modulus);
-            case DH:
+            else
                 return PsiServerKeyDescriptionFactory
                         .createDhServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.modulus);
-            default:
-                throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
         }
+
+        if (algorithm.equals(PsiAlgorithm.ECBS) || algorithm.equals(PsiAlgorithm.ECDH)) {
+
+        }
+
+        throw new PsiServerInitException("Algorithm not supported");
+
     }
 
     public static AsymmetricKey generateKey(PsiAlgorithm algorithm, int keySize) {
@@ -45,23 +55,23 @@ public class AsymmetricKeyFactory {
         keyGenerator.initialize(keySize);
         KeyPair pair = keyGenerator.genKeyPair();
 
-        String privateKey = null;
-        String publicKey = null;
-        String modulus = null;
+        BigInteger privateKey = null;
+        BigInteger publicKey = null;
+        BigInteger modulus = null;
 
         try {
             switch (algorithm) {
                 case BS:
                     RSAPrivateKeySpec rsaPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), RSAPrivateKeySpec.class);
                     RSAPublicKeySpec rsaPublicKeySpec = keyFactory.getKeySpec(pair.getPublic(), RSAPublicKeySpec.class);
-                    modulus = (CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getModulus()));
-                    privateKey = (CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getPrivateExponent()));
-                    publicKey = (CustomTypeConverter.convertBigIntegerToString(rsaPublicKeySpec.getPublicExponent()));
+                    modulus = (rsaPrivateKeySpec.getModulus());
+                    privateKey = (rsaPrivateKeySpec.getPrivateExponent());
+                    publicKey = (rsaPublicKeySpec.getPublicExponent());
                     break;
                 case DH:
                     DHPrivateKeySpec dhPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), DHPrivateKeySpec.class);
-                    modulus = (CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getP()));
-                    privateKey = (CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getX()));
+                    modulus = (dhPrivateKeySpec.getP());
+                    privateKey = (dhPrivateKeySpec.getX());
                     break;
                 default:
                     throw new PsiServerInitException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
@@ -73,15 +83,50 @@ public class AsymmetricKeyFactory {
         return new AsymmetricKey(privateKey, publicKey, modulus);
     }
 
-    public static class AsymmetricKey{
-        public String privateKey;
-        public String publicKey;
-        public String modulus;
+    public static AsymmetricEcKey generateEcKey(PsiAlgorithm algorithm, int keySize) {
+        ECParameterSpec ecSpec;
+        Security.addProvider(new BouncyCastleProvider());
 
-        AsymmetricKey(String privateKey, String publicKey, String modulus) {
+        KeyPairGenerator keyGenerator;
+        try {
+            keyGenerator = KeyPairGenerator.getInstance("EC", "BC");
+            ecSpec = ECNamedCurveTable.getParameterSpec(EllipticCurve.getNameCurve(keySize));
+            keyGenerator.initialize(ecSpec, new SecureRandom());
+        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new PsiServerInitException(algorithm + " key generator not available");
+        }
+        KeyPair pair = keyGenerator.genKeyPair();
+
+        return new AsymmetricEcKey(
+                ((ECPrivateKey)pair.getPrivate()).getD(),
+                ((ECPublicKey)pair.getPublic()).getQ(),
+                ecSpec
+        );
+    }
+
+    public static class AsymmetricKey{
+        public BigInteger privateKey;
+        public BigInteger publicKey;
+        public BigInteger modulus;
+
+        AsymmetricKey(BigInteger privateKey, BigInteger publicKey, BigInteger modulus) {
             this.privateKey = privateKey;
             this.publicKey = publicKey;
             this.modulus = modulus;
         }
     }
+
+    public static class AsymmetricEcKey{
+        public BigInteger privateKey;
+        public ECPoint publicKey;
+        public ECParameterSpec ecSpec;
+
+        public AsymmetricEcKey(BigInteger privateKey, ECPoint publicKey, ECParameterSpec ecSpec) {
+            this.privateKey = privateKey;
+            this.publicKey = publicKey;
+            this.ecSpec = ecSpec;
+        }
+    }
+
+
 }

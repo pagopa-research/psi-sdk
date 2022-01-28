@@ -3,6 +3,7 @@ package psi.model;
 import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
 import psi.server.PsiServerSession;
+import psi.utils.CustomTypeConverter;
 
 import java.util.Arrays;
 
@@ -61,15 +62,18 @@ public class PsiClientSession {
             case BS:
                 if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
                     throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
-                psiClientSession.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
+                psiClientSession.setModulus(
+                        CustomTypeConverter.convertBigIntegerToString(psiServerSession.getPsiServerKeyDescription().getModulus()));
                 if(psiServerSession.getPsiServerKeyDescription().getPublicKey() == null)
                     throw new PsiServerException("The field publicKey of psiServerKeyDescription cannot be null");
-                psiClientSession.setServerPublicKey(psiServerSession.getPsiServerKeyDescription().getPublicKey());
+                psiClientSession.setServerPublicKey(
+                        CustomTypeConverter.convertBigIntegerToString(psiServerSession.getPsiServerKeyDescription().getPublicKey()));
                 break;
             case DH:
                 if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
                     throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
-                psiClientSession.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
+                psiClientSession.setModulus(
+                        CustomTypeConverter.convertBigIntegerToString(psiServerSession.getPsiServerKeyDescription().getModulus()));
                 break;
 
             default:
