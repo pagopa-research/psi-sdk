@@ -17,10 +17,9 @@ public class PsiServerSession {
     }
 
     public PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
-        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
-        psiAlgorithmParameter.setAlgorithm(algorithm);
-        psiAlgorithmParameter.setKeySize(keySize);
-        this.psiAlgorithmParameter = psiAlgorithmParameter;
+        this.psiAlgorithmParameter = new PsiAlgorithmParameter();
+        this.psiAlgorithmParameter.setAlgorithm(algorithm);
+        this.psiAlgorithmParameter.setKeySize(keySize);
         this.cacheEnabled = cacheEnabled;
         this.psiServerKeyDescription = psiServerKeyDescription;
     }

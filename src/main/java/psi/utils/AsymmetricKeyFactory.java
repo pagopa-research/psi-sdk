@@ -21,10 +21,8 @@ public class AsymmetricKeyFactory {
     private AsymmetricKeyFactory() {}
 
     public static PsiServerKeyDescription generateServerKey (PsiAlgorithm algorithm, int keySize) {
-        AsymmetricKey asymmetricKey;
-
-        if (algorithm.equals(PsiAlgorithm.BS) || algorithm.equals(PsiAlgorithm.DH)) {
-            asymmetricKey = generateKey(algorithm, keySize);
+         if (algorithm.equals(PsiAlgorithm.BS) || algorithm.equals(PsiAlgorithm.DH)) {
+            AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
             if(algorithm.equals(PsiAlgorithm.BS))
                 return PsiServerKeyDescriptionFactory
                         .createBsServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.publicKey, asymmetricKey.modulus);
@@ -34,7 +32,10 @@ public class AsymmetricKeyFactory {
         }
 
         if (algorithm.equals(PsiAlgorithm.ECBS) || algorithm.equals(PsiAlgorithm.ECDH)) {
-
+            AsymmetricEcKey asymmetricEcKey = generateEcKey(algorithm, keySize);
+            if(algorithm.equals(PsiAlgorithm.ECBS))
+                return PsiServerKeyDescriptionFactory
+                        .createEcbsServerKeyDescription(asymmetricEcKey.privateKey, asymmetricEcKey.publicKey, asymmetricEcKey.ecSpec);
         }
 
         throw new PsiServerInitException("Algorithm not supported");

@@ -3,9 +3,8 @@ package psi.cache;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.PsiCacheObject;
 import psi.exception.CustomRuntimeException;
-import psi.exception.MissingCacheKeyIdException;
 import psi.model.PsiKeyDescription;
-import psi.utils.Base64EncoderHelper;
+import psi.utils.CustomTypeConverter;
 import psi.utils.CustomTypeConverter;
 
 import java.math.BigInteger;
@@ -27,7 +26,7 @@ public class PsiCacheUtils {
      * @return the keyId corresponding to the keyDescription
      */
     public static Long getKeyId(PsiKeyDescription keyDescription, PsiCacheProvider encryptionCacheProvider) {
-        String base64KeyDescription = Base64EncoderHelper.objectToBase64(keyDescription);
+        String base64KeyDescription = CustomTypeConverter.convertObjectToString(keyDescription);
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             String keyDescriptionDigest = new String(messageDigest.digest(base64KeyDescription.getBytes()));
@@ -53,13 +52,13 @@ public class PsiCacheUtils {
         Optional<String> cachedValueBase64 = psiCacheProvider.get(key);
         if(!cachedValueBase64.isPresent())
             return Optional.empty();
-        T cachedObject = Base64EncoderHelper.base64ToObject(cachedValueBase64.get(), typeParameterClass);
+        T cachedObject = CustomTypeConverter.convertStringToObject(cachedValueBase64.get(), typeParameterClass);
         return Optional.of(cachedObject);
     }
 
     public static void putCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, PsiCacheObject output, PsiCacheProvider psiCacheProvider){
         String key = generateKeyString(keyId, cacheObjectType, input);
-        String value = Base64EncoderHelper.objectToBase64(output);
+        String value = CustomTypeConverter.convertObjectToString(output);
         psiCacheProvider.put(key, value);
     }
 }

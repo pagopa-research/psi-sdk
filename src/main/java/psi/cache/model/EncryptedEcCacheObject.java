@@ -1,19 +1,20 @@
 package psi.cache.model;
 
-import java.math.BigInteger;
+import org.bouncycastle.math.ec.ECPoint;
+
 import java.util.Objects;
 
-public class EncryptedCacheObject implements PsiCacheObject {
+public class EncryptedEcCacheObject implements PsiCacheObject {
 
-    private BigInteger encryptedValue;
+    private ECPoint encryptedValue;
 
-    public EncryptedCacheObject() {}
+    public EncryptedEcCacheObject() {}
 
-    public EncryptedCacheObject(BigInteger encryptedValue) {
+    public EncryptedEcCacheObject(ECPoint encryptedValue) {
         this.encryptedValue = encryptedValue;
     }
 
-    public BigInteger getEncryptedValue() {
+    public ECPoint getEncryptedValue() {
         return encryptedValue;
     }
 
@@ -21,7 +22,7 @@ public class EncryptedCacheObject implements PsiCacheObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EncryptedCacheObject that = (EncryptedCacheObject) o;
+        EncryptedEcCacheObject that = (EncryptedEcCacheObject) o;
         return Objects.equals(encryptedValue, that.encryptedValue);
     }
 

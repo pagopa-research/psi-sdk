@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MultithreadingUtils {
 
+    private MultithreadingUtils() {
+    }
+
     public static void awaitTermination(ExecutorService executorService, int maxSecondsLifetime, Logger log){
         try {
             executorService.shutdown();

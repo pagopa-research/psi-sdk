@@ -1,12 +1,15 @@
 package psi.utils;
 
+import javafx.util.Pair;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.CustomRuntimeException;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * This class represents an Elliptic Curve characterized by the following equation.
@@ -24,8 +27,28 @@ public class EllipticCurve {
     private BigInteger P;
     private BigInteger N;
     private ECPoint G;
-    private ECCurve bcCurve;
+    private ECCurve ecCurve;
     private String name;
+
+    private ECParameterSpec ecParameterSpec;
+
+    public ECCurve getEcCurve() {
+        return ecCurve;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ECParameterSpec getEcParameterSpec() {
+        return ecParameterSpec;
+    }
+
+    public BigInteger getN() {
+        return N;
+    }
+
+
 
     public static String getNameCurve(int keySize) {
         if (keySize == 160)
@@ -69,11 +92,11 @@ public class EllipticCurve {
     }
 
     public EllipticCurve(ECParameterSpec params) {
-        ECCurve curve = params.getCurve();
-        bcCurve = curve;
-        name = getNameCurve(params.getCurve().getA().getFieldSize());
-        A = curve.getA().toBigInteger();
-        B = curve.getB().toBigInteger();
+        ecParameterSpec = params;
+        ecCurve = params.getCurve();
+        name = getNameCurve(ecCurve.getA().getFieldSize());
+        A = ecCurve.getA().toBigInteger();
+        B = ecCurve.getB().toBigInteger();
         G = params.getG();
         P = new BigInteger(getPFromNameCurve(name), 16);
         N = params.getN();
@@ -124,7 +147,7 @@ public class EllipticCurve {
             y = x.modPow(THREE, P).add(A.multiply(x).mod(P)).mod(P).add(B).mod(P);
             if (y.modPow(P.subtract(BigInteger.ONE).multiply(TWO.modInverse(P)).mod(P), P).compareTo(BigInteger.ONE) == 0) {
                 BigInteger r = sqrtP(y, P);
-                ECPoint res = bcCurve.createPoint(x, r);
+                ECPoint res = ecCurve.createPoint(x, r);
                 if (!belongs(res)) throw new CustomRuntimeException("Found mapping not on curve");
                 return res;
             }
@@ -181,5 +204,22 @@ public class EllipticCurve {
         root = partOne.multiply(partTwo);
         root = root.mod(p);
         return root;
+    }
+
+    public Pair<ECPoint,ECPoint> generateEncryptedRandomValue(BigInteger inputValue,ECPoint publicKey){
+        Random secureRandom = new SecureRandom();
+        ECPoint point2DInputValue = mapMessage(inputValue);
+        ECPoint randomPointInv;
+        ECPoint randomPoint;
+        ECPoint encryptedValue;
+        BigInteger y;
+        do {
+            y = new BigInteger(ecParameterSpec.getN().bitCount(), secureRandom).mod(ecParameterSpec.getN());
+            randomPoint = multiply(this.G, y);
+            randomPointInv = multiply(publicKey, y);
+            encryptedValue = add(randomPointInv, point2DInputValue);
+        } while(y.compareTo(BigInteger.ZERO) == 0 || randomPoint.isInfinity()|| randomPointInv.isInfinity());
+
+        return new Pair<>(encryptedValue, randomPoint);
     }
 }
