@@ -62,7 +62,7 @@ public class EllipticCurve {
         else if (keySize == 512 || keySize == 521)
             return "secp521r1";
         else
-            throw new CustomRuntimeException("Input key size currently not supported for EC algorithms (ECDH and ECRSA). Supported values are 160, 224, 256, 384, 512 or 521.");
+            throw new CustomRuntimeException("Input key size (" + keySize + ") currently not supported for EC algorithms (ECDH and ECRSA). Supported values are 160, 224, 256, 384, 512 or 521.");
     }
 
     public static String getPFromNameCurve(String name) {

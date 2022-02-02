@@ -4,6 +4,7 @@ import psi.cache.PsiCacheProvider;
 import psi.client.algorithm.bs.BsPsiClient;
 import psi.client.algorithm.dh.DhPsiClient;
 import psi.client.algorithm.ecbs.EcBsPsiClient;
+import psi.client.algorithm.ecdh.EcDhPsiClient;
 import psi.model.PsiClientSession;
 import psi.exception.PsiClientException;
 import psi.model.PsiAlgorithm;
@@ -58,7 +59,7 @@ public class PsiClientFactory {
             case ECBS:
                 return new EcBsPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
             case ECDH:
-            //    return new EcDhPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
+                return new EcDhPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
 
             default:
                 return null;

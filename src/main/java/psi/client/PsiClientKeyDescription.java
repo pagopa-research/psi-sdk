@@ -24,7 +24,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         return clientPrivateKey;
     }
 
-    public void setClientPrivateKey(String clientPrivateKey) {
+    void setClientPrivateKey(String clientPrivateKey) {
         this.clientPrivateKey = clientPrivateKey;
     }
 
@@ -32,7 +32,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         return serverPublicKey;
     }
 
-    public void setServerPublicKey(String serverPublicKey) {
+    void setServerPublicKey(String serverPublicKey) {
         this.serverPublicKey = serverPublicKey;
     }
 
@@ -40,7 +40,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         return modulus;
     }
 
-    public void setModulus(String modulus) {
+    void setModulus(String modulus) {
         this.modulus = modulus;
     }
 
@@ -48,7 +48,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         return ecClientPrivateKey;
     }
 
-    public void setEcClientPrivateKey(String ecClientPrivateKey) {
+    void setEcClientPrivateKey(String ecClientPrivateKey) {
         this.ecClientPrivateKey = ecClientPrivateKey;
     }
 
@@ -56,7 +56,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         return ecServerPublicKey;
     }
 
-    public void setEcServerPublicKey(String ecServerPublicKey) {
+    void setEcServerPublicKey(String ecServerPublicKey) {
         this.ecServerPublicKey = ecServerPublicKey;
     }
 
@@ -64,7 +64,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         return ecSpecName;
     }
 
-    public void setEcSpecName(String ecSpecName) {
+    void setEcSpecName(String ecSpecName) {
         this.ecSpecName = ecSpecName;
     }
 

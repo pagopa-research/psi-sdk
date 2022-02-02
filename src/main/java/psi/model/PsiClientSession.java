@@ -4,7 +4,6 @@ import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
-import psi.utils.CustomTypeConverter;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -76,12 +75,15 @@ public class PsiClientSession implements Serializable {
                 break;
             case ECBS:
                 if(psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null )
-                    throw new PsiServerException("The fields ecSpec and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
+                    throw new PsiServerException("The fields ecSpecName and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
                 psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
                 psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
-
                 break;
-
+            case ECDH:
+                if(psiServerKeyDesc.getEcSpecName() == null )
+                    throw new PsiServerException("The fields ecSpecName of psiServerKeyDescription cannot be null for the ECDH algorithm");
+                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
+                break;
             default:
                 throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
         }
