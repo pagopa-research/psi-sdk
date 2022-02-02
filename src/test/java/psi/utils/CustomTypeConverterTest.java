@@ -1,9 +1,9 @@
 package psi.utils;
 
 import org.bouncycastle.math.ec.ECPoint;
-import org.bouncycastle.math.ec.custom.sec.SecP521R1Point;
 import org.junit.jupiter.api.Test;
 import psi.cache.model.RandomEncryptedCacheObject;
+import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithm;
 
 import java.math.BigInteger;

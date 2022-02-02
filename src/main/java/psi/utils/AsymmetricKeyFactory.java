@@ -7,6 +7,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.PsiServerInitException;
+import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithm;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerKeyDescriptionFactory;
@@ -14,7 +15,9 @@ import psi.server.PsiServerKeyDescriptionFactory;
 import javax.crypto.spec.DHPrivateKeySpec;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.spec.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 public class AsymmetricKeyFactory {
 

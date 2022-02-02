@@ -10,6 +10,7 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.exception.CustomRuntimeException;
+import psi.model.EllipticCurve;
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;

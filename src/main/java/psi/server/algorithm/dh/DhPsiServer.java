@@ -9,6 +9,7 @@ import psi.cache.model.EncryptedCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
@@ -16,7 +17,9 @@ import psi.utils.*;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DhPsiServer extends PsiAbstractServer {
 
@@ -94,7 +97,7 @@ public class DhPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedSet;
@@ -138,7 +141,7 @@ public class DhPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedMap;

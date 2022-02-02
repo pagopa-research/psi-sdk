@@ -2,19 +2,24 @@ package psi.server.algorithm.bs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.cache.PsiCacheProvider;
 import psi.cache.PsiCacheUtils;
 import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
-import psi.model.PsiAlgorithmParameter;
-import psi.cache.PsiCacheProvider;
-import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
-import psi.server.*;
+import psi.exception.PsiServerInitException;
+import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiPhaseStatistics;
+import psi.server.PsiAbstractServer;
+import psi.server.PsiServerKeyDescription;
+import psi.server.PsiServerSession;
 import psi.utils.*;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BsPsiServer extends PsiAbstractServer {
 
@@ -93,7 +98,7 @@ public class BsPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedSet;
@@ -137,7 +142,7 @@ public class BsPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedMap;

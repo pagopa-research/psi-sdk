@@ -1,10 +1,12 @@
 package psi.client;
 
 import psi.cache.PsiCacheProvider;
+import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;
-import psi.utils.PsiPhaseStatistics;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 public abstract class PsiAbstractClient implements PsiClient {
 

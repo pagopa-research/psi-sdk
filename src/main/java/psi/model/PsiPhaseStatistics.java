@@ -1,4 +1,4 @@
-package psi.utils;
+package psi.model;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

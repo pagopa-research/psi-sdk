@@ -10,11 +10,16 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedEcCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
+import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
-import psi.utils.*;
+import psi.utils.AsymmetricKeyFactory;
+import psi.utils.CustomTypeConverter;
+import psi.utils.MultithreadingHelper;
+import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -99,7 +104,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedSet;
@@ -150,7 +155,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedMap;

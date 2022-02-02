@@ -13,8 +13,13 @@ import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
+import psi.model.EllipticCurve;
 import psi.model.PsiClientSession;
-import psi.utils.*;
+import psi.model.PsiPhaseStatistics;
+import psi.utils.AsymmetricKeyFactory;
+import psi.utils.CustomTypeConverter;
+import psi.utils.MultithreadingHelper;
+import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -124,7 +129,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -173,7 +178,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
     }
@@ -201,7 +206,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return psi;

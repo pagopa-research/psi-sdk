@@ -1,4 +1,4 @@
-package psi.utils;
+package psi.model;
 
 import javafx.util.Pair;
 import org.bouncycastle.jce.spec.ECParameterSpec;

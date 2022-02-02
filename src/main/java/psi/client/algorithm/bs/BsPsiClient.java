@@ -8,16 +8,26 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.cache.model.RandomEncryptedCacheObject;
 import psi.client.PsiAbstractClient;
-import psi.client.PsiClientKeyDescriptionFactory;
 import psi.client.PsiClientKeyDescription;
-import psi.model.PsiClientSession;
+import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
-import psi.utils.*;
+import psi.model.PsiClientSession;
+import psi.model.PsiPhaseStatistics;
+import psi.utils.CustomTypeConverter;
+import psi.utils.HashFactory;
+import psi.utils.MultithreadingHelper;
+import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -115,7 +125,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -169,7 +179,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
     }
@@ -191,7 +201,7 @@ public class BsPsiClient extends PsiAbstractClient {
             });
         }
 
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         return psi;
     }
