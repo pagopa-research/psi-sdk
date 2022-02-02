@@ -1,6 +1,5 @@
 package psi.server.algorithm.ecbs;
 
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
-            if (psiServerKeyDescription.getEcSpec() == null || psiServerKeyDescription.getEcPrivateKey() == null || psiServerKeyDescription.getEcPublicKey() == null )
+            if (psiServerKeyDescription.getEcSpecName() == null || psiServerKeyDescription.getEcPrivateKey() == null || psiServerKeyDescription.getEcPublicKey() == null )
                 throw new PsiServerInitException("The keys and/or modulus passed in the input psiServerKeyDescription are either null or empty");
             // TODO: check whether keys are valid wrt each other
         }
@@ -64,9 +63,12 @@ public class EcBsPsiServer extends PsiAbstractServer {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
-        BigInteger serverPrivateKey = psiServerSession.getPsiServerKeyDescription().getEcPrivateKey();
-        EllipticCurve ellipticCurve = new EllipticCurve(psiServerSession.getPsiServerKeyDescription().getEcSpec());
+        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(
+                psiServerSession.getPsiServerKeyDescription().getEcPrivateKey());
+        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter.convertStringToECParameterSpec(
+                psiServerSession.getPsiServerKeyDescription().getEcSpecName()));
         BigInteger privateKeyInverse = serverPrivateKey.modInverse(ellipticCurve.getN());
+        ECCurve ecCurve = ellipticCurve.getEcCurve();
 
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
         List<Set<String>> partitionList = PartitionHelper.partitionSet(inputSet, this.threads);
@@ -80,7 +82,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
                     if(psiServerSession.getCacheEnabled()) {
                         Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
-                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
@@ -90,7 +92,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (psiServerSession.getCacheEnabled()) {
-                            PsiCacheUtils.putCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new EncryptedEcCacheObject(encryptedValue), this.psiCacheProvider);
+                            PsiCacheUtils.putCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedEcCacheObject(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     encryptedSet.add(CustomTypeConverter.convertECPointToString(encryptedValue));
@@ -109,10 +111,14 @@ public class EcBsPsiServer extends PsiAbstractServer {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
-        BigInteger serverPrivateKey = psiServerSession.getPsiServerKeyDescription().getEcPrivateKey();
-        ECCurve ecCurve = psiServerSession.getPsiServerKeyDescription().getEcSpec().getCurve();
-        EllipticCurve ellipticCurve = new EllipticCurve(psiServerSession.getPsiServerKeyDescription().getEcSpec());
+
+
+        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(
+                psiServerSession.getPsiServerKeyDescription().getEcPrivateKey());
+        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter.convertStringToECParameterSpec(
+                psiServerSession.getPsiServerKeyDescription().getEcSpecName()));
         BigInteger privateKeyInverse = serverPrivateKey.modInverse(ellipticCurve.getN());
+        ECCurve ecCurve = ellipticCurve.getEcCurve();
 
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
         List<Map<Long, String>> partitionList = PartitionHelper.partitionMap(inputMap, this.threads);
@@ -127,7 +133,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
                     if (psiServerSession.getCacheEnabled()) {
                         Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
-                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
@@ -160,7 +166,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
         if(psiServerSession.getPsiServerKeyDescription() == null
                 || psiServerSession.getPsiServerKeyDescription().getEcPrivateKey() == null
                 || psiServerSession.getPsiServerKeyDescription().getEcPublicKey() == null
-                || psiServerSession.getPsiServerKeyDescription().getEcSpec() == null
+                || psiServerSession.getPsiServerKeyDescription().getEcSpecName() == null
         ) throw new PsiServerException("The fields ecPrivateKey, ecPublicKey and ecSpec of the PsiServerKeyDescription for BS should not be null");
     }
 }

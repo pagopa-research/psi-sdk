@@ -62,10 +62,10 @@ public class EcBsPsiClient extends PsiAbstractClient {
 
         // keys are set from the psiClientSession
         if(psiClientKeyDescription != null) {
-            if(psiClientKeyDescription.getEcSpec() == null || psiClientKeyDescription.getEcServerPublicKey() == null)
+            if(psiClientKeyDescription.getEcSpecName() == null || psiClientKeyDescription.getEcServerPublicKey() == null)
                 throw new PsiClientException("The fields ecSpec and ecServerPublicKey in the input psiClientKeyDescription cannot be null");
-            if(!ecSpec.equals(psiClientKeyDescription.getEcSpec()) ||
-                    !this.serverPublicKey.equals(psiClientKeyDescription.getEcServerPublicKey()))
+            if(!psiClientSession.getEcSpecName().equals(psiClientKeyDescription.getEcSpecName()) ||
+                    !psiClientSession.getEcServerPublicKey().equals(psiClientKeyDescription.getEcServerPublicKey()))
                 throw new PsiClientException("The fields ecSpec and/or ecServerPublicKey in the psiClientKeyDescription does not match those in the psiClientSession");
         }
 
@@ -102,8 +102,8 @@ public class EcBsPsiClient extends PsiAbstractClient {
                     if(this.cacheEnabled) {
                         Optional<RandomEncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, RandomEncryptedEcCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
-                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
-                            randomValue = encryptedCacheObjectOptional.get().getRandomValue();
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
+                            randomValue = encryptedCacheObjectOptional.get().getRandomValue(ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
@@ -161,7 +161,7 @@ public class EcBsPsiClient extends PsiAbstractClient {
                         //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
                         Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedEcCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
-                            reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                            reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
@@ -206,8 +206,6 @@ public class EcBsPsiClient extends PsiAbstractClient {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcbsClientKeyDescription(
-                CustomTypeConverter.convertECPointToString(this.serverPublicKey),
-                CustomTypeConverter.convertECParameterSpecToString(this.ellipticCurve.getEcParameterSpec()));
+        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicKey, this.ellipticCurve.getEcParameterSpec());
     }
 }

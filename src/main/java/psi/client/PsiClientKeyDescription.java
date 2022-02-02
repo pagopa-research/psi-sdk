@@ -1,78 +1,97 @@
 package psi.client;
 
-import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.math.ec.ECPoint;
 import psi.model.PsiKeyDescription;
 
-import java.math.BigInteger;
+import java.util.Objects;
 
 public class PsiClientKeyDescription implements PsiKeyDescription {
 
-    private BigInteger clientPrivateKey;
-    private BigInteger serverPublicKey;
-    private BigInteger modulus;
+    private String clientPrivateKey;
+    private String serverPublicKey;
+    private String modulus;
 
-    private BigInteger ecClientPrivateKey;
-    private ECPoint ecServerPublicKey;
-    private ECParameterSpec ecSpec;
+    private String ecClientPrivateKey;
+    private String ecServerPublicKey;
+    private String ecSpecName;
 
     protected PsiClientKeyDescription() {
     }
 
-    public BigInteger getServerPublicKey() {
-        return serverPublicKey;
-    }
-
-    void setServerPublicKey(BigInteger serverPublicKey) {
-        this.serverPublicKey = serverPublicKey;
-    }
-
-    public BigInteger getModulus() {
-        return modulus;
-    }
-
-    public void setModulus(BigInteger modulus) {
-        this.modulus = modulus;
-    }
-
-    public BigInteger getClientPrivateKey() {
+    public String getClientPrivateKey() {
         return clientPrivateKey;
     }
 
-    void setClientPrivateKey(BigInteger clientPrivateKey) {
+    public void setClientPrivateKey(String clientPrivateKey) {
         this.clientPrivateKey = clientPrivateKey;
     }
 
-    public ECParameterSpec getEcSpec() {
-        return ecSpec;
+    public String getServerPublicKey() {
+        return serverPublicKey;
     }
 
-    void setEcSpec(ECParameterSpec ecSpec) {
-        this.ecSpec = ecSpec;
+    public void setServerPublicKey(String serverPublicKey) {
+        this.serverPublicKey = serverPublicKey;
     }
 
-    public ECPoint getEcServerPublicKey() {
-        return ecServerPublicKey;
+    public String getModulus() {
+        return modulus;
     }
 
-    public void setEcServerPublicKey(ECPoint ecServerPublicKey) {
-        this.ecServerPublicKey = ecServerPublicKey;
+    public void setModulus(String modulus) {
+        this.modulus = modulus;
     }
 
-    public BigInteger getEcClientPrivateKey() {
+    public String getEcClientPrivateKey() {
         return ecClientPrivateKey;
     }
 
-    public void setEcClientPrivateKey(BigInteger ecClientPrivateKey) {
+    public void setEcClientPrivateKey(String ecClientPrivateKey) {
         this.ecClientPrivateKey = ecClientPrivateKey;
+    }
+
+    public String getEcServerPublicKey() {
+        return ecServerPublicKey;
+    }
+
+    public void setEcServerPublicKey(String ecServerPublicKey) {
+        this.ecServerPublicKey = ecServerPublicKey;
+    }
+
+    public String getEcSpecName() {
+        return ecSpecName;
+    }
+
+    public void setEcSpecName(String ecSpecName) {
+        this.ecSpecName = ecSpecName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PsiClientKeyDescription that = (PsiClientKeyDescription) o;
+        return Objects.equals(clientPrivateKey, that.clientPrivateKey) &&
+                Objects.equals(serverPublicKey, that.serverPublicKey) &&
+                Objects.equals(modulus, that.modulus) &&
+                Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) &&
+                Objects.equals(ecServerPublicKey, that.ecServerPublicKey) &&
+                Objects.equals(ecSpecName, that.ecSpecName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, ecClientPrivateKey, ecServerPublicKey, ecSpecName);
     }
 
     @Override
     public String toString() {
         return "PsiClientKeyDescription{" +
-                "serverPublicKey='" + serverPublicKey + '\'' +
-                ", clientPrivateKey='" + clientPrivateKey + '\'' +
+                "clientPrivateKey='" + clientPrivateKey + '\'' +
+                ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
+                ", ecClientPrivateKey='" + ecClientPrivateKey + '\'' +
+                ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
+                ", ecSpecName='" + ecSpecName + '\'' +
                 '}';
     }
 }

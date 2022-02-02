@@ -1,35 +1,45 @@
 package psi.cache.model;
 
+import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
+import psi.utils.CustomTypeConverter;
 
 import java.util.Objects;
 
 public class RandomEncryptedEcCacheObject implements PsiCacheObject {
 
-    private ECPoint randomValue;
+    private String randomValue;
 
-    private ECPoint encryptedValue;
+    private String encryptedValue;
 
     public RandomEncryptedEcCacheObject() {}
 
     public RandomEncryptedEcCacheObject(ECPoint randomValue, ECPoint encryptedValue) {
-        this.randomValue = randomValue;
-        this.encryptedValue = encryptedValue;
+        this.randomValue = CustomTypeConverter.convertECPointToString(randomValue);
+        this.encryptedValue = CustomTypeConverter.convertECPointToString(encryptedValue);
     }
 
-    public ECPoint getRandomValue() {
+    public String getRandomValue() {
         return randomValue;
     }
 
-    public void setRandomValue(ECPoint randomValue) {
+    public ECPoint getRandomValue(ECCurve curve) {
+        return CustomTypeConverter.convertStringToECPoint(curve, this.randomValue);
+    }
+
+    public void setRandomValue(String randomValue) {
         this.randomValue = randomValue;
     }
 
-    public ECPoint getEncryptedValue() {
+    public String getEncryptedValue() {
         return encryptedValue;
     }
 
-    public void setEncryptedValue(ECPoint encryptedValue) {
+    public ECPoint getEncryptedValue(ECCurve curve) {
+        return CustomTypeConverter.convertStringToECPoint(curve, this.encryptedValue);
+    }
+
+    public void setEncryptedValue(String encryptedValue) {
         this.encryptedValue = encryptedValue;
     }
 

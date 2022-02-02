@@ -11,78 +11,73 @@ public class PsiClientKeyDescriptionFactory {
 
     private PsiClientKeyDescriptionFactory() {}
 
-    //TODO: ECBS
-
     public static PsiClientKeyDescription createBsClientKeyDescription(String serverPublicKey, String modulus){
         if(serverPublicKey == null || modulus == null || serverPublicKey.isEmpty() || modulus.isEmpty()){
             throw new PsiClientException("Both serverPublicKey and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
         }
-        return createClientKeyDescription(
-                null,
-                CustomTypeConverter.convertStringToBigInteger(serverPublicKey),
-                CustomTypeConverter.convertStringToBigInteger(modulus));
+        return createClientKeyDescription(null, serverPublicKey, modulus);
     }
 
     public static PsiClientKeyDescription createDhClientKeyDescription(String clientPrivateKey, String modulus){
         if(clientPrivateKey == null || modulus == null || clientPrivateKey.isEmpty() || modulus.isEmpty()){
             throw new PsiClientException("Both clientPrivateKey and modulus should not be null when creating a PsiClientDescription for the DH algorithm");
         }
-        return createClientKeyDescription(
-                CustomTypeConverter.convertStringToBigInteger(clientPrivateKey),
-                null,
-                CustomTypeConverter.convertStringToBigInteger(modulus));
+        return createClientKeyDescription(clientPrivateKey, null, modulus);
     }
 
-    public static PsiClientKeyDescription createEcbsClientKeyDescription(String ecServerPublicKey, String ecSpecName){
+    public static PsiClientKeyDescription createEcBsClientKeyDescription(String ecServerPublicKey, String ecSpecName){
         if(ecServerPublicKey == null || ecSpecName == null){
             throw new PsiClientException("Both ecServerPublicKey and ecSpecName should not be null when creating a PsiClientDescription for the ECBS algorithm");
         }
-        ECParameterSpec ecSpec = CustomTypeConverter.convertStringToECParameterSpec(ecSpecName);
-        return createClientEcKeyDescription(
-                null,
-                CustomTypeConverter.convertStringToECPoint(ecSpec.getCurve(), ecServerPublicKey),
-                ecSpec);
+        return createClientEcKeyDescription(null, ecServerPublicKey, ecSpecName);
     }
 
-    public static PsiClientKeyDescription createEcdhClientKeyDescription(String ecClientPrivateKey, String ecSpecName){
+    public static PsiClientKeyDescription createEcDhClientKeyDescription(String ecClientPrivateKey, String ecSpecName){
         if(ecClientPrivateKey == null || ecSpecName == null){
             throw new PsiClientException("Both ecClientPrivateKey and ecSpecName should not be null when creating a PsiClientDescription for the ECDH algorithm");
         }
-        return createClientEcKeyDescription(
-                CustomTypeConverter.convertStringToBigInteger(ecClientPrivateKey),
-                null,
-                CustomTypeConverter.convertStringToECParameterSpec(ecSpecName));
+        return createClientEcKeyDescription(ecClientPrivateKey, null, ecSpecName);
     }
 
     public static PsiClientKeyDescription createBsClientKeyDescription(BigInteger serverPublicKey, BigInteger modulus){
         if(serverPublicKey == null || modulus == null){
             throw new PsiClientException("Both serverPublicKey and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
         }
-        return createClientKeyDescription(null, serverPublicKey, modulus);
+        return createClientKeyDescription(null,
+                CustomTypeConverter.convertBigIntegerToString(serverPublicKey),
+                CustomTypeConverter.convertBigIntegerToString(modulus));
     }
 
     public static PsiClientKeyDescription createDhClientKeyDescription(BigInteger clientPrivateKey, BigInteger modulus){
         if(clientPrivateKey == null || modulus == null){
             throw new PsiClientException("Both clientPrivateKey and mo dulus should not be null when creating a PsiClientDescription for the DH algorithm");
         }
-        return createClientKeyDescription(clientPrivateKey, null, modulus);
+        return createClientKeyDescription(
+                CustomTypeConverter.convertBigIntegerToString(clientPrivateKey),
+                null,
+                CustomTypeConverter.convertBigIntegerToString(modulus));
     }
 
-    public static PsiClientKeyDescription createEcbsClientKeyDescription(ECPoint ecServerPublicKey, ECParameterSpec ecSpec){
+    public static PsiClientKeyDescription createEcBsClientKeyDescription(ECPoint ecServerPublicKey, ECParameterSpec ecSpec){
         if(ecServerPublicKey == null || ecSpec == null){
             throw new PsiClientException("Both ecServerPublicKey and ecSpec should not be null when creating a PsiClientDescription for the ECBS algorithm");
         }
-        return createClientEcKeyDescription(null, ecServerPublicKey, ecSpec);
+        return createClientEcKeyDescription(null,
+                CustomTypeConverter.convertECPointToString(ecServerPublicKey),
+                CustomTypeConverter.convertECParameterSpecToString(ecSpec));
     }
 
-    public static PsiClientKeyDescription createEcdhClientKeyDescription(BigInteger ecClientPrivateKey, ECParameterSpec ecSpec){
+    public static PsiClientKeyDescription createEcDhClientKeyDescription(BigInteger ecClientPrivateKey, ECParameterSpec ecSpec){
         if(ecClientPrivateKey == null || ecSpec == null){
             throw new PsiClientException("Both ecClientPrivateKey and ecSpec should not be null when creating a PsiClientDescription for the ECDH algorithm");
         }
-        return createClientEcKeyDescription(ecClientPrivateKey, null, ecSpec);
+        return createClientEcKeyDescription(
+                CustomTypeConverter.convertBigIntegerToString(ecClientPrivateKey),
+                null,
+                CustomTypeConverter.convertECParameterSpecToString(ecSpec));
     }
 
-    private static PsiClientKeyDescription createClientKeyDescription(BigInteger clientPrivateKey, BigInteger serverPublicKey, BigInteger modulus){
+    private static PsiClientKeyDescription createClientKeyDescription(String clientPrivateKey, String serverPublicKey, String modulus){
         PsiClientKeyDescription psiClientKeyDescription = new PsiClientKeyDescription();
         psiClientKeyDescription.setClientPrivateKey(clientPrivateKey);
         psiClientKeyDescription.setServerPublicKey(serverPublicKey);
@@ -90,11 +85,11 @@ public class PsiClientKeyDescriptionFactory {
         return psiClientKeyDescription;
     }
 
-    private static PsiClientKeyDescription createClientEcKeyDescription(BigInteger ecClientPrivateKey, ECPoint ecServerPublicKey, ECParameterSpec ecSpec){
+    private static PsiClientKeyDescription createClientEcKeyDescription(String ecClientPrivateKey, String ecServerPublicKey, String ecSpecName){
         PsiClientKeyDescription psiClientKeyDescription = new PsiClientKeyDescription();
         psiClientKeyDescription.setEcClientPrivateKey(ecClientPrivateKey);
         psiClientKeyDescription.setEcServerPublicKey(ecServerPublicKey);
-        psiClientKeyDescription.setEcSpec(ecSpec);
+        psiClientKeyDescription.setEcSpecName(ecSpecName);
         return psiClientKeyDescription;
     }
 }

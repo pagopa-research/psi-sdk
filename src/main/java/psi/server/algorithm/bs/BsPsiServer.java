@@ -57,8 +57,8 @@ public class BsPsiServer extends PsiAbstractServer {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
-        BigInteger serverPrivateKey = psiServerSession.getPsiServerKeyDescription().getPrivateKey();
-        BigInteger modulus = psiServerSession.getPsiServerKeyDescription().getModulus();
+        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
+        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
 
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
         List<Set<String>> partitionList = PartitionHelper.partitionSet(inputSet, this.threads);
@@ -105,8 +105,8 @@ public class BsPsiServer extends PsiAbstractServer {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
-        BigInteger serverPrivateKey = psiServerSession.getPsiServerKeyDescription().getPrivateKey();
-        BigInteger modulus = psiServerSession.getPsiServerKeyDescription().getModulus();
+        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
+        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
 
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
         List<Map<Long, String>> partitionList = PartitionHelper.partitionMap(inputMap, this.threads);

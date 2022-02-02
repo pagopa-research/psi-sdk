@@ -35,7 +35,7 @@ public class AsymmetricKeyFactory {
             AsymmetricEcKey asymmetricEcKey = generateEcKey(algorithm, keySize);
             if(algorithm.equals(PsiAlgorithm.ECBS))
                 return PsiServerKeyDescriptionFactory
-                        .createEcbsServerKeyDescription(asymmetricEcKey.privateKey, asymmetricEcKey.publicKey, asymmetricEcKey.ecSpec);
+                        .createEcBsServerKeyDescription(asymmetricEcKey.privateKey, asymmetricEcKey.publicKey, asymmetricEcKey.ecSpec);
         }
 
         throw new PsiServerInitException("Algorithm not supported");

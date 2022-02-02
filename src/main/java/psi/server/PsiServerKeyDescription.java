@@ -5,66 +5,85 @@ import org.bouncycastle.math.ec.ECPoint;
 import psi.model.PsiKeyDescription;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 public class PsiServerKeyDescription implements PsiKeyDescription {
 
-    private BigInteger privateKey;
-    private BigInteger publicKey;
-    private BigInteger modulus;
+    private String privateKey;
+    private String publicKey;
+    private String modulus;
 
-    private BigInteger ecPrivateKey;
-    private ECPoint ecPublicKey;
-    private ECParameterSpec ecSpec;
+    private String ecPrivateKey;
+    private String ecPublicKey;
+    private String ecSpecName;
 
     protected PsiServerKeyDescription() {
     }
 
-    public BigInteger getPrivateKey() {
+    public String getPrivateKey() {
         return privateKey;
     }
 
-    void setPrivateKey(BigInteger privateKey) {
+    public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
     }
 
-    public BigInteger getPublicKey() {
+    public String getPublicKey() {
         return publicKey;
     }
 
-    void setPublicKey(BigInteger publicKey) {
+    public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
     }
 
-    public BigInteger getModulus() {
+    public String getModulus() {
         return modulus;
     }
 
-    void setModulus(BigInteger modulus) {
+    public void setModulus(String modulus) {
         this.modulus = modulus;
     }
 
-    public BigInteger getEcPrivateKey() {
+    public String getEcPrivateKey() {
         return ecPrivateKey;
     }
 
-    void setEcPrivateKey(BigInteger ecPrivateKey) {
+    public void setEcPrivateKey(String ecPrivateKey) {
         this.ecPrivateKey = ecPrivateKey;
     }
 
-    public ECPoint getEcPublicKey() {
+    public String getEcPublicKey() {
         return ecPublicKey;
     }
 
-    void setEcPublicKey(ECPoint ecPublicKey) {
+    public void setEcPublicKey(String ecPublicKey) {
         this.ecPublicKey = ecPublicKey;
     }
 
-    public ECParameterSpec getEcSpec() {
-        return ecSpec;
+    public String getEcSpecName() {
+        return ecSpecName;
     }
 
-    void setEcSpec(ECParameterSpec ecSpec) {
-        this.ecSpec = ecSpec;
+    public void setEcSpecName(String ecSpecName) {
+        this.ecSpecName = ecSpecName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PsiServerKeyDescription that = (PsiServerKeyDescription) o;
+        return Objects.equals(privateKey, that.privateKey) &&
+                Objects.equals(publicKey, that.publicKey) &&
+                Objects.equals(modulus, that.modulus) &&
+                Objects.equals(ecPrivateKey, that.ecPrivateKey) &&
+                Objects.equals(ecPublicKey, that.ecPublicKey) &&
+                Objects.equals(ecSpecName, that.ecSpecName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(privateKey, publicKey, modulus, ecPrivateKey, ecPublicKey, ecSpecName);
     }
 
     @Override
@@ -73,6 +92,9 @@ public class PsiServerKeyDescription implements PsiKeyDescription {
                 "privateKey='" + privateKey + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
+                ", ecPrivateKey='" + ecPrivateKey + '\'' +
+                ", ecPublicKey='" + ecPublicKey + '\'' +
+                ", ecSpecName='" + ecSpecName + '\'' +
                 '}';
     }
 }

@@ -64,8 +64,8 @@ public class EcBsClientServerKeyDescriptionTest {
         this.psiAlgorithmParameter.setKeySize(256);
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
-        this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createEcbsClientKeyDescription(
-                this.psiServerKeyDescription.getEcPublicKey(), this.psiServerKeyDescription.getEcSpec());
+        this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(
+                this.psiServerKeyDescription.getEcPublicKey(), this.psiServerKeyDescription.getEcSpecName());
     }
 
     public void initServerAndClient(){

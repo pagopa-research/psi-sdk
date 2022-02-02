@@ -40,10 +40,10 @@ public class DhPsiClient extends PsiAbstractClient {
         this.statisticList = new ConcurrentLinkedQueue<>();
         this.keyAtomicCounter = new AtomicLong(0);
 
+        this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
         // keys are set from the psiClientSession
         if (psiClientKeyDescription == null) {
             //TODO: non è corretto...generare la chiave a partire dal modulo
-            this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
             AsymmetricKeyFactory.AsymmetricKey asymmetricKey =
                     AsymmetricKeyFactory.generateKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize());
             this.clientPrivateKey = asymmetricKey.privateKey; //TODO
@@ -54,11 +54,9 @@ public class DhPsiClient extends PsiAbstractClient {
         else {
             if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getClientPrivateKey() == null)
                 throw new PsiClientException("The fields modulus and clientPrivateKey in the input psiClientKeyDescription cannot be null");
-            if (!CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus())
-                    .equals(psiClientKeyDescription.getModulus()))
+            if (!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()))
                 throw new PsiClientException("The field modulus in the psiClientKeyDescription does not match the one in the psiClientSession");
-            this.modulus = psiClientKeyDescription.getModulus();
-            this.clientPrivateKey = psiClientKeyDescription.getClientPrivateKey();
+            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateKey());
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
@@ -198,9 +196,7 @@ public class DhPsiClient extends PsiAbstractClient {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(this.clientPrivateKey),
-                CustomTypeConverter.convertBigIntegerToString(this.modulus));
+        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(this.clientPrivateKey,this.modulus);
     }
 
 }

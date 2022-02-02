@@ -63,19 +63,19 @@ public class PsiClientSession {
             case BS:
                 if(psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getPublicKey() == null)
                     throw new PsiServerException("The fields modulus and publicKey of psiServerKeyDescription cannot be null for the BS algorithm");
-                psiClientSession.modulus = (CustomTypeConverter.convertBigIntegerToString(psiServerKeyDesc.getModulus()));
-                psiClientSession.serverPublicKey = (CustomTypeConverter.convertBigIntegerToString(psiServerKeyDesc.getPublicKey()));
+                psiClientSession.modulus = psiServerKeyDesc.getModulus();
+                psiClientSession.serverPublicKey = psiServerKeyDesc.getPublicKey();
                 break;
             case DH:
                 if(psiServerKeyDesc.getModulus() == null)
                     throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null for the DH algorithm");
-                psiClientSession.modulus = (CustomTypeConverter.convertBigIntegerToString(psiServerKeyDesc.getModulus()));
+                psiClientSession.modulus = psiServerKeyDesc.getModulus();
                 break;
             case ECBS:
-                if(psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpec() == null )
+                if(psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null )
                     throw new PsiServerException("The fields ecSpec and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
-                psiClientSession.ecServerPublicKey = CustomTypeConverter.convertECPointToString(psiServerKeyDesc.getEcPublicKey());
-                psiClientSession.ecSpecName = CustomTypeConverter.convertECParameterSpecToString(psiServerKeyDesc.getEcSpec());
+                psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
+                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
 
                 break;
 

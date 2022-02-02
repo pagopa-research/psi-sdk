@@ -1,21 +1,27 @@
 package psi.cache.model;
 
+import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
+import psi.utils.CustomTypeConverter;
 
 import java.util.Objects;
 
 public class EncryptedEcCacheObject implements PsiCacheObject {
 
-    private ECPoint encryptedValue;
+    private String encryptedValue;
 
     public EncryptedEcCacheObject() {}
 
     public EncryptedEcCacheObject(ECPoint encryptedValue) {
-        this.encryptedValue = encryptedValue;
+        this.encryptedValue = CustomTypeConverter.convertECPointToString(encryptedValue);
     }
 
-    public ECPoint getEncryptedValue() {
+    public String getEncryptedValue() {
         return encryptedValue;
+    }
+
+    public ECPoint getEncryptedValue(ECCurve curve) {
+        return CustomTypeConverter.convertStringToECPoint(curve, encryptedValue);
     }
 
     @Override

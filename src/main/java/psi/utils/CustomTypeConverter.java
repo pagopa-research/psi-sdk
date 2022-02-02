@@ -10,6 +10,7 @@ import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.CustomRuntimeException;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -17,20 +18,22 @@ public class CustomTypeConverter {
 
     private CustomTypeConverter() {}
 
+    private static final Charset charset = StandardCharsets.ISO_8859_1;
+
     public static BigInteger convertStringToBigInteger(String s){
-         return new BigInteger(s.getBytes(StandardCharsets.ISO_8859_1));
+         return new BigInteger(s.getBytes(charset));
      }
 
      public static String convertBigIntegerToString(BigInteger b){
-         return new String(b.toByteArray(), StandardCharsets.ISO_8859_1);
+         return new String(b.toByteArray(), charset);
      }
 
     public static ECPoint convertStringToECPoint(ECCurve curve, String s){
-        return curve.decodePoint(s.getBytes(StandardCharsets.ISO_8859_1));
+        return curve.decodePoint(s.getBytes(charset));
     }
 
     public static String convertECPointToString(ECPoint point){
-        return new String(point.getEncoded(true), StandardCharsets.ISO_8859_1);
+        return new String(point.getEncoded(true), charset);
     }
 
     public static ECParameterSpec convertStringToECParameterSpec(String ecSpecName){
