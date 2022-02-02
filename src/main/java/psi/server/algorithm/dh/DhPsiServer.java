@@ -20,7 +20,7 @@ import java.util.concurrent.*;
 
 public class DhPsiServer extends PsiAbstractServer {
 
-    private static final Logger log = LoggerFactory.getLogger(PsiAbstractServer.class);
+    private static final Logger log = LoggerFactory.getLogger(DhPsiServer.class);
 
     public DhPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
         this.psiServerSession = bsServerSession;
@@ -33,6 +33,7 @@ public class DhPsiServer extends PsiAbstractServer {
     }
 
     public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+        log.debug("Called initSession()");
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
@@ -147,6 +148,7 @@ public class DhPsiServer extends PsiAbstractServer {
 
     @Override
     public PsiServerKeyDescription getServerKeyDescription() {
+        log.debug("Called getServerKeyDescription");
         return psiServerSession.getPsiServerKeyDescription();
     }
 

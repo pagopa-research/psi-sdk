@@ -31,6 +31,7 @@ public class BsPsiServer extends PsiAbstractServer {
     }
 
     public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+        log.debug("Called initSession()");
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
@@ -147,6 +148,7 @@ public class BsPsiServer extends PsiAbstractServer {
 
     @Override
     public PsiServerKeyDescription getServerKeyDescription() {
+        log.debug("Called getServerKeyDescription()");
         return psiServerSession.getPsiServerKeyDescription();
     }
 
