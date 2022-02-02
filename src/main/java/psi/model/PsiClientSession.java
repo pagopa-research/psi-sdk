@@ -6,9 +6,12 @@ import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
 import psi.utils.CustomTypeConverter;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class PsiClientSession {
+public class PsiClientSession implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String modulus;
 

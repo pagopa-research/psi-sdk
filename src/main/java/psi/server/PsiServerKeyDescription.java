@@ -1,13 +1,13 @@
 package psi.server;
 
-import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.math.ec.ECPoint;
 import psi.model.PsiKeyDescription;
 
-import java.math.BigInteger;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class PsiServerKeyDescription implements PsiKeyDescription {
+public class PsiServerKeyDescription implements PsiKeyDescription, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String privateKey;
     private String publicKey;

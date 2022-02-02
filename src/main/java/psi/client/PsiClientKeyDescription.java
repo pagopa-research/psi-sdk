@@ -2,9 +2,12 @@ package psi.client;
 
 import psi.model.PsiKeyDescription;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class PsiClientKeyDescription implements PsiKeyDescription {
+public class PsiClientKeyDescription implements PsiKeyDescription, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String clientPrivateKey;
     private String serverPublicKey;

@@ -3,6 +3,8 @@ package psi.server;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 
+import java.io.Serializable;
+
 public class PsiServerSession {
 
     private PsiAlgorithmParameter psiAlgorithmParameter;
