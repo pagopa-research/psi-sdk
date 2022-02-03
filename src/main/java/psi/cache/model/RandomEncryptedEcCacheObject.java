@@ -2,44 +2,49 @@ package psi.cache.model;
 
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
-import psi.utils.CustomTypeConverter;
 
-import java.util.Objects;
+import java.util.Arrays;
 
-public class RandomEncryptedEcCacheObject implements PsiCacheObject {
+public class RandomEncryptedEcCacheObject extends PsiCacheObject {
 
-    private String randomValue;
+    private static final long serialVersionUID = 1L;
 
-    private String encryptedValue;
+    private byte [] randomValue;
+
+    private byte [] encryptedValue;
 
     public RandomEncryptedEcCacheObject() {}
 
     public RandomEncryptedEcCacheObject(ECPoint randomValue, ECPoint encryptedValue) {
-        this.randomValue = CustomTypeConverter.convertECPointToString(randomValue);
-        this.encryptedValue = CustomTypeConverter.convertECPointToString(encryptedValue);
-    }
-
-    public String getRandomValue() {
-        return randomValue;
+        this.randomValue = randomValue.getEncoded(true);
+        this.encryptedValue = encryptedValue.getEncoded(true);
     }
 
     public ECPoint getRandomValue(ECCurve curve) {
-        return CustomTypeConverter.convertStringToECPoint(curve, this.randomValue);
-    }
-
-    public void setRandomValue(String randomValue) {
-        this.randomValue = randomValue;
-    }
-
-    public String getEncryptedValue() {
-        return encryptedValue;
+        return curve.decodePoint(this.randomValue);
     }
 
     public ECPoint getEncryptedValue(ECCurve curve) {
-        return CustomTypeConverter.convertStringToECPoint(curve, this.encryptedValue);
+        return curve.decodePoint(this.encryptedValue);
     }
 
-    public void setEncryptedValue(String encryptedValue) {
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public byte[] getRandomValue() {
+        return randomValue;
+    }
+
+    public void setRandomValue(byte[] randomValue) {
+        this.randomValue = randomValue;
+    }
+
+    public byte[] getEncryptedValue() {
+        return encryptedValue;
+    }
+
+    public void setEncryptedValue(byte[] encryptedValue) {
         this.encryptedValue = encryptedValue;
     }
 
@@ -48,20 +53,22 @@ public class RandomEncryptedEcCacheObject implements PsiCacheObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RandomEncryptedEcCacheObject that = (RandomEncryptedEcCacheObject) o;
-        return Objects.equals(randomValue, that.randomValue) &&
-                Objects.equals(encryptedValue, that.encryptedValue);
+        return Arrays.equals(randomValue, that.randomValue) &&
+                Arrays.equals(encryptedValue, that.encryptedValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(randomValue, encryptedValue);
+        int result = Arrays.hashCode(randomValue);
+        result = 31 * result + Arrays.hashCode(encryptedValue);
+        return result;
     }
 
     @Override
     public String toString() {
-        return "RandomEncryptedCacheObject{" +
-                "randomValue=" + randomValue +
-                ", encryptedValue=" + encryptedValue +
+        return "RandomEncryptedEcCacheObject{" +
+                "randomValue=" + Arrays.toString(randomValue) +
+                ", encryptedValue=" + Arrays.toString(encryptedValue) +
                 '}';
     }
 }

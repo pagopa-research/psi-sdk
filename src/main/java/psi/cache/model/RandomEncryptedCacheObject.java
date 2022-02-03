@@ -3,7 +3,9 @@ package psi.cache.model;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class RandomEncryptedCacheObject implements PsiCacheObject {
+public class RandomEncryptedCacheObject extends PsiCacheObject {
+
+    private static final long serialVersionUID = 1L;
 
     private BigInteger randomValue;
 

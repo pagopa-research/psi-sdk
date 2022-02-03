@@ -2,26 +2,35 @@ package psi.cache.model;
 
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
-import psi.utils.CustomTypeConverter;
 
-import java.util.Objects;
+import java.util.Arrays;
 
-public class EncryptedEcCacheObject implements PsiCacheObject {
+public class EncryptedEcCacheObject extends PsiCacheObject {
 
-    private String encryptedValue;
+    private static final long serialVersionUID = 1L;
+
+    private byte [] encryptedValue;
 
     public EncryptedEcCacheObject() {}
 
     public EncryptedEcCacheObject(ECPoint encryptedValue) {
-        this.encryptedValue = CustomTypeConverter.convertECPointToString(encryptedValue);
-    }
-
-    public String getEncryptedValue() {
-        return encryptedValue;
+        this.encryptedValue = encryptedValue.getEncoded(true);
     }
 
     public ECPoint getEncryptedValue(ECCurve curve) {
-        return CustomTypeConverter.convertStringToECPoint(curve, encryptedValue);
+        return curve.decodePoint(this.encryptedValue);
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public byte[] getEncryptedValue() {
+        return encryptedValue;
+    }
+
+    public void setEncryptedValue(byte[] encryptedValue) {
+        this.encryptedValue = encryptedValue;
     }
 
     @Override
@@ -29,18 +38,18 @@ public class EncryptedEcCacheObject implements PsiCacheObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EncryptedEcCacheObject that = (EncryptedEcCacheObject) o;
-        return Objects.equals(encryptedValue, that.encryptedValue);
+        return Arrays.equals(encryptedValue, that.encryptedValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(encryptedValue);
+        return Arrays.hashCode(encryptedValue);
     }
 
     @Override
     public String toString() {
-        return "EncryptedCacheObject{" +
-                "encryptedValue=" + encryptedValue +
+        return "RandomEncryptedEcCacheObject{" +
+                "encryptedValue=" + Arrays.toString(encryptedValue) +
                 '}';
     }
 }

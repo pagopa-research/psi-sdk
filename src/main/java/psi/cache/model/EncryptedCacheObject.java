@@ -3,7 +3,9 @@ package psi.cache.model;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class EncryptedCacheObject implements PsiCacheObject {
+public class EncryptedCacheObject extends PsiCacheObject {
+
+    private static final long serialVersionUID = 1L;
 
     private BigInteger encryptedValue;
 

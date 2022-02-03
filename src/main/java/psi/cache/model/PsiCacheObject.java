@@ -1,5 +1,7 @@
 package psi.cache.model;
 
-public interface PsiCacheObject {
+import java.io.Serializable;
+
+public abstract class PsiCacheObject  implements Serializable {
 
 }
