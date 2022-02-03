@@ -2,15 +2,23 @@ package psi.model;
 
 import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
+import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class PsiClientSession {
+public class PsiClientSession implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String modulus;
 
     private String serverPublicKey;
+
+    private String ecSpecName;
+
+    private String ecServerPublicKey;
 
     private PsiAlgorithmParameter psiAlgorithmParameter;
 
@@ -18,24 +26,20 @@ public class PsiClientSession {
         return modulus;
     }
 
-    public void setModulus(String modulus) {
-        this.modulus = modulus;
-    }
-
     public String getServerPublicKey() {
         return serverPublicKey;
     }
 
-    public void setServerPublicKey(String serverPublicKey) {
-        this.serverPublicKey = serverPublicKey;
+    public String getEcSpecName() {
+        return ecSpecName;
+    }
+
+    public String getEcServerPublicKey() {
+        return ecServerPublicKey;
     }
 
     public PsiAlgorithmParameter getPsiAlgorithmParameter() {
         return psiAlgorithmParameter;
-    }
-
-    public void setPsiAlgorithmParameter(PsiAlgorithmParameter psiAlgorithmParameter) {
-        this.psiAlgorithmParameter = psiAlgorithmParameter;
     }
 
     public static PsiClientSession getFromServerSession(PsiServerSession psiServerSession){
@@ -52,26 +56,34 @@ public class PsiClientSession {
             throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
 
         PsiClientSession psiClientSession = new PsiClientSession();
-        PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter();
-        psiAlgorithmParameter.setAlgorithm((psiServerSession.getPsiAlgorithmParameter().getAlgorithm()));
-        psiAlgorithmParameter.setKeySize(psiServerSession.getPsiAlgorithmParameter().getKeySize());
-        psiClientSession.setPsiAlgorithmParameter(psiAlgorithmParameter);
+        psiClientSession.psiAlgorithmParameter = new PsiAlgorithmParameter();
+        psiClientSession.psiAlgorithmParameter.setAlgorithm((psiServerSession.getPsiAlgorithmParameter().getAlgorithm()));
+        psiClientSession.psiAlgorithmParameter.setKeySize(psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
+        PsiServerKeyDescription psiServerKeyDesc = psiServerSession.getPsiServerKeyDescription();
         switch(psiServerSession.getPsiAlgorithmParameter().getAlgorithm()){
             case BS:
-                if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
-                    throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
-                psiClientSession.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
-                if(psiServerSession.getPsiServerKeyDescription().getPublicKey() == null)
-                    throw new PsiServerException("The field publicKey of psiServerKeyDescription cannot be null");
-                psiClientSession.setServerPublicKey(psiServerSession.getPsiServerKeyDescription().getPublicKey());
+                if(psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getPublicKey() == null)
+                    throw new PsiServerException("The fields modulus and publicKey of psiServerKeyDescription cannot be null for the BS algorithm");
+                psiClientSession.modulus = psiServerKeyDesc.getModulus();
+                psiClientSession.serverPublicKey = psiServerKeyDesc.getPublicKey();
                 break;
             case DH:
-                if(psiServerSession.getPsiServerKeyDescription().getModulus() == null)
-                    throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null");
-                psiClientSession.setModulus(psiServerSession.getPsiServerKeyDescription().getModulus());
+                if(psiServerKeyDesc.getModulus() == null)
+                    throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null for the DH algorithm");
+                psiClientSession.modulus = psiServerKeyDesc.getModulus();
                 break;
-
+            case ECBS:
+                if(psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null )
+                    throw new PsiServerException("The fields ecSpecName and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
+                psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
+                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
+                break;
+            case ECDH:
+                if(psiServerKeyDesc.getEcSpecName() == null )
+                    throw new PsiServerException("The fields ecSpecName of psiServerKeyDescription cannot be null for the ECDH algorithm");
+                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
+                break;
             default:
                 throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
         }

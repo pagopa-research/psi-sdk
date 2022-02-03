@@ -9,6 +9,7 @@ import psi.cache.model.EncryptedCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
@@ -16,7 +17,9 @@ import psi.utils.*;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DhPsiServer extends PsiAbstractServer {
 
@@ -41,8 +44,7 @@ public class DhPsiServer extends PsiAbstractServer {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
-            if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getModulus().isEmpty()
-                    || psiServerKeyDescription.getPrivateKey() == null || psiServerKeyDescription.getPrivateKey().isEmpty())
+            if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getPrivateKey() == null)
                 throw new PsiServerInitException("The private key and/or modulus passed in the input psiServerKeyDescription are either null or empty");
             // TODO: check whether keys are valid wrt each other
         }
@@ -96,7 +98,7 @@ public class DhPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedSet;
@@ -140,7 +142,7 @@ public class DhPsiServer extends PsiAbstractServer {
                 }
             });
         }
-        MultithreadingUtils.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         statisticList.add(statistics.close());
         return encryptedMap;

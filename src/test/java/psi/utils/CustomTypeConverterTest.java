@@ -1,9 +1,14 @@
 package psi.utils;
 
+import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
+import psi.cache.model.RandomEncryptedCacheObject;
+import psi.model.EllipticCurve;
+import psi.model.PsiAlgorithm;
 
 import java.math.BigInteger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CustomTypeConverterTest {
@@ -57,5 +62,39 @@ public class CustomTypeConverterTest {
         assertTrue(isBigIntegerToStringConversionBidirectional(b3));
         assertTrue(isBigIntegerToStringConversionBidirectional(b4));
         assertTrue(isBigIntegerToStringConversionBidirectional(b5));
+    }
+
+    @Test
+    public void ecPointConversionTest(){
+
+        AsymmetricKeyFactory.AsymmetricEcKey asymmetricEcKey = AsymmetricKeyFactory.generateEcKey(PsiAlgorithm.ECBS, 512);
+        EllipticCurve ellipticCurve = new EllipticCurve(asymmetricEcKey.ecSpec);
+
+        ECPoint ecPoint = EllipticCurve.multiply(ellipticCurve.mapMessage(BigInteger.TEN), asymmetricEcKey.privateKey);
+
+        String stringEcPoint = CustomTypeConverter.convertECPointToString(ecPoint);
+
+        ECPoint convertedECPoint = CustomTypeConverter.convertStringToECPoint(ecPoint.getCurve(), stringEcPoint);
+        assertEquals(ecPoint, convertedECPoint);
+    }
+
+    @Test
+    public void encodeDecodeTest(){
+        // Testing on simple Object, as a String
+        String clearString = "Simple value";
+        String clearStringToBase64 = CustomTypeConverter.convertObjectToString(clearString);
+        assertEquals(clearString, CustomTypeConverter.convertStringToObject(clearStringToBase64, String.class));
+
+        // Testing on BigInteger
+        BigInteger clearBigInteger = CustomTypeConverter.convertStringToBigInteger("BigInteger value");
+        String clearBigIntegerToBase64 = CustomTypeConverter.convertObjectToString(clearBigInteger);
+        assertEquals(clearBigInteger, CustomTypeConverter.convertStringToObject(clearBigIntegerToBase64, BigInteger.class));
+
+        // Testing con complex object
+        BigInteger randomValue = CustomTypeConverter.convertStringToBigInteger("Random value");
+        BigInteger encryptedValue = CustomTypeConverter.convertStringToBigInteger("Encrypted value");
+        RandomEncryptedCacheObject clearObject = new RandomEncryptedCacheObject(randomValue,encryptedValue);
+        String clearObjectToBase64 = CustomTypeConverter.convertObjectToString(clearObject);
+        assertEquals(clearObject, CustomTypeConverter.convertStringToObject(clearObjectToBase64, RandomEncryptedCacheObject.class));
     }
 }

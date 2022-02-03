@@ -25,6 +25,10 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+                <configuration> <!-- verify if such configuration is required -->
+                    <reuseForks>false</reuseForks>
+                    <forkCount>1</forkCount>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -60,28 +64,39 @@
     </build>
 
     <dependencies>
+
+        <!-- elliptic curve capabilities -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
+
+        <!-- objects serialization -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.13.1</version>
         </dependency>
+
+        <!-- logs facade -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.33</version>
         </dependency>
-        <!-- test only -->
+
+        <!-- TEST -->
+
+        <!-- test facilities -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- logs implementation used in testing mode -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

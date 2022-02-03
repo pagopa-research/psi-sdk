@@ -1,8 +1,11 @@
 package psi.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class PsiAlgorithmParameter {
+public class PsiAlgorithmParameter implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private PsiAlgorithm algorithm;
 

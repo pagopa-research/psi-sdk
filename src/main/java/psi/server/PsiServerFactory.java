@@ -7,6 +7,8 @@ import psi.exception.PsiServerException;
 import psi.model.PsiAlgorithm;
 import psi.server.algorithm.bs.BsPsiServer;
 import psi.server.algorithm.dh.DhPsiServer;
+import psi.server.algorithm.ecbs.EcBsPsiServer;
+import psi.server.algorithm.ecdh.EcDhPsiServer;
 
 import java.util.Arrays;
 
@@ -57,9 +59,12 @@ public class PsiServerFactory {
         switch (psiAlgorithmParameter.getAlgorithm()) {
             case BS:
                 return BsPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
-
             case DH:
                 return DhPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
+            case ECBS:
+                return EcBsPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
+            case ECDH:
+                return EcDhPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
 
             default:
                 return null;
@@ -89,6 +94,12 @@ public class PsiServerFactory {
 
             case DH:
                 return new DhPsiServer(psiServerSession, psiCacheProvider);
+
+            case ECBS:
+                return new EcBsPsiServer(psiServerSession, psiCacheProvider);
+
+            case ECDH:
+                return new EcDhPsiServer(psiServerSession, psiCacheProvider);
 
             default:
                 return null;

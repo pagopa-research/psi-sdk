@@ -41,7 +41,7 @@ public class HashFactory {
     }
 
     private static BigInteger computeHashFullDomainInner(BigInteger input, MessageDigest digest, int modulusByteLength) {
-        log.debug("Calling computeFullDomainHashInner with input = {}, modulusByteLength = {}", input, modulusByteLength);
+        log.trace("Calling computeFullDomainHashInner with input = {}, modulusByteLength = {}", input, modulusByteLength);
         byte[] result = new byte[modulusByteLength];
         result[0] = (byte) 0xff;
         // Create a temp structure used to store the value to be hashed: (input | i) with i in (1,n)
