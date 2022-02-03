@@ -1,6 +1,5 @@
 package psi.model;
 
-import javafx.util.Pair;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
@@ -206,7 +205,7 @@ public class EllipticCurve {
         return root;
     }
 
-    public Pair<ECPoint,ECPoint> generateEncryptedRandomValue(BigInteger inputValue,ECPoint publicKey){
+    public EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint publicKey){
         Random secureRandom = new SecureRandom();
         ECPoint point2DInputValue = mapMessage(inputValue);
         ECPoint randomPointInv;
@@ -220,6 +219,24 @@ public class EllipticCurve {
             encryptedValue = add(randomPointInv, point2DInputValue);
         } while(y.compareTo(BigInteger.ZERO) == 0 || randomPoint.isInfinity()|| randomPointInv.isInfinity());
 
-        return new Pair<>(encryptedValue, randomPoint);
+        return new EncryptedRandomValue(encryptedValue, randomPoint);
+    }
+
+    public class EncryptedRandomValue{
+        private ECPoint encrypted;
+        private ECPoint random;
+
+        public EncryptedRandomValue(ECPoint encrypted, ECPoint random) {
+            this.encrypted = encrypted;
+            this.random = random;
+        }
+
+        public ECPoint getEncrypted() {
+            return encrypted;
+        }
+
+        public ECPoint getRandom() {
+            return random;
+        }
     }
 }

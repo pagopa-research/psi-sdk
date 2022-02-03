@@ -1,6 +1,5 @@
 package psi.client.algorithm.ecbs;
 
-import javafx.util.Pair;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
@@ -113,9 +112,9 @@ public class EcBsPsiClient extends PsiAbstractClient {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        Pair<ECPoint,ECPoint> encryptedRandomValue = this.ellipticCurve.generateEncryptedRandomValue(bigIntegerValue, this.serverPublicKey);
-                        encryptedValue = encryptedRandomValue.getKey();
-                        randomValue = encryptedRandomValue.getValue();
+                        EllipticCurve.EncryptedRandomValue encryptedRandomValue = this.ellipticCurve.generateEncryptedRandomValue(bigIntegerValue, this.serverPublicKey);
+                        encryptedValue = encryptedRandomValue.getEncrypted();
+                        randomValue = encryptedRandomValue.getRandom();
                         statistics.incrementCacheMiss();
                         if(this.cacheEnabled) {
                             PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new RandomEncryptedEcCacheObject(randomValue, encryptedValue),this.psiCacheProvider);
