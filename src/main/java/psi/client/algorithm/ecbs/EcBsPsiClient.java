@@ -164,20 +164,22 @@ public class EcBsPsiClient extends PsiAbstractClient {
             executorService.submit(() -> {
 
                 for(Map.Entry<Long, ECPoint> entry : partition.entrySet()) {
+                    ECPoint randomValue = clientRandomDatasetMap.get(entry.getKey());
                     ECPoint reversedValue = null;
+                    BigInteger cacheKeyValue = null; // Used as key value during caching operations
                     if (this.cacheEnabled) {
-                        //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
-                        Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedEcCacheObject.class, this.psiCacheProvider);
+                        cacheKeyValue = concatEcPoints(entry.getValue(), randomValue);
+                        Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, cacheKeyValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
                     if (reversedValue == null){
-                        reversedValue = EllipticCurve.sub(entry.getValue(), clientRandomDatasetMap.get(entry.getKey()));
+                        reversedValue = EllipticCurve.sub(entry.getValue(), randomValue);
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedEcCacheObject(reversedValue), this.psiCacheProvider); //TODO, come sopra
+                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, cacheKeyValue, new EncryptedEcCacheObject(reversedValue), this.psiCacheProvider); //TODO, come sopra
                         }
                     }
                     clientReversedDatasetMap.put(entry.getKey(), reversedValue);
@@ -212,8 +214,20 @@ public class EcBsPsiClient extends PsiAbstractClient {
         return psi;
     }
 
+    private static BigInteger concatEcPoints(ECPoint point1, ECPoint point2){
+        byte [] array1 = point1.getEncoded(true);
+        byte [] array2 = point2 .getEncoded(true);
+
+        byte[] result = new byte[array1.length + array2.length];
+        System.arraycopy(array1, 0, result, 0, array1.length);
+        System.arraycopy(array2, 0, result, array1.length, array1.length);
+
+        return new BigInteger(result);
+    }
+
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
         return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicKey, this.ellipticCurve.getEcParameterSpec());
     }
+
 }

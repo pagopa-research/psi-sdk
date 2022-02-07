@@ -83,13 +83,17 @@ public class PsiServerFactory {
                 || psiServerSession.getPsiAlgorithmParameter().getKeySize() == null)
             throw new PsiServerInitException("The fields cacheEnabled, algorithm and keySize of the input psiServerSession cannot be null");
 
+        PsiAlgorithm psiAlgorithm = psiServerSession.getPsiAlgorithmParameter().getAlgorithm();
+        //if (!psiAlgorithm.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
+        //    throw new UnsupportedKeySizeException(psiAlgorithm, psiServerSession.getPsiAlgorithmParameter().getKeySize());
+
         if (psiServerSession.getCacheEnabled() && psiCacheProvider == null)
             throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
         if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null)
             throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 
-        switch (psiServerSession.getPsiAlgorithmParameter().getAlgorithm()) {
+        switch (psiAlgorithm) {
             case BS:
                 return new BsPsiServer(psiServerSession, psiCacheProvider);
 

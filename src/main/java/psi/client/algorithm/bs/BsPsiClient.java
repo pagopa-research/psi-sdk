@@ -159,22 +159,23 @@ public class BsPsiClient extends PsiAbstractClient {
         for(Map<Long, BigInteger> partition : doubleEncryptedMapPartition){
             executorService.submit(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
-
+                BigInteger cacheKeyValue = null; // Used as key value during caching operations
                 for(Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
+                    BigInteger randomValue = clientRandomDatasetMap.get(entry.getKey());
                     BigInteger reversedValue = null;
                     if (this.cacheEnabled) {
-                        //TODO: controllare se sia corretto o se è meglio usare una chiave composta con i parametri in input alla funzione sottostante
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), EncryptedCacheObject.class, this.psiCacheProvider);
+                        cacheKeyValue = concatBigIntegers(entry.getValue(), randomValue);
+                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, cacheKeyValue, EncryptedCacheObject.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
                         }
                     }
                     if (reversedValue == null){
-                        reversedValue = hashFactory.hash(entry.getValue().multiply(clientRandomDatasetMap.get(entry.getKey()).modInverse(modulus)).mod(modulus));
+                        reversedValue = hashFactory.hash(entry.getValue().multiply(randomValue.modInverse(modulus)).mod(modulus));
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, clientClearDatasetMap.get(entry.getKey()), new EncryptedCacheObject(reversedValue), this.psiCacheProvider); //TODO, come sopra
+                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.REVERSE_VALUE, cacheKeyValue, new EncryptedCacheObject(reversedValue), this.psiCacheProvider); //TODO, come sopra
                         }
                     }
                     clientReversedDatasetMap.put(entry.getKey(), reversedValue);
@@ -207,6 +208,17 @@ public class BsPsiClient extends PsiAbstractClient {
         MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
 
         return psi;
+    }
+
+    private static BigInteger concatBigIntegers(BigInteger bigInteger1, BigInteger bigInteger2){
+        byte [] array1 = bigInteger1.toByteArray();
+        byte [] array2 = bigInteger1.toByteArray();
+
+        byte[] result = new byte[array1.length + array2.length];
+        System.arraycopy(array1, 0, result, 0, array1.length);
+        System.arraycopy(array2, 0, result, array1.length, array1.length);
+
+        return new BigInteger(result);
     }
 
     @Override

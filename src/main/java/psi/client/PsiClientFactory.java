@@ -58,7 +58,11 @@ public class PsiClientFactory {
         if (!Arrays.asList(PsiAlgorithm.values()).contains(psiClientSession.getPsiAlgorithmParameter().getAlgorithm()))
             throw new PsiClientException("The algorithm defined in the input psiClientSession is invalid or not supported");
 
-        switch (psiClientSession.getPsiAlgorithmParameter().getAlgorithm()) {
+        PsiAlgorithm psiAlgorithm = psiClientSession.getPsiAlgorithmParameter().getAlgorithm();
+        //if (!psiAlgorithm.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
+        //    throw new UnsupportedKeySizeException(psiAlgorithm, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+
+        switch (psiAlgorithm) {
             case BS:
                 return new BsPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
             case DH:
