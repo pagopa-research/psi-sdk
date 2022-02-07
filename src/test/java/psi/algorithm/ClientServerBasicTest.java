@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.client.PsiClient;
-import psi.client.PsiClientFactory;
+import psi.client.algorithm.PsiClientFactory;
 import psi.exception.UnsupportedKeySizeException;
 import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiClientSession;
 import psi.server.PsiServer;
-import psi.server.PsiServerFactory;
 import psi.server.PsiServerSession;
+import psi.server.algorithm.PsiServerFactory;
 
 import java.util.HashSet;
 import java.util.List;

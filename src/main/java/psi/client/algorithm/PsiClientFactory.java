@@ -1,10 +1,8 @@
-package psi.client;
+package psi.client.algorithm;
 
 import psi.cache.PsiCacheProvider;
-import psi.client.algorithm.bs.BsPsiClient;
-import psi.client.algorithm.dh.DhPsiClient;
-import psi.client.algorithm.ecbs.EcBsPsiClient;
-import psi.client.algorithm.ecdh.EcDhPsiClient;
+import psi.client.PsiClient;
+import psi.client.PsiClientKeyDescription;
 import psi.exception.PsiClientException;
 import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;

@@ -1,11 +1,11 @@
-package psi.cache.model;
+package psi;
 
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 
 import java.util.Arrays;
 
-public class RandomEncryptedEcCacheObject extends PsiCacheObject {
+public class CacheObjectEcRandomEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -13,9 +13,9 @@ public class RandomEncryptedEcCacheObject extends PsiCacheObject {
 
     private byte [] encryptedValue;
 
-    public RandomEncryptedEcCacheObject() {}
+    private CacheObjectEcRandomEncrypted() {}
 
-    public RandomEncryptedEcCacheObject(ECPoint randomValue, ECPoint encryptedValue) {
+    public CacheObjectEcRandomEncrypted(ECPoint randomValue, ECPoint encryptedValue) {
         this.randomValue = randomValue.getEncoded(true);
         this.encryptedValue = encryptedValue.getEncoded(true);
     }
@@ -36,23 +36,15 @@ public class RandomEncryptedEcCacheObject extends PsiCacheObject {
         return randomValue;
     }
 
-    public void setRandomValue(byte[] randomValue) {
-        this.randomValue = randomValue;
-    }
-
     public byte[] getEncryptedValue() {
         return encryptedValue;
-    }
-
-    public void setEncryptedValue(byte[] encryptedValue) {
-        this.encryptedValue = encryptedValue;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RandomEncryptedEcCacheObject that = (RandomEncryptedEcCacheObject) o;
+        CacheObjectEcRandomEncrypted that = (CacheObjectEcRandomEncrypted) o;
         return Arrays.equals(randomValue, that.randomValue) &&
                 Arrays.equals(encryptedValue, that.encryptedValue);
     }

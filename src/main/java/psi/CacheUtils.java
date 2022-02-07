@@ -1,10 +1,8 @@
-package psi.cache;
+package psi;
 
-import psi.cache.enumeration.PsiCacheOperationType;
-import psi.cache.model.PsiCacheObject;
+import psi.cache.PsiCacheProvider;
 import psi.exception.CustomRuntimeException;
 import psi.model.PsiKeyDescription;
-import psi.utils.CustomTypeConverter;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -12,9 +10,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Optional;
 
-public class PsiCacheUtils {
+public class CacheUtils {
 
-    private PsiCacheUtils() {}
+    private CacheUtils() {}
 
     /**
      * Retrieves the keyId corresponding to the keyDescription is present, otherwise a new keyId is generated and stored.
@@ -42,11 +40,11 @@ public class PsiCacheUtils {
         }
     }
 
-    private static String generateKeyString(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input){
+    private static String generateKeyString(Long keyId, CacheOperationType cacheObjectType, BigInteger input){
         return keyId + cacheObjectType.toString() + CustomTypeConverter.convertBigIntegerToString(input);
     }
 
-    public static <T> Optional<T> getCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass, PsiCacheProvider psiCacheProvider){
+    public static <T> Optional<T> getCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass, PsiCacheProvider psiCacheProvider){
         String key = generateKeyString(keyId, cacheObjectType, input);
         Optional<String> cachedValueBase64 = psiCacheProvider.get(key);
         if(!cachedValueBase64.isPresent())
@@ -55,7 +53,7 @@ public class PsiCacheUtils {
         return Optional.of(cachedObject);
     }
 
-    public static void putCachedObject(Long keyId, PsiCacheOperationType cacheObjectType, BigInteger input, PsiCacheObject output, PsiCacheProvider psiCacheProvider){
+    public static void putCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, CacheObject output, PsiCacheProvider psiCacheProvider){
         String key = generateKeyString(keyId, cacheObjectType, input);
         String value = CustomTypeConverter.convertObjectToString(output);
         psiCacheProvider.put(key, value);

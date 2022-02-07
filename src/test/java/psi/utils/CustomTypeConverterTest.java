@@ -2,8 +2,10 @@ package psi.utils;
 
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
-import psi.cache.model.RandomEncryptedCacheObject;
-import psi.model.EllipticCurve;
+import psi.AsymmetricKeyFactory;
+import psi.CacheObjectRandomEncrypted;
+import psi.CustomTypeConverter;
+import psi.EllipticCurve;
 import psi.model.PsiAlgorithm;
 
 import java.math.BigInteger;
@@ -93,8 +95,8 @@ public class CustomTypeConverterTest {
         // Testing con complex object
         BigInteger randomValue = CustomTypeConverter.convertStringToBigInteger("Random value");
         BigInteger encryptedValue = CustomTypeConverter.convertStringToBigInteger("Encrypted value");
-        RandomEncryptedCacheObject clearObject = new RandomEncryptedCacheObject(randomValue,encryptedValue);
+        CacheObjectRandomEncrypted clearObject = new CacheObjectRandomEncrypted(randomValue,encryptedValue);
         String clearObjectToBase64 = CustomTypeConverter.convertObjectToString(clearObject);
-        assertEquals(clearObject, CustomTypeConverter.convertStringToObject(clearObjectToBase64, RandomEncryptedCacheObject.class));
+        assertEquals(clearObject, CustomTypeConverter.convertStringToObject(clearObjectToBase64, CacheObjectRandomEncrypted.class));
     }
 }

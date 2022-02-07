@@ -1,17 +1,17 @@
-package psi.cache.model;
+package psi;
 
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class EncryptedCacheObject extends PsiCacheObject {
+public class CacheObjectEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
     private BigInteger encryptedValue;
 
-    public EncryptedCacheObject() {}
+    private CacheObjectEncrypted() {}
 
-    public EncryptedCacheObject(BigInteger encryptedValue) {
+    public CacheObjectEncrypted(BigInteger encryptedValue) {
         this.encryptedValue = encryptedValue;
     }
 
@@ -23,7 +23,7 @@ public class EncryptedCacheObject extends PsiCacheObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EncryptedCacheObject that = (EncryptedCacheObject) o;
+        CacheObjectEncrypted that = (CacheObjectEncrypted) o;
         return Objects.equals(encryptedValue, that.encryptedValue);
     }
 

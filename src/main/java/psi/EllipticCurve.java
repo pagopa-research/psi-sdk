@@ -1,4 +1,4 @@
-package psi.model;
+package psi;
 
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;

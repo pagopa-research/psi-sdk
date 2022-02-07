@@ -1,11 +1,9 @@
-package psi.client.algorithm.dh;
+package psi.client.algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.*;
 import psi.cache.PsiCacheProvider;
-import psi.cache.PsiCacheUtils;
-import psi.cache.enumeration.PsiCacheOperationType;
-import psi.cache.model.EncryptedCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
@@ -14,7 +12,6 @@ import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
-import psi.utils.*;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -41,7 +38,7 @@ public class DhPsiClient extends PsiAbstractClient {
     private final BigInteger modulus;
     private final BigInteger clientPrivateKey;
 
-    public DhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+    DhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         if (!PsiAlgorithm.DH.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
             throw new UnsupportedKeySizeException(PsiAlgorithm.DH, psiClientSession.getPsiAlgorithmParameter().getKeySize());
 
@@ -77,7 +74,7 @@ public class DhPsiClient extends PsiAbstractClient {
         if (psiCacheProvider == null)
             this.cacheEnabled = false;
         else {
-            this.keyId = PsiCacheUtils.getKeyId(getClientKeyDescription(), psiCacheProvider);
+            this.keyId = CacheUtils.getKeyId(getClientKeyDescription(), psiCacheProvider);
             this.cacheEnabled = true;
             this.psiCacheProvider = psiCacheProvider;
         }
@@ -101,7 +98,7 @@ public class DhPsiClient extends PsiAbstractClient {
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.psiCacheProvider);
+                        Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
@@ -114,7 +111,7 @@ public class DhPsiClient extends PsiAbstractClient {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     Long key = keyAtomicCounter.incrementAndGet();
@@ -152,7 +149,7 @@ public class DhPsiClient extends PsiAbstractClient {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry);
                     BigInteger encryptedValue = null;
                     if (this.cacheEnabled) {
-                        Optional<EncryptedCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedCacheObject.class, this.psiCacheProvider);
+                        Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
@@ -163,7 +160,7 @@ public class DhPsiClient extends PsiAbstractClient {
                         encryptedValue = bigIntegerValue.modPow(this.clientPrivateKey, modulus);
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedCacheObject(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     serverDoubleEncryptedDataset.add(encryptedValue);

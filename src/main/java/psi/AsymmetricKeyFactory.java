@@ -1,4 +1,4 @@
-package psi.utils;
+package psi;
 
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
@@ -7,7 +7,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.PsiServerInitException;
-import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithm;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerKeyDescriptionFactory;

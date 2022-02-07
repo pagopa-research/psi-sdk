@@ -1,4 +1,4 @@
-package psi.server;
+package psi.server.algorithm;
 
 import psi.cache.PsiCacheProvider;
 import psi.exception.PsiServerException;
@@ -6,10 +6,9 @@ import psi.exception.PsiServerInitException;
 import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
-import psi.server.algorithm.bs.BsPsiServer;
-import psi.server.algorithm.dh.DhPsiServer;
-import psi.server.algorithm.ecbs.EcBsPsiServer;
-import psi.server.algorithm.ecdh.EcDhPsiServer;
+import psi.server.PsiServer;
+import psi.server.PsiServerKeyDescription;
+import psi.server.PsiServerSession;
 
 import java.util.Arrays;
 

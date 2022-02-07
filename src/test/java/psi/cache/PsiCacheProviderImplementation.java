@@ -1,7 +1,5 @@
 package psi.cache;
 
-import psi.cache.enumeration.PsiCacheOperationType;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,27 +1,20 @@
-package psi.client.algorithm.ecdh;
+package psi.client.algorithm;
 
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.*;
 import psi.cache.PsiCacheProvider;
-import psi.cache.PsiCacheUtils;
-import psi.cache.enumeration.PsiCacheOperationType;
-import psi.cache.model.EncryptedEcCacheObject;
 import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
 import psi.exception.UnsupportedKeySizeException;
-import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
-import psi.utils.AsymmetricKeyFactory;
-import psi.utils.CustomTypeConverter;
-import psi.utils.MultithreadingHelper;
-import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -49,7 +42,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
 
-    public EcDhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+    EcDhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
             throw new UnsupportedKeySizeException(PsiAlgorithm.ECDH, psiClientSession.getPsiAlgorithmParameter().getKeySize());
 
@@ -89,7 +82,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
         if (psiCacheProvider == null)
             this.cacheEnabled = false;
         else {
-            this.keyId = PsiCacheUtils.getKeyId(getClientKeyDescription(), psiCacheProvider);
+            this.keyId = CacheUtils.getKeyId(getClientKeyDescription(), psiCacheProvider);
             this.cacheEnabled = true;
             this.psiCacheProvider = psiCacheProvider;
         }
@@ -112,7 +105,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
-                        Optional<EncryptedEcCacheObject> encryptedEcCacheObjectOptional = PsiCacheUtils.getCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
+                        Optional<CacheObjectEcEncrypted> encryptedEcCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedEcCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedEcCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
@@ -124,7 +117,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedEcCacheObject(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     Long key = keyAtomicCounter.incrementAndGet();
@@ -163,7 +156,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
                     ECPoint ecPointValue = CustomTypeConverter.convertStringToECPoint(ecCurve, serverEncryptedEntry);
                     ECPoint encryptedValue = null;
                     if (this.cacheEnabled) {
-                        Optional<EncryptedEcCacheObject> encryptedEcCacheObjectOptional = PsiCacheUtils.getCachedObject(keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
+                        Optional<CacheObjectEcEncrypted> encryptedEcCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedEcCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedEcCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
@@ -174,7 +167,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
                         encryptedValue = EllipticCurve.multiply(ecPointValue, this.clientPrivateKey);
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
-                            PsiCacheUtils.putCachedObject(keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new EncryptedEcCacheObject(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     serverDoubleEncryptedDataset.add(encryptedValue);

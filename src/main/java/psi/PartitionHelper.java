@@ -1,4 +1,4 @@
-package psi.utils;
+package psi;
 
 import java.util.*;
 

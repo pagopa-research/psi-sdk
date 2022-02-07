@@ -1,4 +1,4 @@
-package psi.utils;
+package psi;
 
 import org.slf4j.Logger;
 

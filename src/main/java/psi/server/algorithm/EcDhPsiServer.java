@@ -1,28 +1,21 @@
-package psi.server.algorithm.ecdh;
+package psi.server.algorithm;
 
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import psi.*;
 import psi.cache.PsiCacheProvider;
-import psi.cache.PsiCacheUtils;
-import psi.cache.enumeration.PsiCacheOperationType;
-import psi.cache.model.EncryptedEcCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.exception.UnsupportedKeySizeException;
 import psi.exception.UnsupportedKeySizeRuntimeException;
-import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerSession;
-import psi.utils.AsymmetricKeyFactory;
-import psi.utils.CustomTypeConverter;
-import psi.utils.MultithreadingHelper;
-import psi.utils.PartitionHelper;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -34,7 +27,7 @@ public class EcDhPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(EcDhPsiServer.class);
 
-    public EcDhPsiServer(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
+    EcDhPsiServer(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
         if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
             throw new UnsupportedKeySizeRuntimeException(PsiAlgorithm.ECDH, psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
@@ -43,11 +36,11 @@ public class EcDhPsiServer extends PsiAbstractServer {
 
         if (psiCacheProvider != null) {
             this.psiCacheProvider = psiCacheProvider;
-            this.keyId = PsiCacheUtils.getKeyId(this.psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
+            this.keyId = CacheUtils.getKeyId(this.psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
         }
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+    static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         log.debug("Called initSession()");
 
         if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
@@ -94,7 +87,7 @@ public class EcDhPsiServer extends PsiAbstractServer {
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(psiServerSession.getCacheEnabled()) {
-                        Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
+                        Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
@@ -106,7 +99,7 @@ public class EcDhPsiServer extends PsiAbstractServer {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (psiServerSession.getCacheEnabled()) {
-                            PsiCacheUtils.putCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new EncryptedEcCacheObject(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     encryptedSet.add(CustomTypeConverter.convertECPointToString(encryptedValue));
@@ -144,7 +137,7 @@ public class EcDhPsiServer extends PsiAbstractServer {
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if (psiServerSession.getCacheEnabled()) {
-                        Optional<EncryptedEcCacheObject> encryptedCacheObjectOptional = PsiCacheUtils.getCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, EncryptedEcCacheObject.class, this.psiCacheProvider);
+                        Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
                             statistics.incrementCacheHit();
@@ -156,7 +149,7 @@ public class EcDhPsiServer extends PsiAbstractServer {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (psiServerSession.getCacheEnabled()) {
-                            PsiCacheUtils.putCachedObject(this.keyId, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new EncryptedEcCacheObject(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
                     encryptedMap.put(entry.getKey(), CustomTypeConverter.convertECPointToString(encryptedValue));

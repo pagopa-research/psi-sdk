@@ -1,9 +1,9 @@
-package psi.cache.model;
+package psi;
 
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class RandomEncryptedCacheObject extends PsiCacheObject {
+public class CacheObjectRandomEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -11,9 +11,9 @@ public class RandomEncryptedCacheObject extends PsiCacheObject {
 
     private BigInteger encryptedValue;
 
-    public RandomEncryptedCacheObject() {}
+    private CacheObjectRandomEncrypted() {}
 
-    public RandomEncryptedCacheObject(BigInteger randomValue, BigInteger encryptedValue) {
+    public CacheObjectRandomEncrypted(BigInteger randomValue, BigInteger encryptedValue) {
         this.randomValue = randomValue;
         this.encryptedValue = encryptedValue;
     }
@@ -22,23 +22,15 @@ public class RandomEncryptedCacheObject extends PsiCacheObject {
         return randomValue;
     }
 
-    public void setRandomValue(BigInteger randomValue) {
-        this.randomValue = randomValue;
-    }
-
     public BigInteger getEncryptedValue() {
         return encryptedValue;
-    }
-
-    public void setEncryptedValue(BigInteger encryptedValue) {
-        this.encryptedValue = encryptedValue;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RandomEncryptedCacheObject that = (RandomEncryptedCacheObject) o;
+        CacheObjectRandomEncrypted that = (CacheObjectRandomEncrypted) o;
         return Objects.equals(randomValue, that.randomValue) &&
                 Objects.equals(encryptedValue, that.encryptedValue);
     }

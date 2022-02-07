@@ -2,8 +2,8 @@ package psi.client;
 
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
+import psi.CustomTypeConverter;
 import psi.exception.PsiClientException;
-import psi.utils.CustomTypeConverter;
 
 import java.math.BigInteger;
 

@@ -1,10 +1,7 @@
 package psi.cache;
 
 import org.junit.jupiter.api.Test;
-import psi.cache.enumeration.PsiCacheOperationType;
-import psi.utils.CustomTypeConverter;
-
-import java.math.BigInteger;
+import psi.CacheOperationType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,19 +21,19 @@ public class PsiCacheProviderImplementationTest {
         String outputValue1a = "outputValue1a";
         String outputValue1b = "outputValue1b";
 
-        cacheImpl.put(generateKeyString(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION,inputValue1),outputValue1a);
-        cacheImpl.put(generateKeyString(keyId1, PsiCacheOperationType.REVERSE_VALUE,inputValue1),outputValue1b);
-        assertFalse(cacheImpl.get(generateKeyString(keyId0, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1)).isPresent());
-        assertFalse(cacheImpl.get(generateKeyString(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue0)).isPresent());
-        assertFalse(cacheImpl.get(generateKeyString(keyId1, PsiCacheOperationType.BLIND_SIGNATURE_ENCRYPTION, inputValue1)).isPresent());
+        cacheImpl.put(generateKeyString(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION,inputValue1),outputValue1a);
+        cacheImpl.put(generateKeyString(keyId1, CacheOperationType.REVERSE_VALUE,inputValue1),outputValue1b);
+        assertFalse(cacheImpl.get(generateKeyString(keyId0, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1)).isPresent());
+        assertFalse(cacheImpl.get(generateKeyString(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue0)).isPresent());
+        assertFalse(cacheImpl.get(generateKeyString(keyId1, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, inputValue1)).isPresent());
 
-        assertTrue(cacheImpl.get(generateKeyString(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1)).isPresent());
-        assertEquals(outputValue1a, cacheImpl.get(generateKeyString(keyId1, PsiCacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1)).get());
-        assertTrue(cacheImpl.get(generateKeyString(keyId1, PsiCacheOperationType.REVERSE_VALUE, inputValue1)).isPresent());
-        assertEquals(outputValue1b, cacheImpl.get(generateKeyString(keyId1, PsiCacheOperationType.REVERSE_VALUE, inputValue1)).get());
+        assertTrue(cacheImpl.get(generateKeyString(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1)).isPresent());
+        assertEquals(outputValue1a, cacheImpl.get(generateKeyString(keyId1, CacheOperationType.PRIVATE_KEY_ENCRYPTION, inputValue1)).get());
+        assertTrue(cacheImpl.get(generateKeyString(keyId1, CacheOperationType.REVERSE_VALUE, inputValue1)).isPresent());
+        assertEquals(outputValue1b, cacheImpl.get(generateKeyString(keyId1, CacheOperationType.REVERSE_VALUE, inputValue1)).get());
     }
 
-    private static String generateKeyString(Long keyId, PsiCacheOperationType cacheObjectType, String input){
+    private static String generateKeyString(Long keyId, CacheOperationType cacheObjectType, String input){
         return keyId + cacheObjectType.toString() + input;
     }
 
