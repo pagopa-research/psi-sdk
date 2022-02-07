@@ -11,6 +11,7 @@ import psi.cache.model.EncryptedEcCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.exception.UnsupportedKeySizeException;
+import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.EllipticCurve;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
@@ -33,16 +34,16 @@ public class EcDhPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(EcDhPsiServer.class);
 
-    public EcDhPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
-        if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(bsServerSession.getPsiAlgorithmParameter().getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.ECDH, bsServerSession.getPsiAlgorithmParameter().getKeySize());
+    public EcDhPsiServer(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
+        if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeRuntimeException(PsiAlgorithm.ECDH, psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
-        this.psiServerSession = bsServerSession;
+        this.psiServerSession = psiServerSession;
         this.statisticList = new LinkedList<>();
 
         if (psiCacheProvider != null) {
             this.psiCacheProvider = psiCacheProvider;
-            this.keyId = PsiCacheUtils.getKeyId(psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
+            this.keyId = PsiCacheUtils.getKeyId(this.psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
         }
     }
 

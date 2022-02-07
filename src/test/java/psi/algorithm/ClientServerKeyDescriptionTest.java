@@ -1,6 +1,8 @@
 package psi.algorithm;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.PsiClientKeyDescription;
@@ -25,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClientServerKeyDescriptionTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ClientServerKeyDescriptionTest.class);
 
     private PsiClient psiClient;
     private PsiServerSession psiServerSession;
@@ -83,7 +87,6 @@ class ClientServerKeyDescriptionTest {
 
     private void initServerAndClient(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
         this.psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter, this.psiServerKeyDescription);
-        ;
         PsiClientSession psiClientSession = PsiClientSession.getFromServerSession(this.psiServerSession);
         this.psiClient = PsiClientFactory.loadSession(psiClientSession, this.psiClientKeyDescription);
     }
@@ -99,7 +102,7 @@ class ClientServerKeyDescriptionTest {
         assertEquals(16, supportedPsiAlgorithmParameter.size());
 
         for (PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
-            System.out.println("Running client-server external key test with " + psiAlgorithmParameter);
+            log.info("Running client-server external key test with {}", psiAlgorithmParameter);
             initKeyDescriptions(psiAlgorithmParameter);
             initServerAndClient(psiAlgorithmParameter);
 

@@ -72,11 +72,11 @@ public class PsiServerFactory {
         }
     }
 
-    public static PsiServer loadSession(PsiServerSession psiServerSession) throws UnsupportedKeySizeException {
+    public static PsiServer loadSession(PsiServerSession psiServerSession) {
         return loadSession(psiServerSession, null);
     }
 
-    public static PsiServer loadSession(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+    public static PsiServer loadSession(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
         if (psiServerSession == null || psiServerSession.getCacheEnabled() == null
                 || psiServerSession.getPsiAlgorithmParameter() == null
                 || psiServerSession.getPsiAlgorithmParameter().getAlgorithm() == null

@@ -1,6 +1,8 @@
 package psi.algorithm;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import psi.cache.PsiCacheProviderImplementation;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
@@ -26,6 +28,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClientServerCacheTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ClientServerCacheTest.class);
 
     private PsiServerKeyDescription psiServerKeyDescription;
     private PsiClientKeyDescription psiClientKeyDescription;
@@ -101,7 +105,7 @@ class ClientServerCacheTest {
         assertEquals(16, supportedPsiAlgorithmParameter.size());
 
         for (PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
-            System.out.println("Running client-server cache test with " + psiAlgorithmParameter);
+            log.info("Running client-server cache test with {}", psiAlgorithmParameter);
             initKeyDescriptions(psiAlgorithmParameter);
             initCache();
 

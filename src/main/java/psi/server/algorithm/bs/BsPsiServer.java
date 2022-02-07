@@ -9,6 +9,7 @@ import psi.cache.model.EncryptedCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.exception.UnsupportedKeySizeException;
+import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
@@ -27,16 +28,16 @@ public class BsPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(BsPsiServer.class);
 
-    public BsPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
-        if (!PsiAlgorithm.BS.getSupportedKeySize().contains(bsServerSession.getPsiAlgorithmParameter().getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.BS, bsServerSession.getPsiAlgorithmParameter().getKeySize());
+    public BsPsiServer(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
+        if (!PsiAlgorithm.BS.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeRuntimeException(PsiAlgorithm.BS, psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
-        this.psiServerSession = bsServerSession;
+        this.psiServerSession = psiServerSession;
         this.statisticList = new LinkedList<>();
 
         if (psiCacheProvider != null) {
             this.psiCacheProvider = psiCacheProvider;
-            this.keyId = PsiCacheUtils.getKeyId(psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
+            this.keyId = PsiCacheUtils.getKeyId(this.psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
         }
     }
 

@@ -1,6 +1,8 @@
 package psi.algorithm;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.exception.UnsupportedKeySizeException;
@@ -22,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClientServerBasicTest {
 
+    private static final Logger log = LoggerFactory.getLogger(ClientServerBasicTest.class);
+
     private PsiClient psiClient;
     private PsiServerSession psiServerSession;
 
@@ -30,7 +34,7 @@ class ClientServerBasicTest {
 
 
     private void initDatasets(long serverSize, long clientSize, long intersectionSize) {
-        initServerDataset(intersectionSize, serverSize-intersectionSize);
+        initServerDataset(intersectionSize, serverSize - intersectionSize);
         initClientDataset(intersectionSize, clientSize-intersectionSize);
     }
 
@@ -67,7 +71,7 @@ class ClientServerBasicTest {
         assertEquals(16, supportedPsiAlgorithmParameter.size());
 
         for (PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
-            System.out.println("Running client-server basic test with " + psiAlgorithmParameter);
+            log.info("Running client-server basic test with {}", psiAlgorithmParameter);
             initServerAndClient(psiAlgorithmParameter);
 
             // Get server instance
