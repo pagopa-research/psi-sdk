@@ -1,10 +1,11 @@
 package psi.server;
 
 import psi.cache.PsiCacheProvider;
-import psi.model.PsiAlgorithmParameter;
-import psi.exception.PsiServerInitException;
 import psi.exception.PsiServerException;
+import psi.exception.PsiServerInitException;
+import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;
+import psi.model.PsiAlgorithmParameter;
 import psi.server.algorithm.bs.BsPsiServer;
 import psi.server.algorithm.dh.DhPsiServer;
 import psi.server.algorithm.ecbs.EcBsPsiServer;
@@ -16,11 +17,11 @@ public class PsiServerFactory {
 
     private PsiServerFactory() {}
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
         return initSessionInner(psiAlgorithmParameter, null, null);
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription) throws UnsupportedKeySizeException {
         if (psiServerKeyDescription == null) {
             throw new PsiServerInitException("Input serverKeyDescription is null");
         }
@@ -28,11 +29,11 @@ public class PsiServerFactory {
         return initSessionInner(psiAlgorithmParameter, psiServerKeyDescription, null);
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiCacheProvider psiCacheProvider) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         return initSessionInner(psiAlgorithmParameter, null, psiCacheProvider);
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         if (psiServerKeyDescription == null) {
             throw new PsiServerInitException("Input serverKeyDescription is null");
         }
@@ -41,15 +42,15 @@ public class PsiServerFactory {
     }
 
     /**
-     *  Calls the static method of the specific PsiServer subclass matching the algorithm set in the PsiAlgorithmParameter
-     * @param psiAlgorithmParameter contains the algorithm and the key size selected by the client
-     * @param psiServerKeyDescription if not null, the algorithm uses the input keys. If null, creates a new key
-     * @param psiCacheProvider if not null, uses this object as a cache provider. If null, no cache is used
+     * Calls the static method of the specific PsiServer subclass matching the algorithm set in the PsiAlgorithmParameter
      *
+     * @param psiAlgorithmParameter   contains the algorithm and the key size selected by the client
+     * @param psiServerKeyDescription if not null, the algorithm uses the input keys. If null, creates a new key
+     * @param psiCacheProvider        if not null, uses this object as a cache provider. If null, no cache is used
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the PsiAlgorithmParameter.
      */
-    private static PsiServerSession initSessionInner(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+    private static PsiServerSession initSessionInner(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         if (psiAlgorithmParameter == null || psiAlgorithmParameter.getAlgorithm() == null || psiAlgorithmParameter.getKeySize() == null)
             throw new PsiServerInitException("Input psiAlgorithmParameter or its fields are null");
 
@@ -71,11 +72,11 @@ public class PsiServerFactory {
         }
     }
 
-    public static PsiServer loadSession(PsiServerSession psiServerSession){
+    public static PsiServer loadSession(PsiServerSession psiServerSession) throws UnsupportedKeySizeException {
         return loadSession(psiServerSession, null);
     }
 
-    public static PsiServer loadSession(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
+    public static PsiServer loadSession(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         if (psiServerSession == null || psiServerSession.getCacheEnabled() == null
                 || psiServerSession.getPsiAlgorithmParameter() == null
                 || psiServerSession.getPsiAlgorithmParameter().getAlgorithm() == null

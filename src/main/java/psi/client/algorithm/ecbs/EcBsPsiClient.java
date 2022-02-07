@@ -14,7 +14,9 @@ import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
+import psi.exception.UnsupportedKeySizeException;
 import psi.model.EllipticCurve;
+import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 import psi.utils.CustomTypeConverter;
@@ -49,7 +51,10 @@ public class EcBsPsiClient extends PsiAbstractClient {
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
 
-    public EcBsPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
+    public EcBsPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        if (!PsiAlgorithm.ECBS.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.ECBS, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+
         this.serverEncryptedDataset = ConcurrentHashMap.newKeySet();
         this.clientClearDatasetMap = new ConcurrentHashMap<>();
         this.clientRandomDatasetMap = new ConcurrentHashMap<>();

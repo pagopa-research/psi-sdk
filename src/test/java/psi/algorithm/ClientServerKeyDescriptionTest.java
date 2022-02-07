@@ -5,6 +5,7 @@ import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
+import psi.exception.UnsupportedKeySizeException;
 import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
@@ -55,10 +56,10 @@ class ClientServerKeyDescriptionTest {
             this.serverDataset.add("SERVER-ONLY-"+i);
     }
 
-    private void initKeyDescriptions(PsiAlgorithmParameter psiAlgorithmParameter){
+    private void initKeyDescriptions(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
-        switch(psiAlgorithmParameter.getAlgorithm()){
+        switch (psiAlgorithmParameter.getAlgorithm()) {
             case BS:
                 this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
                         this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
@@ -80,23 +81,25 @@ class ClientServerKeyDescriptionTest {
         }
     }
 
-    private void initServerAndClient(PsiAlgorithmParameter psiAlgorithmParameter){
-        this.psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter, this.psiServerKeyDescription);;
+    private void initServerAndClient(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
+        this.psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter, this.psiServerKeyDescription);
+        ;
         PsiClientSession psiClientSession = PsiClientSession.getFromServerSession(this.psiServerSession);
         this.psiClient = PsiClientFactory.loadSession(psiClientSession, this.psiClientKeyDescription);
     }
 
     @Test
-    void computeEcBsPsi(){
-        long serverSize = 300;
-        long clientSize = 150;
-        long intersectionSize = 100;
+    void computeEcBsPsi() throws UnsupportedKeySizeException {
+        long serverSize = 30;
+        long clientSize = 20;
+        long intersectionSize = 10;
         initDatasets(serverSize, clientSize, intersectionSize);
 
         List<PsiAlgorithmParameter> supportedPsiAlgorithmParameter = PsiAlgorithm.getSupportedPsiAlgorithmParameter();
-        assertEquals(8, supportedPsiAlgorithmParameter.size());
+        assertEquals(16, supportedPsiAlgorithmParameter.size());
 
-        for(PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
+        for (PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
+            System.out.println("Running client-server external key test with " + psiAlgorithmParameter);
             initKeyDescriptions(psiAlgorithmParameter);
             initServerAndClient(psiAlgorithmParameter);
 

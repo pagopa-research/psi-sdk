@@ -3,6 +3,7 @@ package psi.algorithm;
 import org.junit.jupiter.api.Test;
 import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
+import psi.exception.UnsupportedKeySizeException;
 import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
@@ -49,23 +50,24 @@ class ClientServerBasicTest {
             this.serverDataset.add("SERVER-ONLY-"+i);
     }
 
-    private void initServerAndClient(PsiAlgorithmParameter psiAlgorithmParameter){
+    private void initServerAndClient(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
         this.psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         PsiClientSession psiClientSession = PsiClientSession.getFromServerSession(this.psiServerSession);
         this.psiClient = PsiClientFactory.loadSession(psiClientSession);
     }
 
     @Test
-    void computePsi(){
-        long serverSize = 300;
-        long clientSize = 150;
-        long intersectionSize = 100;
+    void computePsi() throws UnsupportedKeySizeException {
+        long serverSize = 30;
+        long clientSize = 20;
+        long intersectionSize = 10;
         initDatasets(serverSize, clientSize, intersectionSize);
 
         List<PsiAlgorithmParameter> supportedPsiAlgorithmParameter = PsiAlgorithm.getSupportedPsiAlgorithmParameter();
-        assertEquals(8, supportedPsiAlgorithmParameter.size());
+        assertEquals(16, supportedPsiAlgorithmParameter.size());
 
-        for(PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
+        for (PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
+            System.out.println("Running client-server basic test with " + psiAlgorithmParameter);
             initServerAndClient(psiAlgorithmParameter);
 
             // Get server instance

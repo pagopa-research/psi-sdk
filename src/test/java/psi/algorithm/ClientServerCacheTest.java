@@ -6,6 +6,7 @@ import psi.client.PsiClient;
 import psi.client.PsiClientFactory;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
+import psi.exception.UnsupportedKeySizeException;
 import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
@@ -56,7 +57,7 @@ class ClientServerCacheTest {
             this.serverDataset.add("SERVER-ONLY-"+i);
     }
 
-    private void initKeyDescriptions(PsiAlgorithmParameter psiAlgorithmParameter) {
+    private void initKeyDescriptions(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
         // Initializing key descriptions
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
@@ -90,16 +91,17 @@ class ClientServerCacheTest {
 
 
     @Test
-    void computePsi(){
-        long serverSize = 300;
-        long clientSize = 150;
-        long intersectionSize = 100;
+    void computePsi() throws UnsupportedKeySizeException {
+        long serverSize = 30;
+        long clientSize = 20;
+        long intersectionSize = 10;
         initDatasets(serverSize, clientSize, intersectionSize);
 
         List<PsiAlgorithmParameter> supportedPsiAlgorithmParameter = PsiAlgorithm.getSupportedPsiAlgorithmParameter();
-        assertEquals(8, supportedPsiAlgorithmParameter.size());
+        assertEquals(16, supportedPsiAlgorithmParameter.size());
 
-        for(PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
+        for (PsiAlgorithmParameter psiAlgorithmParameter : supportedPsiAlgorithmParameter) {
+            System.out.println("Running client-server cache test with " + psiAlgorithmParameter);
             initKeyDescriptions(psiAlgorithmParameter);
             initCache();
 

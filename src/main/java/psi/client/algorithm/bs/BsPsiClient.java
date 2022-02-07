@@ -11,6 +11,8 @@ import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
+import psi.exception.UnsupportedKeySizeException;
+import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 import psi.utils.CustomTypeConverter;
@@ -49,7 +51,10 @@ public class BsPsiClient extends PsiAbstractClient {
     private final BigInteger modulus;
     private final BigInteger serverPublicKey;
 
-    public BsPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider){
+    public BsPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        if (!PsiAlgorithm.BS.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.BS, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+
         this.serverEncryptedDataset = ConcurrentHashMap.newKeySet();
         this.clientClearDatasetMap = new ConcurrentHashMap<>();
         this.clientRandomDatasetMap = new ConcurrentHashMap<>();
@@ -62,15 +67,13 @@ public class BsPsiClient extends PsiAbstractClient {
         this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
         this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getServerPublicKey());
 
-        // keys are set from the psiClientSession
+        // If an external key is provided, it should be equivalent to the key read from the psiClientSession
         if (psiClientKeyDescription != null) {
             if(psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getServerPublicKey() == null)
                 throw new PsiClientException("The fields modulus and serverPublicKey in the input psiClientKeyDescription cannot be null");
             if(!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()) || !psiClientSession.getServerPublicKey().equals(psiClientKeyDescription.getServerPublicKey()))
                 throw new PsiClientException("The fields modulus and/or serverPublicKey in the psiClientKeyDescription does not match those in the psiClientSession");
         }
-
-        // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
 
         // If psiCacheProvider != null, setup and validate the cache
         if(psiCacheProvider == null)

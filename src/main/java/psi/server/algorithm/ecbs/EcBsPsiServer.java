@@ -10,7 +10,9 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedEcCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
+import psi.exception.UnsupportedKeySizeException;
 import psi.model.EllipticCurve;
+import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
@@ -31,17 +33,24 @@ public class EcBsPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(EcBsPsiServer.class);
 
-    public EcBsPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
+    public EcBsPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        if (!PsiAlgorithm.ECBS.getSupportedKeySize().contains(bsServerSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.ECBS, bsServerSession.getPsiAlgorithmParameter().getKeySize());
+
         this.psiServerSession = bsServerSession;
         this.statisticList = new LinkedList<>();
 
-        if(psiCacheProvider != null){
+        if (psiCacheProvider != null) {
             this.psiCacheProvider = psiCacheProvider;
             this.keyId = PsiCacheUtils.getKeyId(psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
         }
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        log.debug("Called initSession()");
+
+        if (!PsiAlgorithm.ECBS.getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.ECBS, psiAlgorithmParameter.getKeySize());
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
@@ -49,7 +58,7 @@ public class EcBsPsiServer extends PsiAbstractServer {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
-            if (psiServerKeyDescription.getEcSpecName() == null || psiServerKeyDescription.getEcPrivateKey() == null || psiServerKeyDescription.getEcPublicKey() == null )
+            if (psiServerKeyDescription.getEcSpecName() == null || psiServerKeyDescription.getEcPrivateKey() == null || psiServerKeyDescription.getEcPublicKey() == null)
                 throw new PsiServerInitException("The keys and/or modulus passed in the input psiServerKeyDescription are either null or empty");
             // TODO: check whether keys are valid wrt each other
         }

@@ -10,6 +10,8 @@ import psi.client.PsiAbstractClient;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
+import psi.exception.UnsupportedKeySizeException;
+import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 import psi.utils.*;
@@ -39,7 +41,10 @@ public class DhPsiClient extends PsiAbstractClient {
     private final BigInteger modulus;
     private final BigInteger clientPrivateKey;
 
-    public DhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
+    public DhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        if (!PsiAlgorithm.DH.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.DH, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+
         this.serverDoubleEncryptedDataset = ConcurrentHashMap.newKeySet();
         this.clientClearDatasetMap = new ConcurrentHashMap<>();
         this.clientDoubleEncryptedDatasetMap = new ConcurrentHashMap<>();

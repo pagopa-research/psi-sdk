@@ -7,19 +7,19 @@ import java.util.List;
 
 public enum PsiAlgorithm {
 
-    DH(2048,4096),
-    BS(2048,4096),
-    ECDH(256,512),
-    ECBS(256,512);
+    DH(2048, 3072, 4096, 8192),
+    BS(2048, 3072, 4096, 8192),
+    ECDH(224, 256, 384, 512),
+    ECBS(224, 256, 384, 512);
 
     private final List<Integer> supportedKeySize;
 
-    public List<Integer> getSupportedKeySize(){
+    public List<Integer> getSupportedKeySize() {
         return new ArrayList<>(supportedKeySize);
     }
 
-    private PsiAlgorithm(Integer ... supportedKeySize){
-        this.supportedKeySize= Arrays.asList(supportedKeySize);
+    PsiAlgorithm(Integer... supportedKeySize) {
+        this.supportedKeySize = Arrays.asList(supportedKeySize);
     }
 
     public static List<PsiAlgorithmParameter> getSupportedPsiAlgorithmParameter(){

@@ -8,6 +8,8 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
+import psi.exception.UnsupportedKeySizeException;
+import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
@@ -25,18 +27,24 @@ public class BsPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(BsPsiServer.class);
 
-    public BsPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
+    public BsPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        if (!PsiAlgorithm.BS.getSupportedKeySize().contains(bsServerSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.BS, bsServerSession.getPsiAlgorithmParameter().getKeySize());
+
         this.psiServerSession = bsServerSession;
         this.statisticList = new LinkedList<>();
 
-        if(psiCacheProvider != null){
+        if (psiCacheProvider != null) {
             this.psiCacheProvider = psiCacheProvider;
             this.keyId = PsiCacheUtils.getKeyId(psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
         }
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         log.debug("Called initSession()");
+
+        if (!PsiAlgorithm.BS.getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.BS, psiAlgorithmParameter.getKeySize());
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
@@ -44,7 +52,7 @@ public class BsPsiServer extends PsiAbstractServer {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKey(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
-            if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getPrivateKey() == null || psiServerKeyDescription.getPublicKey() == null )
+            if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getPrivateKey() == null || psiServerKeyDescription.getPublicKey() == null)
                 throw new PsiServerInitException("The keys and/or modulus passed in the input psiServerKeyDescription are either null or empty");
             // TODO: check whether keys are valid wrt each other
         }

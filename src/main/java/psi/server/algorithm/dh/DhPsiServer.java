@@ -8,6 +8,8 @@ import psi.cache.enumeration.PsiCacheOperationType;
 import psi.cache.model.EncryptedCacheObject;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
+import psi.exception.UnsupportedKeySizeException;
+import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
 import psi.server.PsiAbstractServer;
@@ -25,18 +27,24 @@ public class DhPsiServer extends PsiAbstractServer {
 
     private static final Logger log = LoggerFactory.getLogger(DhPsiServer.class);
 
-    public DhPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) {
+    public DhPsiServer(PsiServerSession bsServerSession, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+        if (!PsiAlgorithm.DH.getSupportedKeySize().contains(bsServerSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.DH, bsServerSession.getPsiAlgorithmParameter().getKeySize());
+
         this.psiServerSession = bsServerSession;
         this.statisticList = new LinkedList<>();
 
-        if(psiCacheProvider != null){
+        if (psiCacheProvider != null) {
             this.psiCacheProvider = psiCacheProvider;
             this.keyId = PsiCacheUtils.getKeyId(psiServerSession.getPsiServerKeyDescription(), psiCacheProvider);
         }
     }
 
-    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
+    public static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
         log.debug("Called initSession()");
+
+        if (!PsiAlgorithm.DH.getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
+            throw new UnsupportedKeySizeException(PsiAlgorithm.DH, psiAlgorithmParameter.getKeySize());
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
