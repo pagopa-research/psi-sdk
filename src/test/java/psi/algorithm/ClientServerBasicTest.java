@@ -9,18 +9,15 @@ import psi.PsiServerSession;
 import psi.PsiValidationHelper;
 import psi.client.PsiClient;
 import psi.exception.UnsupportedKeySizeException;
+import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiClientSession;
 import psi.server.PsiServer;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientServerBasicTest {
 
@@ -35,23 +32,23 @@ class ClientServerBasicTest {
 
     private void initDatasets(long serverSize, long clientSize, long intersectionSize) {
         initServerDataset(intersectionSize, serverSize - intersectionSize);
-        initClientDataset(intersectionSize, clientSize-intersectionSize);
+        initClientDataset(intersectionSize, clientSize - intersectionSize);
     }
 
-    private void initClientDataset(long matching, long mismatching){
+    private void initClientDataset(long matching, long mismatching) {
         this.clientDataset = new HashSet<>();
-        for(long i = 0; i < matching; i ++)
-            this.clientDataset.add("MATCHING-"+i);
-        for(long i = matching; i < (matching + mismatching); i ++)
-            this.clientDataset.add("CLIENT-ONLY-"+i);
+        for (long i = 0; i < matching; i++)
+            this.clientDataset.add("MATCHING-" + i);
+        for (long i = matching; i < (matching + mismatching); i++)
+            this.clientDataset.add("CLIENT-ONLY-" + i);
     }
 
-    private void initServerDataset(long matching, long mismatching){
+    private void initServerDataset(long matching, long mismatching) {
         this.serverDataset = new HashSet<>();
-        for(long i = 0; i < matching; i ++)
-            this.serverDataset.add("MATCHING-"+i);
-        for(long i = 0; i < mismatching; i ++)
-            this.serverDataset.add("SERVER-ONLY-"+i);
+        for (long i = 0; i < matching; i++)
+            this.serverDataset.add("MATCHING-" + i);
+        for (long i = 0; i < mismatching; i++)
+            this.serverDataset.add("SERVER-ONLY-" + i);
     }
 
     private void initServerAndClient(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
@@ -93,4 +90,43 @@ class ClientServerBasicTest {
         }
     }
 
+    @Test
+    void computePsiUnsupportedKeySizeTest() throws UnsupportedKeySizeException {
+        List<PsiAlgorithmParameter> psiAlgorithmParameters = new LinkedList<>();
+        psiAlgorithmParameters.add(new PsiAlgorithmParameter(PsiAlgorithm.BS, 160));
+        psiAlgorithmParameters.add(new PsiAlgorithmParameter(PsiAlgorithm.DH, 256));
+        psiAlgorithmParameters.add(new PsiAlgorithmParameter(PsiAlgorithm.ECBS, 2048));
+        psiAlgorithmParameters.add(new PsiAlgorithmParameter(PsiAlgorithm.ECDH, 4096));
+
+        // Checking that the initSession throws UnsupportedKeySizeException
+        for (PsiAlgorithmParameter psiAlgorithmParameter : psiAlgorithmParameters)
+            assertThrows(UnsupportedKeySizeException.class, () -> PsiServerFactory.initSession(psiAlgorithmParameter));
+
+        // We create a correct psiServerSession and then set the key size to an invalid value to test that
+        // loadSession() of the server throws UnsupportedKeySizeRuntimeExceptions and that the loadSession() of the
+        // client correctly throws UnsupportedKeySizeExceptions
+        List<PsiServerSession> psiServerSessionCorrectList = new LinkedList<>();
+        psiServerSessionCorrectList.add(PsiServerFactory.initSession(new PsiAlgorithmParameter(PsiAlgorithm.BS, 2048)));
+        psiServerSessionCorrectList.add(PsiServerFactory.initSession(new PsiAlgorithmParameter(PsiAlgorithm.DH, 2048)));
+        psiServerSessionCorrectList.add(PsiServerFactory.initSession(new PsiAlgorithmParameter(PsiAlgorithm.ECBS, 256)));
+        psiServerSessionCorrectList.add(PsiServerFactory.initSession(new PsiAlgorithmParameter(PsiAlgorithm.ECDH, 256)));
+        for (PsiServerSession psiServerSession : psiServerSessionCorrectList) {
+            switch (psiServerSession.getPsiAlgorithmParameter().getAlgorithm()) {
+                case BS:
+                    psiServerSession.setPsiAlgorithmParameter(new PsiAlgorithmParameter(PsiAlgorithm.BS, 160));
+                    break;
+                case DH:
+                    psiServerSession.setPsiAlgorithmParameter(new PsiAlgorithmParameter(PsiAlgorithm.DH, 256));
+                    break;
+                case ECBS:
+                    psiServerSession.setPsiAlgorithmParameter(new PsiAlgorithmParameter(PsiAlgorithm.ECBS, 2048));
+                    break;
+                case ECDH:
+                    psiServerSession.setPsiAlgorithmParameter(new PsiAlgorithmParameter(PsiAlgorithm.ECDH, 4096));
+                    break;
+            }
+            assertThrows(UnsupportedKeySizeRuntimeException.class, () -> PsiServerFactory.loadSession(psiServerSession));
+            assertThrows(UnsupportedKeySizeException.class, () -> PsiClientFactory.loadSession(PsiClientSession.getFromServerSession(psiServerSession)));
+        }
+    }
 }
