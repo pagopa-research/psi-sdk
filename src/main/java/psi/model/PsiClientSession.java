@@ -1,9 +1,9 @@
 package psi.model;
 
+import psi.PsiServerSession;
 import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
 import psi.server.PsiServerKeyDescription;
-import psi.server.PsiServerSession;
 
 import java.io.Serializable;
 import java.util.Arrays;

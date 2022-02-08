@@ -1,15 +1,12 @@
-package psi.client.algorithm;
+package psi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.*;
 import psi.cache.PsiCacheProvider;
-import psi.client.PsiAbstractClient;
+import psi.client.PsiClientAbstract;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
-import psi.exception.UnsupportedKeySizeException;
-import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 
@@ -26,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class BsPsiClient extends PsiAbstractClient {
+public class PsiClientBs extends PsiClientAbstract {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -44,9 +41,7 @@ public class BsPsiClient extends PsiAbstractClient {
     private final BigInteger modulus;
     private final BigInteger serverPublicKey;
 
-    BsPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
-        if (!PsiAlgorithm.BS.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.BS, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+    PsiClientBs(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
 
         this.serverEncryptedDataset = ConcurrentHashMap.newKeySet();
         this.clientClearDatasetMap = new ConcurrentHashMap<>();

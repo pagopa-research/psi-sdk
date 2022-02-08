@@ -3,22 +3,16 @@ package psi.algorithm;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.AsymmetricKeyFactory;
-import psi.cache.PsiCacheProviderImplementation;
+import psi.*;
 import psi.client.PsiClient;
 import psi.client.PsiClientKeyDescription;
-import psi.client.PsiClientKeyDescriptionFactory;
-import psi.client.algorithm.PsiClientFactory;
 import psi.exception.UnsupportedKeySizeException;
-import psi.helper.PsiValidationHelper;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 import psi.server.PsiServer;
 import psi.server.PsiServerKeyDescription;
-import psi.server.PsiServerSession;
-import psi.server.algorithm.PsiServerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -62,29 +56,9 @@ class ClientServerCacheTest {
     }
 
     private void initKeyDescriptions(PsiAlgorithmParameter psiAlgorithmParameter) throws UnsupportedKeySizeException {
-        // Initializing key descriptions
         PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
         this.psiServerKeyDescription = psiServerSession.getPsiServerKeyDescription();
-        switch (psiAlgorithmParameter.getAlgorithm()) {
-            case BS:
-                this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
-                        this.psiServerKeyDescription.getPublicKey(), this.psiServerKeyDescription.getModulus());
-                break;
-            case DH://TODO: this is not correct and is used only for testing purposes
-                this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
-                        AsymmetricKeyFactory.generateServerKey(PsiAlgorithm.DH, psiAlgorithmParameter.getKeySize()).getPrivateKey(),
-                        this.psiServerKeyDescription.getModulus());
-                break;
-            case ECBS:
-                this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(
-                        this.psiServerKeyDescription.getEcPublicKey(), this.psiServerKeyDescription.getEcSpecName());
-                break;
-            case ECDH://TODO: this is not correct and is used only for testing purposes
-                this.psiClientKeyDescription = PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(
-                        AsymmetricKeyFactory.generateServerKey(PsiAlgorithm.ECDH, psiAlgorithmParameter.getKeySize()).getEcPrivateKey(),
-                        this.psiServerKeyDescription.getEcSpecName());
-                break;
-        }
+        this.psiClientKeyDescription = PsiClientFactory.loadSession(PsiClientSession.getFromServerSession(psiServerSession)).getClientKeyDescription();
     }
 
     private void initCache(){
@@ -92,7 +66,6 @@ class ClientServerCacheTest {
         this.serverCache = new PsiCacheProviderImplementation();
         this.clientCache = new PsiCacheProviderImplementation();
     }
-
 
     @Test
     void computePsi() throws UnsupportedKeySizeException {
@@ -120,7 +93,7 @@ class ClientServerCacheTest {
                 psiClient = PsiClientFactory.loadSession(psiClientSession, this.psiClientKeyDescription, this.clientCache);
 
                 // Get server instance
-                psiServer = PsiServerFactory.loadSession(psiServerSession, this.serverCache);;
+                psiServer = PsiServerFactory.loadSession(psiServerSession, this.serverCache);
                 expectedServerCacheSize = (i==0) ? expectedServerCacheSize + 1 : expectedServerCacheSize;
                 assertEquals(expectedServerCacheSize, this.serverCache.size());
 

@@ -1,19 +1,16 @@
-package psi.server.algorithm;
+package psi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.*;
 import psi.cache.PsiCacheProvider;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
-import psi.exception.UnsupportedKeySizeException;
 import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
-import psi.server.PsiAbstractServer;
+import psi.server.PsiServerAbstract;
 import psi.server.PsiServerKeyDescription;
-import psi.server.PsiServerSession;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -21,11 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DhPsiServer extends PsiAbstractServer {
+public class PsiServerDh extends PsiServerAbstract {
 
-    private static final Logger log = LoggerFactory.getLogger(DhPsiServer.class);
+    private static final Logger log = LoggerFactory.getLogger(PsiServerDh.class);
 
-    DhPsiServer(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
+    PsiServerDh(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
         if (!PsiAlgorithm.DH.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
             throw new UnsupportedKeySizeRuntimeException(PsiAlgorithm.DH, psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
@@ -38,11 +35,9 @@ public class DhPsiServer extends PsiAbstractServer {
         }
     }
 
-    static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+    static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
         log.debug("Called initSession()");
 
-        if (!PsiAlgorithm.DH.getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.DH, psiAlgorithmParameter.getKeySize());
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch
@@ -75,17 +70,17 @@ public class DhPsiServer extends PsiAbstractServer {
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
         List<Set<String>> partitionList = PartitionHelper.partitionSet(inputSet, this.threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
-        for(Set<String> partition : partitionList) {
+        for (Set<String> partition : partitionList) {
             executorService.submit(() -> {
                 HashFactory hashFactory = new HashFactory(modulus);
 
-                for(String stringValue : partition){
+                for (String stringValue : partition) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(psiServerSession.getCacheEnabled()) {
+                    if (psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
-                        if (encryptedCacheObjectOptional.isPresent()){
+                        if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
                         }
@@ -122,15 +117,15 @@ public class DhPsiServer extends PsiAbstractServer {
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
         List<Map<Long, String>> partitionList = PartitionHelper.partitionMap(inputMap, this.threads);
         ExecutorService executorService = Executors.newFixedThreadPool(partitionList.size());
-        for(Map<Long, String> partition : partitionList) {
+        for (Map<Long, String> partition : partitionList) {
             executorService.submit(() -> {
-                for(Map.Entry<Long, String> entry : partition.entrySet()){
+                for (Map.Entry<Long, String> entry : partition.entrySet()) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if (psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
-                        if (encryptedCacheObjectOptional.isPresent()){
+                        if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
                         }
@@ -161,10 +156,11 @@ public class DhPsiServer extends PsiAbstractServer {
     }
 
     // Helper method used to validate the required fields of the psiServerKeyDescription for this algorithm
-    private void validatePsiServerKeyDescription(){
-        if(psiServerSession.getPsiServerKeyDescription() == null
+    private void validatePsiServerKeyDescription() {
+        if (psiServerSession.getPsiServerKeyDescription() == null
                 || psiServerSession.getPsiServerKeyDescription().getPrivateKey() == null
                 || psiServerSession.getPsiServerKeyDescription().getModulus() == null
-        ) throw new PsiServerException("The fields privateKey and modulus of the PsiServerKeyDescription for DH should not be null");
+        )
+            throw new PsiServerException("The fields privateKey and modulus of the PsiServerKeyDescription for DH should not be null");
     }
 }

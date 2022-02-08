@@ -1,4 +1,4 @@
-package psi.client.algorithm;
+package psi;
 
 import psi.cache.PsiCacheProvider;
 import psi.client.PsiClient;
@@ -57,18 +57,18 @@ public class PsiClientFactory {
             throw new PsiClientException("The algorithm defined in the input psiClientSession is invalid or not supported");
 
         PsiAlgorithm psiAlgorithm = psiClientSession.getPsiAlgorithmParameter().getAlgorithm();
-        //if (!psiAlgorithm.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
-        //    throw new UnsupportedKeySizeException(psiAlgorithm, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+        if (!psiAlgorithm.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new UnsupportedKeySizeException(psiAlgorithm, psiClientSession.getPsiAlgorithmParameter().getKeySize());
 
         switch (psiAlgorithm) {
             case BS:
-                return new BsPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
+                return new PsiClientBs(psiClientSession, psiClientKeyDescription, psiCacheProvider);
             case DH:
-                return new DhPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
+                return new PsiClientDh(psiClientSession, psiClientKeyDescription, psiCacheProvider);
             case ECBS:
-                return new EcBsPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
+                return new PsiClientEcBs(psiClientSession, psiClientKeyDescription, psiCacheProvider);
             case ECDH:
-                return new EcDhPsiClient(psiClientSession, psiClientKeyDescription, psiCacheProvider);
+                return new PsiClientEcDh(psiClientSession, psiClientKeyDescription, psiCacheProvider);
 
             default:
                 return null;

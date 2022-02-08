@@ -1,11 +1,7 @@
-package psi.utils;
+package psi;
 
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
-import psi.AsymmetricKeyFactory;
-import psi.CacheObjectRandomEncrypted;
-import psi.CustomTypeConverter;
-import psi.EllipticCurve;
 import psi.model.PsiAlgorithm;
 
 import java.math.BigInteger;
@@ -13,7 +9,7 @@ import java.math.BigInteger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CustomTypeConverterTest {
+class CustomTypeConverterTest {
 
     private boolean isStringToBigIntegerConversionBidirectional(String s){
         BigInteger stringToBigInteger = CustomTypeConverter.convertStringToBigInteger(s);
@@ -28,7 +24,7 @@ public class CustomTypeConverterTest {
     }
 
     @Test
-    public void stringConversionTest(){
+    void stringConversionTest(){
         String s1 = "BasicString1";
         String s2 = "40232931320130013020";
         String s3 = "Rather complex string!*$%";
@@ -47,7 +43,7 @@ public class CustomTypeConverterTest {
     }
 
     @Test
-    public void bigIntegerConversionTest(){
+    void bigIntegerConversionTest(){
         BigInteger b1 = new BigInteger("1");
         BigInteger b2 = new BigInteger("21031303028131008");
         BigInteger b3 = new BigInteger("54350935843050380590350803");
@@ -67,8 +63,7 @@ public class CustomTypeConverterTest {
     }
 
     @Test
-    public void ecPointConversionTest(){
-
+    void ecPointConversionTest(){
         AsymmetricKeyFactory.AsymmetricEcKey asymmetricEcKey = AsymmetricKeyFactory.generateEcKey(PsiAlgorithm.ECBS, 512);
         EllipticCurve ellipticCurve = new EllipticCurve(asymmetricEcKey.ecSpec);
 
@@ -81,7 +76,7 @@ public class CustomTypeConverterTest {
     }
 
     @Test
-    public void encodeDecodeTest(){
+    void encodeDecodeTest(){
         // Testing on simple Object, as a String
         String clearString = "Simple value";
         String clearStringToBase64 = CustomTypeConverter.convertObjectToString(clearString);

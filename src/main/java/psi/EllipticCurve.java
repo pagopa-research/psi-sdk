@@ -15,7 +15,7 @@ import java.util.Random;
  * y^2 = x^3 + A*x + B (mod P)
  */
 
-public class EllipticCurve {
+class EllipticCurve {
     private static final BigInteger THREE = BigInteger.valueOf(3);
     private static final BigInteger TWO = BigInteger.valueOf(2);
     private static final BigInteger ONE = BigInteger.valueOf(1);
@@ -31,25 +31,25 @@ public class EllipticCurve {
 
     private ECParameterSpec ecParameterSpec;
 
-    public ECCurve getEcCurve() {
+    ECCurve getEcCurve() {
         return ecCurve;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public ECParameterSpec getEcParameterSpec() {
+    ECParameterSpec getEcParameterSpec() {
         return ecParameterSpec;
     }
 
-    public BigInteger getN() {
+    BigInteger getN() {
         return N;
     }
 
 
 
-    public static String getNameCurve(int keySize) {
+    static String getNameCurve(int keySize) {
         if (keySize == 160)
             return "secp160r2";
         else if (keySize == 224)
@@ -64,7 +64,7 @@ public class EllipticCurve {
             throw new CustomRuntimeException("Input key size (" + keySize + ") currently not supported for EC algorithms (ECDH and ECRSA). Supported values are 160, 224, 256, 384, 512 or 521.");
     }
 
-    public static String getPFromNameCurve(String name) {
+    static String getPFromNameCurve(String name) {
         if (Objects.equals(name, "secp160r2"))
             return "fffffffffffffffffffffffffffffffeffffac73";
         else if (Objects.equals(name, "secp224k1"))
@@ -90,7 +90,7 @@ public class EllipticCurve {
                 '}';
     }
 
-    public EllipticCurve(ECParameterSpec params) {
+    EllipticCurve(ECParameterSpec params) {
         ecParameterSpec = params;
         ecCurve = params.getCurve();
         name = getNameCurve(ecCurve.getA().getFieldSize());
@@ -101,19 +101,19 @@ public class EllipticCurve {
         N = params.getN();
     }
 
-    public static ECPoint add(ECPoint p1, ECPoint p2) {
+    static ECPoint add(ECPoint p1, ECPoint p2) {
         return p1.add(p2);
     }
 
-    public static ECPoint multiply(ECPoint p, BigInteger k) {
+    static ECPoint multiply(ECPoint p, BigInteger k) {
         return p.multiply(k);
     }
 
-    public static ECPoint sub(ECPoint point2D, ECPoint point2D1) {
+    static ECPoint sub(ECPoint point2D, ECPoint point2D1) {
         return point2D.subtract(point2D1);
     }
 
-    public static BigInteger sqrtP(BigInteger res, BigInteger p) {
+    static BigInteger sqrtP(BigInteger res, BigInteger p) {
         BigInteger q = (p.subtract(ONE)).divide(TWO);
 
         while (q.mod(TWO).compareTo(ZERO) == 0) {
@@ -131,11 +131,11 @@ public class EllipticCurve {
     }
 
 
-    public boolean belongs(ECPoint p) {
+    boolean belongs(ECPoint p) {
         return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(A.multiply(p.getXCoord().toBigInteger())).add(B)).mod(P).intValue() == 0;
     }
 
-    public ECPoint mapMessage(BigInteger m) {
+    ECPoint mapMessage(BigInteger m) {
         if (this.P.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
         BigInteger k = BigInteger.valueOf(200);
         BigInteger km1 = k.subtract(BigInteger.ONE);
@@ -205,7 +205,7 @@ public class EllipticCurve {
         return root;
     }
 
-    public EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint publicKey){
+    EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint publicKey){
         Random secureRandom = new SecureRandom();
         ECPoint point2DInputValue = mapMessage(inputValue);
         ECPoint randomPointInv;
@@ -222,20 +222,20 @@ public class EllipticCurve {
         return new EncryptedRandomValue(encryptedValue, randomPoint);
     }
 
-    public class EncryptedRandomValue{
+    static class EncryptedRandomValue{
         private ECPoint encrypted;
         private ECPoint random;
 
-        public EncryptedRandomValue(ECPoint encrypted, ECPoint random) {
+        EncryptedRandomValue(ECPoint encrypted, ECPoint random) {
             this.encrypted = encrypted;
             this.random = random;
         }
 
-        public ECPoint getEncrypted() {
+        ECPoint getEncrypted() {
             return encrypted;
         }
 
-        public ECPoint getRandom() {
+        ECPoint getRandom() {
             return random;
         }
     }

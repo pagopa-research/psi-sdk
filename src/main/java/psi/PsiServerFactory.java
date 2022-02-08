@@ -1,6 +1,7 @@
-package psi.server.algorithm;
+package psi;
 
 import psi.cache.PsiCacheProvider;
+import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.exception.UnsupportedKeySizeException;
@@ -8,7 +9,6 @@ import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.server.PsiServer;
 import psi.server.PsiServerKeyDescription;
-import psi.server.PsiServerSession;
 
 import java.util.Arrays;
 
@@ -56,15 +56,18 @@ public class PsiServerFactory {
         if (!Arrays.asList(PsiAlgorithm.values()).contains(psiAlgorithmParameter.getAlgorithm()))
             throw new PsiServerInitException("The algorithm defined in the input psiAlgorithmParameter is invalid or not supported");
 
+        if (!psiAlgorithmParameter.getAlgorithm().getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
+            throw new UnsupportedKeySizeException(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
+
         switch (psiAlgorithmParameter.getAlgorithm()) {
             case BS:
-                return BsPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
+                return PsiServerBs.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
             case DH:
-                return DhPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
+                return PsiServerDh.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
             case ECBS:
-                return EcBsPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
+                return PsiServerEcBs.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
             case ECDH:
-                return EcDhPsiServer.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
+                return PsiServerEcDh.initSession(psiAlgorithmParameter, psiServerKeyDescription, psiCacheProvider);
 
             default:
                 return null;
@@ -82,28 +85,27 @@ public class PsiServerFactory {
                 || psiServerSession.getPsiAlgorithmParameter().getKeySize() == null)
             throw new PsiServerInitException("The fields cacheEnabled, algorithm and keySize of the input psiServerSession cannot be null");
 
-        PsiAlgorithm psiAlgorithm = psiServerSession.getPsiAlgorithmParameter().getAlgorithm();
-        //if (!psiAlgorithm.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
-        //    throw new UnsupportedKeySizeException(psiAlgorithm, psiServerSession.getPsiAlgorithmParameter().getKeySize());
-
         if (psiServerSession.getCacheEnabled() && psiCacheProvider == null)
             throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
-        if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null)
+        if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null) //TODO: è corretto sia un errore?
             throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 
-        switch (psiAlgorithm) {
+        if (!psiServerSession.getPsiAlgorithmParameter().getAlgorithm().getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
+            throw new CustomRuntimeException("Key size " + psiServerSession.getPsiAlgorithmParameter().getKeySize() + " is not supported by the algorithm " + psiServerSession.getPsiAlgorithmParameter().getAlgorithm());
+
+        switch (psiServerSession.getPsiAlgorithmParameter().getAlgorithm()) {
             case BS:
-                return new BsPsiServer(psiServerSession, psiCacheProvider);
+                return new PsiServerBs(psiServerSession, psiCacheProvider);
 
             case DH:
-                return new DhPsiServer(psiServerSession, psiCacheProvider);
+                return new PsiServerDh(psiServerSession, psiCacheProvider);
 
             case ECBS:
-                return new EcBsPsiServer(psiServerSession, psiCacheProvider);
+                return new PsiServerEcBs(psiServerSession, psiCacheProvider);
 
             case ECDH:
-                return new EcDhPsiServer(psiServerSession, psiCacheProvider);
+                return new PsiServerEcDh(psiServerSession, psiCacheProvider);
 
             default:
                 return null;

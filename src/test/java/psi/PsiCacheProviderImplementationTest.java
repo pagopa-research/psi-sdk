@@ -1,16 +1,14 @@
-package psi.cache;
+package psi;
 
 import org.junit.jupiter.api.Test;
-import psi.CacheOperationType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
-public class PsiCacheProviderImplementationTest {
-
+class PsiCacheProviderImplementationTest {
 
     @Test
-    public void getCachedEncryptedValueTest(){
+    void getCachedEncryptedValueTest(){
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         long keyId0 = 0L;
@@ -37,4 +35,6 @@ public class PsiCacheProviderImplementationTest {
         return keyId + cacheObjectType.toString() + input;
     }
 
+
 }
+

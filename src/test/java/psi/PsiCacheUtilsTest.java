@@ -1,10 +1,6 @@
-package psi.cache;
+package psi;
 
 import org.junit.jupiter.api.Test;
-import psi.CacheObjectRandomEncrypted;
-import psi.CacheOperationType;
-import psi.CacheUtils;
-import psi.CustomTypeConverter;
 import psi.server.PsiServerKeyDescription;
 import psi.server.PsiServerKeyDescriptionFactory;
 
@@ -14,10 +10,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 // This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
-public class PsiCacheUtilsTest {
+class PsiCacheUtilsTest {
 
     @Test
-    public void verifyCacheKeyIdCorrectnessTest(){
+    void verifyCacheKeyIdCorrectnessTest(){
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
@@ -41,7 +37,7 @@ public class PsiCacheUtilsTest {
 
 
     @Test
-    public void putGetCachedObjectTest(){
+    void putGetCachedObjectTest(){
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(

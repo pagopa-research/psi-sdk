@@ -13,7 +13,7 @@ import java.security.Security;
 import java.util.LinkedList;
 import java.util.List;
 
-public class HashFactory {
+class HashFactory {
 
     private static final Logger log = LoggerFactory.getLogger(HashFactory.class);
 
@@ -23,7 +23,7 @@ public class HashFactory {
 
     private String hashingAlgorithm = "SHA-256";
 
-    public HashFactory(BigInteger modulus){
+    HashFactory(BigInteger modulus){
         this.modulusByteLength = (int) Math.ceil(modulus.bitLength() / 8.0) + 1;
         try {
             this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
@@ -32,11 +32,11 @@ public class HashFactory {
         }
     }
 
-    public BigInteger hashFullDomain(BigInteger input) {
+    BigInteger hashFullDomain(BigInteger input) {
         return computeHashFullDomainInner(input, this.digestHash, this.modulusByteLength);
     }
 
-    public BigInteger hash(BigInteger input) {
+    BigInteger hash(BigInteger input) {
         return new BigInteger(this.digestHash.digest(input.toByteArray()));
     }
 
@@ -64,17 +64,17 @@ public class HashFactory {
         return new BigInteger(result);
     }
 
-    public void setHashingAlgorithm(String hashingAlgorithm) throws NoSuchAlgorithmException {
+    void setHashingAlgorithm(String hashingAlgorithm) throws NoSuchAlgorithmException {
         this.hashingAlgorithm = hashingAlgorithm;
         this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
 
     }
 
-    public String getHashingAlgorithm() {
+    String getHashingAlgorithm() {
         return hashingAlgorithm;
     }
 
-    public static List<String> getSupportedHashAlgorithms() {
+    static List<String> getSupportedHashAlgorithms() {
         List<String> algorithmList = new LinkedList<>();
         String type = (MessageDigest.class).getSimpleName();
         for (Provider prov : Security.getProviders()) {

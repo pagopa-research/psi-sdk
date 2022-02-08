@@ -1,21 +1,18 @@
-package psi.server.algorithm;
+package psi;
 
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.*;
 import psi.cache.PsiCacheProvider;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
-import psi.exception.UnsupportedKeySizeException;
 import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
-import psi.server.PsiAbstractServer;
+import psi.server.PsiServerAbstract;
 import psi.server.PsiServerKeyDescription;
-import psi.server.PsiServerSession;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -23,11 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class EcDhPsiServer extends PsiAbstractServer {
+public class PsiServerEcDh extends PsiServerAbstract {
 
-    private static final Logger log = LoggerFactory.getLogger(EcDhPsiServer.class);
+    private static final Logger log = LoggerFactory.getLogger(PsiServerEcDh.class);
 
-    EcDhPsiServer(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
+    PsiServerEcDh(PsiServerSession psiServerSession, PsiCacheProvider psiCacheProvider) {
         if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
             throw new UnsupportedKeySizeRuntimeException(PsiAlgorithm.ECDH, psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
@@ -40,11 +37,9 @@ public class EcDhPsiServer extends PsiAbstractServer {
         }
     }
 
-    static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
+    static PsiServerSession initSession(PsiAlgorithmParameter psiAlgorithmParameter, PsiServerKeyDescription psiServerKeyDescription, PsiCacheProvider psiCacheProvider) {
         log.debug("Called initSession()");
 
-        if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiAlgorithmParameter.getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.ECDH, psiAlgorithmParameter.getKeySize());
         PsiServerSession psiServerSession = new PsiServerSession(psiAlgorithmParameter);
 
         // keys are created from scratch

@@ -2,11 +2,11 @@ package psi;
 
 import java.util.*;
 
-public class PartitionHelper {
+class PartitionHelper {
 
     private PartitionHelper() {}
 
-    public static <T, K> List<Map<T,K>> partitionMap(Map<T,K> map, int numPartitions){
+    static <T, K> List<Map<T,K>> partitionMap(Map<T,K> map, int numPartitions){
         if (map == null) {
             throw new NullPointerException("The map must not be null");
         }
@@ -30,7 +30,7 @@ public class PartitionHelper {
         return partitions;
     }
 
-    public static <T> List<Set<T>> partitionSet(Set<T> set, int numPartitions){
+    static <T> List<Set<T>> partitionSet(Set<T> set, int numPartitions){
         if (set == null) {
             throw new NullPointerException("The set must not be null");
         }

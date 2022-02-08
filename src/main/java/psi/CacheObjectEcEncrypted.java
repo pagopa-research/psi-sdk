@@ -5,7 +5,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import java.util.Arrays;
 
-public class CacheObjectEcEncrypted extends CacheObject {
+class CacheObjectEcEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -13,19 +13,19 @@ public class CacheObjectEcEncrypted extends CacheObject {
 
     private CacheObjectEcEncrypted() {}
 
-    public CacheObjectEcEncrypted(ECPoint encryptedValue) {
+    CacheObjectEcEncrypted(ECPoint encryptedValue) {
         this.encryptedValue = encryptedValue.getEncoded(true);
     }
 
-    public ECPoint getEncryptedValue(ECCurve curve) {
+    ECPoint getEncryptedValue(ECCurve curve) {
         return curve.decodePoint(this.encryptedValue);
     }
 
-    public static long getSerialVersionUID() {
+    static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
-    public byte[] getEncryptedValue() {
+    byte[] getEncryptedValue() {
         return encryptedValue;
     }
 

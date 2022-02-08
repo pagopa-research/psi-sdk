@@ -1,4 +1,4 @@
-package psi.helper;
+package psi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ public class PsiValidationHelper {
         return computeNaiveIntersection(serverDataset, clientDataset);
     }
 
-    public static Set<String> computeNaiveIntersection(Set<String> serverDataset, Set<String> clientDataset) {
+    private static Set<String> computeNaiveIntersection(Set<String> serverDataset, Set<String> clientDataset) {
         Set<String> smallerSet = new HashSet<>();
         Set<String> largerSet;
         if (serverDataset.size() < clientDataset.size()) {

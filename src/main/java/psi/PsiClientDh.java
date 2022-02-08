@@ -1,15 +1,12 @@
-package psi.client.algorithm;
+package psi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.*;
 import psi.cache.PsiCacheProvider;
-import psi.client.PsiAbstractClient;
+import psi.client.PsiClientAbstract;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
-import psi.exception.UnsupportedKeySizeException;
-import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 
@@ -24,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DhPsiClient extends PsiAbstractClient {
+public class PsiClientDh extends PsiClientAbstract {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -38,9 +35,7 @@ public class DhPsiClient extends PsiAbstractClient {
     private final BigInteger modulus;
     private final BigInteger clientPrivateKey;
 
-    DhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
-        if (!PsiAlgorithm.DH.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.DH, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+    PsiClientDh(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
 
         this.serverDoubleEncryptedDataset = ConcurrentHashMap.newKeySet();
         this.clientClearDatasetMap = new ConcurrentHashMap<>();
@@ -91,33 +86,33 @@ public class DhPsiClient extends PsiAbstractClient {
         ExecutorService executorService = Executors.newFixedThreadPool(clientDatasetPartitions.size());
         for (Set<String> partition : clientDatasetPartitions) {
             executorService.submit(() -> {
-                HashFactory hashFactory = new HashFactory(modulus);
+                    HashFactory hashFactory = new HashFactory(modulus);
 
-                for (String stringValue : partition) {
-                    BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
-                    BigInteger encryptedValue = null;
-                    // If the cache support is enabled, the result is searched in the cache
-                    if (this.cacheEnabled) {
-                        Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
-                        if (encryptedCacheObjectOptional.isPresent()) {
-                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
-                            statistics.incrementCacheHit();
-                        }
-                    }
-                    // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
-                    if (encryptedValue == null) {
-                        encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                        encryptedValue = encryptedValue.modPow(clientPrivateKey, modulus);
-                        statistics.incrementCacheMiss();
-                        // If the cache support is enabled, the result is stored in the cache
+                    for (String stringValue : partition) {
+                        BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
+                        BigInteger encryptedValue = null;
+                        // If the cache support is enabled, the result is searched in the cache
                         if (this.cacheEnabled) {
-                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
+                            Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
+                            if (encryptedCacheObjectOptional.isPresent()) {
+                                encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
+                                statistics.incrementCacheHit();
+                            }
                         }
+                        // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
+                        if (encryptedValue == null) {
+                            encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
+                            encryptedValue = encryptedValue.modPow(clientPrivateKey, modulus);
+                            statistics.incrementCacheMiss();
+                            // If the cache support is enabled, the result is stored in the cache
+                            if (this.cacheEnabled) {
+                                CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
+                            }
+                        }
+                        Long key = keyAtomicCounter.incrementAndGet();
+                        clientClearDatasetMap.put(key, bigIntegerValue);
+                        clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                     }
-                    Long key = keyAtomicCounter.incrementAndGet();
-                    clientClearDatasetMap.put(key, bigIntegerValue);
-                    clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
-                }
             });
         }
 

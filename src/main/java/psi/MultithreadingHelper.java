@@ -5,12 +5,12 @@ import org.slf4j.Logger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class MultithreadingHelper {
+class MultithreadingHelper {
 
     private MultithreadingHelper() {
     }
 
-    public static void awaitTermination(ExecutorService executorService, int maxSecondsLifetime, Logger log){
+    static void awaitTermination(ExecutorService executorService, int maxSecondsLifetime, Logger log){
         try {
             executorService.shutdown();
             executorService.awaitTermination(maxSecondsLifetime, TimeUnit.SECONDS);

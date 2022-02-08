@@ -5,7 +5,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import java.util.Arrays;
 
-public class CacheObjectEcRandomEncrypted extends CacheObject {
+class CacheObjectEcRandomEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -15,28 +15,28 @@ public class CacheObjectEcRandomEncrypted extends CacheObject {
 
     private CacheObjectEcRandomEncrypted() {}
 
-    public CacheObjectEcRandomEncrypted(ECPoint randomValue, ECPoint encryptedValue) {
+    CacheObjectEcRandomEncrypted(ECPoint randomValue, ECPoint encryptedValue) {
         this.randomValue = randomValue.getEncoded(true);
         this.encryptedValue = encryptedValue.getEncoded(true);
     }
 
-    public ECPoint getRandomValue(ECCurve curve) {
+    ECPoint getRandomValue(ECCurve curve) {
         return curve.decodePoint(this.randomValue);
     }
 
-    public ECPoint getEncryptedValue(ECCurve curve) {
+    ECPoint getEncryptedValue(ECCurve curve) {
         return curve.decodePoint(this.encryptedValue);
     }
 
-    public static long getSerialVersionUID() {
+    static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
-    public byte[] getRandomValue() {
+    byte[] getRandomValue() {
         return randomValue;
     }
 
-    public byte[] getEncryptedValue() {
+    byte[] getEncryptedValue() {
         return encryptedValue;
     }
 

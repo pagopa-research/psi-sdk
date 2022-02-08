@@ -3,7 +3,7 @@ package psi;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class CacheObjectEncrypted extends CacheObject {
+class CacheObjectEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -11,11 +11,11 @@ public class CacheObjectEncrypted extends CacheObject {
 
     private CacheObjectEncrypted() {}
 
-    public CacheObjectEncrypted(BigInteger encryptedValue) {
+    CacheObjectEncrypted(BigInteger encryptedValue) {
         this.encryptedValue = encryptedValue;
     }
 
-    public BigInteger getEncryptedValue() {
+    BigInteger getEncryptedValue() {
         return encryptedValue;
     }
 

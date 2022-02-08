@@ -1,18 +1,15 @@
-package psi.client.algorithm;
+package psi;
 
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.*;
 import psi.cache.PsiCacheProvider;
-import psi.client.PsiAbstractClient;
+import psi.client.PsiClientAbstract;
 import psi.client.PsiClientKeyDescription;
 import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
-import psi.exception.UnsupportedKeySizeException;
-import psi.model.PsiAlgorithm;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 
@@ -27,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class EcDhPsiClient extends PsiAbstractClient {
+public class PsiClientEcDh extends PsiClientAbstract {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -42,9 +39,7 @@ public class EcDhPsiClient extends PsiAbstractClient {
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
 
-    EcDhPsiClient(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) throws UnsupportedKeySizeException {
-        if (!PsiAlgorithm.ECDH.getSupportedKeySize().contains(psiClientSession.getPsiAlgorithmParameter().getKeySize()))
-            throw new UnsupportedKeySizeException(PsiAlgorithm.ECDH, psiClientSession.getPsiAlgorithmParameter().getKeySize());
+    PsiClientEcDh(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
 
         this.serverDoubleEncryptedDataset = ConcurrentHashMap.newKeySet();
         this.clientClearDatasetMap = new ConcurrentHashMap<>();

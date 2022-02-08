@@ -1,7 +1,8 @@
-package psi.server;
+package psi;
 
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
+import psi.server.PsiServerKeyDescription;
 
 public class PsiServerSession {
 
@@ -9,14 +10,14 @@ public class PsiServerSession {
     private Boolean cacheEnabled;
     private PsiServerKeyDescription psiServerKeyDescription;
 
-    public PsiServerSession() {
+    PsiServerSession() {
     }
 
-    public PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter) {
+    PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter) {
         this.psiAlgorithmParameter = psiAlgorithmParameter;
     }
 
-    public PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
+    PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
         this.psiAlgorithmParameter = new PsiAlgorithmParameter();
         this.psiAlgorithmParameter.setAlgorithm(algorithm);
         this.psiAlgorithmParameter.setKeySize(keySize);
@@ -36,7 +37,7 @@ public class PsiServerSession {
         return cacheEnabled;
     }
 
-    public void setCacheEnabled(Boolean cacheEnabled) {
+    void setCacheEnabled(Boolean cacheEnabled) {
         this.cacheEnabled = cacheEnabled;
     }
 
@@ -44,7 +45,7 @@ public class PsiServerSession {
         return psiServerKeyDescription;
     }
 
-    public void setPsiServerKeyDescription(PsiServerKeyDescription psiServerKeyDescription) {
+    void setPsiServerKeyDescription(PsiServerKeyDescription psiServerKeyDescription) {
         this.psiServerKeyDescription = psiServerKeyDescription;
     }
 

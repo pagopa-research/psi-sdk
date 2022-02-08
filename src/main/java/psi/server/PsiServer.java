@@ -1,5 +1,6 @@
 package psi.server;
 
+import psi.PsiServerSession;
 import psi.cache.PsiCacheProvider;
 import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;

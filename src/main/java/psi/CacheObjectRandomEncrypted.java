@@ -3,7 +3,7 @@ package psi;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class CacheObjectRandomEncrypted extends CacheObject {
+class CacheObjectRandomEncrypted extends CacheObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -13,16 +13,16 @@ public class CacheObjectRandomEncrypted extends CacheObject {
 
     private CacheObjectRandomEncrypted() {}
 
-    public CacheObjectRandomEncrypted(BigInteger randomValue, BigInteger encryptedValue) {
+    CacheObjectRandomEncrypted(BigInteger randomValue, BigInteger encryptedValue) {
         this.randomValue = randomValue;
         this.encryptedValue = encryptedValue;
     }
 
-    public BigInteger getRandomValue() {
+    BigInteger getRandomValue() {
         return randomValue;
     }
 
-    public BigInteger getEncryptedValue() {
+    BigInteger getEncryptedValue() {
         return encryptedValue;
     }
 

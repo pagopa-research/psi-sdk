@@ -18,11 +18,11 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
-public class AsymmetricKeyFactory {
+class AsymmetricKeyFactory {
 
     private AsymmetricKeyFactory() {}
 
-    public static PsiServerKeyDescription generateServerKey (PsiAlgorithm algorithm, int keySize) {
+    static PsiServerKeyDescription generateServerKey (PsiAlgorithm algorithm, int keySize) {
          if (algorithm.equals(PsiAlgorithm.BS) || algorithm.equals(PsiAlgorithm.DH)) {
             AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
             if(algorithm.equals(PsiAlgorithm.BS))
@@ -47,7 +47,7 @@ public class AsymmetricKeyFactory {
 
     }
 
-    public static AsymmetricKey generateKey(PsiAlgorithm algorithm, int keySize) {
+    static AsymmetricKey generateKey(PsiAlgorithm algorithm, int keySize) {
         KeyPairGenerator keyGenerator;
         java.security.KeyFactory keyFactory;
         try {
@@ -89,7 +89,7 @@ public class AsymmetricKeyFactory {
         return new AsymmetricKey(privateKey, publicKey, modulus);
     }
 
-    public static AsymmetricEcKey generateEcKey(PsiAlgorithm algorithm, int keySize) {
+    static AsymmetricEcKey generateEcKey(PsiAlgorithm algorithm, int keySize) {
         ECParameterSpec ecSpec;
         Security.addProvider(new BouncyCastleProvider());
 
@@ -110,10 +110,10 @@ public class AsymmetricKeyFactory {
         );
     }
 
-    public static class AsymmetricKey{
-        public BigInteger privateKey;
-        public BigInteger publicKey;
-        public BigInteger modulus;
+    static class AsymmetricKey{
+        BigInteger privateKey;
+        BigInteger publicKey;
+        BigInteger modulus;
 
         AsymmetricKey(BigInteger privateKey, BigInteger publicKey, BigInteger modulus) {
             this.privateKey = privateKey;
@@ -122,12 +122,12 @@ public class AsymmetricKeyFactory {
         }
     }
 
-    public static class AsymmetricEcKey{
-        public BigInteger privateKey;
-        public ECPoint publicKey;
-        public ECParameterSpec ecSpec;
+    static class AsymmetricEcKey{
+        BigInteger privateKey;
+        ECPoint publicKey;
+        ECParameterSpec ecSpec;
 
-        public AsymmetricEcKey(BigInteger privateKey, ECPoint publicKey, ECParameterSpec ecSpec) {
+        AsymmetricEcKey(BigInteger privateKey, ECPoint publicKey, ECParameterSpec ecSpec) {
             this.privateKey = privateKey;
             this.publicKey = publicKey;
             this.ecSpec = ecSpec;
