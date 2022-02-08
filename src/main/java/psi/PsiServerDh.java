@@ -9,7 +9,6 @@ import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
-import psi.server.PsiServerAbstract;
 import psi.server.PsiServerKeyDescription;
 
 import java.math.BigInteger;
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PsiServerDh extends PsiServerAbstract {
+class PsiServerDh extends PsiServerAbstract {
 
     private static final Logger log = LoggerFactory.getLogger(PsiServerDh.class);
 

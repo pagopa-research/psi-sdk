@@ -1,6 +1,7 @@
-package psi.client;
+package psi;
 
 import psi.cache.PsiCacheProvider;
+import psi.client.PsiClient;
 import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;
 
@@ -8,12 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-public abstract class PsiClientAbstract implements PsiClient {
+abstract class PsiClientAbstract implements PsiClient {
 
     private static final int DEFAULT_THREADS = 4;
     private static final int DEFAULT_THREAD_TIMEOUT_SECONDS = 10800;
 
-    protected Boolean cacheEnabled;
+    Boolean cacheEnabled;
     protected Long keyId;
     protected PsiCacheProvider psiCacheProvider;
 

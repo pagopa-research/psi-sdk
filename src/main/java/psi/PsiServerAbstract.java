@@ -1,13 +1,13 @@
-package psi.server;
+package psi;
 
-import psi.PsiServerSession;
 import psi.cache.PsiCacheProvider;
 import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;
+import psi.server.PsiServer;
 
 import java.util.List;
 
-public abstract class PsiServerAbstract implements PsiServer {
+abstract class PsiServerAbstract implements PsiServer {
 
     private static final int DEFAULT_THREADS = 4;
     private static final int DEFAULT_THREAD_TIMEOUT_SECONDS = 10800;
