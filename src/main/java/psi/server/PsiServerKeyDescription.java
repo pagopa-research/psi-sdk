@@ -12,6 +12,7 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
     private String privateKey;
     private String publicKey;
     private String modulus;
+    private String generator;
 
     private String ecPrivateKey;
     private String ecPublicKey;
@@ -68,22 +69,25 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         this.ecSpecName = ecSpecName;
     }
 
+    public String getGenerator() {
+        return generator;
+    }
+
+    public void setGenerator(String generator) {
+        this.generator = generator;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiServerKeyDescription that = (PsiServerKeyDescription) o;
-        return Objects.equals(privateKey, that.privateKey) &&
-                Objects.equals(publicKey, that.publicKey) &&
-                Objects.equals(modulus, that.modulus) &&
-                Objects.equals(ecPrivateKey, that.ecPrivateKey) &&
-                Objects.equals(ecPublicKey, that.ecPublicKey) &&
-                Objects.equals(ecSpecName, that.ecSpecName);
+        return Objects.equals(privateKey, that.privateKey) && Objects.equals(publicKey, that.publicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateKey, that.ecPrivateKey) && Objects.equals(ecPublicKey, that.ecPublicKey) && Objects.equals(ecSpecName, that.ecSpecName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(privateKey, publicKey, modulus, ecPrivateKey, ecPublicKey, ecSpecName);
+        return Objects.hash(privateKey, publicKey, modulus, generator, ecPrivateKey, ecPublicKey, ecSpecName);
     }
 
     @Override
@@ -92,6 +96,7 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
                 "privateKey='" + privateKey + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
+                ", generator='" + generator + '\'' +
                 ", ecPrivateKey='" + ecPrivateKey + '\'' +
                 ", ecPublicKey='" + ecPublicKey + '\'' +
                 ", ecSpecName='" + ecSpecName + '\'' +

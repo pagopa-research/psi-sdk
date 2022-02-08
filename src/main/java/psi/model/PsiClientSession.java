@@ -16,6 +16,8 @@ public class PsiClientSession implements Serializable {
 
     private String serverPublicKey;
 
+    private String generator;
+
     private String ecSpecName;
 
     private String ecServerPublicKey;
@@ -28,18 +30,6 @@ public class PsiClientSession implements Serializable {
 
     public String getServerPublicKey() {
         return serverPublicKey;
-    }
-
-    public String getEcSpecName() {
-        return ecSpecName;
-    }
-
-    public String getEcServerPublicKey() {
-        return ecServerPublicKey;
-    }
-
-    public PsiAlgorithmParameter getPsiAlgorithmParameter() {
-        return psiAlgorithmParameter;
     }
 
     public static PsiClientSession getFromServerSession(PsiServerSession psiServerSession){
@@ -72,6 +62,7 @@ public class PsiClientSession implements Serializable {
                 if(psiServerKeyDesc.getModulus() == null)
                     throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null for the DH algorithm");
                 psiClientSession.modulus = psiServerKeyDesc.getModulus();
+                psiClientSession.generator = psiServerKeyDesc.getGenerator();
                 break;
             case ECBS:
                 if(psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null )
@@ -91,11 +82,30 @@ public class PsiClientSession implements Serializable {
         return psiClientSession;
     }
 
+    public String getEcSpecName() {
+        return ecSpecName;
+    }
+
+    public String getEcServerPublicKey() {
+        return ecServerPublicKey;
+    }
+
+    public PsiAlgorithmParameter getPsiAlgorithmParameter() {
+        return psiAlgorithmParameter;
+    }
+
+    public String getGenerator() {
+        return generator;
+    }
+
     @Override
     public String toString() {
         return "PsiClientSession{" +
                 "modulus='" + modulus + '\'' +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
+                ", generator='" + generator + '\'' +
+                ", ecSpecName='" + ecSpecName + '\'' +
+                ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
                 ", psiAlgorithmParameter=" + psiAlgorithmParameter +
                 '}';
     }
