@@ -51,8 +51,8 @@ public class PsiServerKeyDescriptionFactory {
     }
 
     public static PsiServerKeyDescription createDhServerKeyDescription(BigInteger privateKey, BigInteger modulus, BigInteger generator) {
-        if (privateKey == null || modulus == null) {
-            throw new PsiClientException("PrivateKey and modulus should not be null when creating a PsiServerKeyDescription for the DH algorithm");
+        if (privateKey == null || modulus == null || generator == null) {
+            throw new PsiClientException("PrivateKey, modulus and generator should not be null when creating a PsiServerKeyDescription for the DH algorithm");
         }
         return createServerKeyDescription(
                 CustomTypeConverter.convertBigIntegerToString(privateKey),

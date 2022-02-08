@@ -53,19 +53,19 @@ public class PsiClientSession implements Serializable {
         PsiServerKeyDescription psiServerKeyDesc = psiServerSession.getPsiServerKeyDescription();
         switch(psiServerSession.getPsiAlgorithmParameter().getAlgorithm()){
             case BS:
-                if(psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getPublicKey() == null)
+                if (psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getPublicKey() == null)
                     throw new PsiServerException("The fields modulus and publicKey of psiServerKeyDescription cannot be null for the BS algorithm");
                 psiClientSession.modulus = psiServerKeyDesc.getModulus();
                 psiClientSession.serverPublicKey = psiServerKeyDesc.getPublicKey();
                 break;
             case DH:
-                if(psiServerKeyDesc.getModulus() == null)
-                    throw new PsiServerException("The field modulus of psiServerKeyDescription cannot be null for the DH algorithm");
+                if (psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getGenerator() == null)
+                    throw new PsiServerException("The fields modulus and generator of psiServerKeyDescription cannot be null for the DH algorithm");
                 psiClientSession.modulus = psiServerKeyDesc.getModulus();
                 psiClientSession.generator = psiServerKeyDesc.getGenerator();
                 break;
             case ECBS:
-                if(psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null )
+                if (psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null)
                     throw new PsiServerException("The fields ecSpecName and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
                 psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
                 psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();

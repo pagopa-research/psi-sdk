@@ -68,7 +68,7 @@ class ClientServerCacheTest {
     }
 
     @Test
-    void computePsi() throws UnsupportedKeySizeException {
+    void computePsiWithCache() throws UnsupportedKeySizeException {
         long serverSize = 30;
         long clientSize = 20;
         long intersectionSize = 10;

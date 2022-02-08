@@ -58,7 +58,7 @@ class ClientServerBasicTest {
     }
 
     @Test
-    void computePsi() throws UnsupportedKeySizeException {
+    void computeBasicPsi() throws UnsupportedKeySizeException {
         long serverSize = 30;
         long clientSize = 20;
         long intersectionSize = 10;

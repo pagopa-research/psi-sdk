@@ -71,7 +71,7 @@ class ClientServerKeyDescriptionTest {
     }
 
     @Test
-    void computeEcBsPsi() throws UnsupportedKeySizeException {
+    void computePsiWithKeyDescription() throws UnsupportedKeySizeException {
         long serverSize = 30;
         long clientSize = 20;
         long intersectionSize = 10;

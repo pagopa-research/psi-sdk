@@ -12,6 +12,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
     private String clientPrivateKey;
     private String serverPublicKey;
     private String modulus;
+    private String generator;
 
     private String ecClientPrivateKey;
     private String ecServerPublicKey;
@@ -68,22 +69,25 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         this.ecSpecName = ecSpecName;
     }
 
+    public String getGenerator() {
+        return generator;
+    }
+
+    public void setGenerator(String generator) {
+        this.generator = generator;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiClientKeyDescription that = (PsiClientKeyDescription) o;
-        return Objects.equals(clientPrivateKey, that.clientPrivateKey) &&
-                Objects.equals(serverPublicKey, that.serverPublicKey) &&
-                Objects.equals(modulus, that.modulus) &&
-                Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) &&
-                Objects.equals(ecServerPublicKey, that.ecServerPublicKey) &&
-                Objects.equals(ecSpecName, that.ecSpecName);
+        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) && Objects.equals(ecServerPublicKey, that.ecServerPublicKey) && Objects.equals(ecSpecName, that.ecSpecName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, ecClientPrivateKey, ecServerPublicKey, ecSpecName);
+        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateKey, ecServerPublicKey, ecSpecName);
     }
 
     @Override
@@ -92,6 +96,7 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
                 "clientPrivateKey='" + clientPrivateKey + '\'' +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
+                ", generator='" + generator + '\'' +
                 ", ecClientPrivateKey='" + ecClientPrivateKey + '\'' +
                 ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
                 ", ecSpecName='" + ecSpecName + '\'' +

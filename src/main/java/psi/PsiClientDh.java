@@ -33,6 +33,7 @@ class PsiClientDh extends PsiClientAbstract {
 
     private final BigInteger modulus;
     private final BigInteger clientPrivateKey;
+    private final BigInteger generator;
 
     PsiClientDh(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
 
@@ -44,20 +45,18 @@ class PsiClientDh extends PsiClientAbstract {
         this.keyAtomicCounter = new AtomicLong(0);
 
         this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
+        this.generator = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getGenerator());
         // keys are set from the psiClientSession
         if (psiClientKeyDescription == null) {
-            AsymmetricKeyFactory.AsymmetricKey asymmetricKey =
-                    AsymmetricKeyFactory.generateDhKeyFromModulusAndGenerator(
-                            CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus()),
-                            CustomTypeConverter.convertStringToBigInteger(psiClientSession.getGenerator()));
+            AsymmetricKeyFactory.AsymmetricKey asymmetricKey = AsymmetricKeyFactory.generateDhKeyFromModulusAndGenerator(modulus, generator);
             this.clientPrivateKey = asymmetricKey.privateKey;
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {
-            if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getClientPrivateKey() == null)
-                throw new PsiClientException("The fields modulus and clientPrivateKey in the input psiClientKeyDescription cannot be null");
+            if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getGenerator() == null)
+                throw new PsiClientException("The fields modulus and generator in the input psiClientKeyDescription cannot be null");
             if (!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()))
-                throw new PsiClientException("The field modulus in the psiClientKeyDescription does not match the one in the psiClientSession");
+                throw new PsiClientException("The field modulus and generator in the psiClientKeyDescription do not match those in the psiClientSession");
             this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateKey());
         }
 
@@ -198,7 +197,7 @@ class PsiClientDh extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(this.clientPrivateKey,this.modulus);
+        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(this.clientPrivateKey, this.modulus, this.generator);
     }
 
 }
