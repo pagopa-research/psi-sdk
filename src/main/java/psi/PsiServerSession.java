@@ -13,11 +13,17 @@ public class PsiServerSession {
     PsiServerSession() {
     }
 
-    PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter) {
+    public PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter) {
         this.psiAlgorithmParameter = psiAlgorithmParameter;
     }
 
-    PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
+    public PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
+        this.psiAlgorithmParameter = psiAlgorithmParameter;
+        this.cacheEnabled = cacheEnabled;
+        this.psiServerKeyDescription = psiServerKeyDescription;
+    }
+
+    public PsiServerSession(PsiAlgorithm algorithm, Integer keySize, Boolean cacheEnabled, PsiServerKeyDescription psiServerKeyDescription) {
         this.psiAlgorithmParameter = new PsiAlgorithmParameter();
         this.psiAlgorithmParameter.setAlgorithm(algorithm);
         this.psiAlgorithmParameter.setKeySize(keySize);
