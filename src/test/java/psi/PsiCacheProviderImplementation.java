@@ -18,7 +18,8 @@ public class PsiCacheProviderImplementation implements PsiCacheProvider {
             return Optional.of(output);
     }
     public void put(String key, String value){
-        cache.putIfAbsent(key, value);
+        if(cache.putIfAbsent(key, value) != null)
+            System.out.println("Ho sovrascritto un valore");;
     }
 
     public long size (){

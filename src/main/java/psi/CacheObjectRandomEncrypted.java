@@ -1,9 +1,10 @@
 package psi;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-class CacheObjectRandomEncrypted extends CacheObject {
+class CacheObjectRandomEncrypted implements CacheObject, Serializable {
 
     private static final long serialVersionUID = 1L;
 

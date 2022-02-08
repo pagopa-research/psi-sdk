@@ -1,10 +1,10 @@
 package psi;
 
 import psi.cache.PsiCacheProvider;
-import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
 import psi.exception.PsiServerInitException;
 import psi.exception.UnsupportedKeySizeException;
+import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.server.PsiServer;
@@ -88,11 +88,11 @@ public class PsiServerFactory {
         if (psiServerSession.getCacheEnabled() && psiCacheProvider == null)
             throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
-        if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null) //TODO: è corretto sia un errore?
+        if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null)
             throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 
         if (!psiServerSession.getPsiAlgorithmParameter().getAlgorithm().getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))
-            throw new CustomRuntimeException("Key size " + psiServerSession.getPsiAlgorithmParameter().getKeySize() + " is not supported by the algorithm " + psiServerSession.getPsiAlgorithmParameter().getAlgorithm());
+            throw new UnsupportedKeySizeRuntimeException(psiServerSession.getPsiAlgorithmParameter().getAlgorithm(), psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
         switch (psiServerSession.getPsiAlgorithmParameter().getAlgorithm()) {
             case BS:

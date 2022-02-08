@@ -3,9 +3,10 @@ package psi;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-class CacheObjectEcRandomEncrypted extends CacheObject {
+class CacheObjectEcRandomEncrypted implements CacheObject, Serializable {
 
     private static final long serialVersionUID = 1L;
 

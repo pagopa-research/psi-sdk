@@ -166,7 +166,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                         reversedValue = EllipticCurve.sub(entry.getValue(), randomValue);
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
-                            CacheUtils.putCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEcEncrypted(reversedValue), this.psiCacheProvider); //TODO, come sopra
+                            CacheUtils.putCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEcEncrypted(reversedValue), this.psiCacheProvider);
                         }
                     }
                     clientReversedDatasetMap.put(entry.getKey(), reversedValue);

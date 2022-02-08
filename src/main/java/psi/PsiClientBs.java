@@ -158,7 +158,7 @@ class PsiClientBs extends PsiClientAbstract {
                             statistics.incrementCacheHit();
                         }
                     }
-                    if (reversedValue == null){
+                    if (reversedValue == null) {
                         reversedValue = hashFactory.hash(entry.getValue().multiply(randomValue.modInverse(modulus)).mod(modulus));
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
@@ -199,11 +199,11 @@ class PsiClientBs extends PsiClientAbstract {
 
     private static BigInteger concatBigIntegers(BigInteger bigInteger1, BigInteger bigInteger2){
         byte [] array1 = bigInteger1.toByteArray();
-        byte [] array2 = bigInteger1.toByteArray();
+        byte [] array2 = bigInteger2.toByteArray();
 
         byte[] result = new byte[array1.length + array2.length];
         System.arraycopy(array1, 0, result, 0, array1.length);
-        System.arraycopy(array2, 0, result, array1.length, array1.length);
+        System.arraycopy(array2, 0, result, array1.length, array2.length);
 
         return new BigInteger(result);
     }

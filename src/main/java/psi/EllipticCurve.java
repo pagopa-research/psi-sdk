@@ -21,11 +21,11 @@ class EllipticCurve {
     private static final BigInteger ONE = BigInteger.valueOf(1);
     private static final BigInteger ZERO = BigInteger.valueOf(0);
 
-    private BigInteger A;
-    private BigInteger B;
-    private BigInteger P;
-    private BigInteger N;
-    private ECPoint G;
+    private BigInteger a;
+    private BigInteger b;
+    private BigInteger p;
+    private BigInteger n;
+    private ECPoint g;
     private ECCurve ecCurve;
     private String name;
 
@@ -44,7 +44,7 @@ class EllipticCurve {
     }
 
     BigInteger getN() {
-        return N;
+        return n;
     }
 
 
@@ -82,11 +82,11 @@ class EllipticCurve {
     @Override
     public String toString() {
         return "EllipticCurve{" +
-                "A=" + A +
-                ", B=" + B +
-                ", P=" + P +
-                ", N=" + N +
-                ", G=" + G +
+                "A=" + a +
+                ", B=" + b +
+                ", P=" + p +
+                ", N=" + n +
+                ", G=" + g +
                 '}';
     }
 
@@ -94,14 +94,14 @@ class EllipticCurve {
         ecParameterSpec = params;
         ecCurve = params.getCurve();
         name = getNameCurve(ecCurve.getA().getFieldSize());
-        A = ecCurve.getA().toBigInteger();
-        B = ecCurve.getB().toBigInteger();
-        G = params.getG();
-        P = new BigInteger(getPFromNameCurve(name), 16);
-        N = params.getN();
+        a = ecCurve.getA().toBigInteger();
+        b = ecCurve.getB().toBigInteger();
+        g = params.getG();
+        p = new BigInteger(getPFromNameCurve(name), 16);
+        n = params.getN();
     }
 
-    static ECPoint add(ECPoint p1, ECPoint p2) {
+    private static ECPoint add(ECPoint p1, ECPoint p2) {
         return p1.add(p2);
     }
 
@@ -113,7 +113,7 @@ class EllipticCurve {
         return point2D.subtract(point2D1);
     }
 
-    static BigInteger sqrtP(BigInteger res, BigInteger p) {
+    private static BigInteger sqrtP(BigInteger res, BigInteger p) {
         BigInteger q = (p.subtract(ONE)).divide(TWO);
 
         while (q.mod(TWO).compareTo(ZERO) == 0) {
@@ -131,21 +131,21 @@ class EllipticCurve {
     }
 
 
-    boolean belongs(ECPoint p) {
-        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(A.multiply(p.getXCoord().toBigInteger())).add(B)).mod(P).intValue() == 0;
+    private boolean belongs(ECPoint p) {
+        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
     }
 
     ECPoint mapMessage(BigInteger m) {
-        if (this.P.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
+        if (this.p.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
         BigInteger k = BigInteger.valueOf(200);
         BigInteger km1 = k.subtract(BigInteger.ONE);
         BigInteger start = m.multiply(k);
         BigInteger y;
         for (BigInteger I = BigInteger.ZERO; I.compareTo(km1) < 0; I = I.add(BigInteger.ONE)) {
-            BigInteger x = start.mod(P).add(I).mod(P);
-            y = x.modPow(THREE, P).add(A.multiply(x).mod(P)).mod(P).add(B).mod(P);
-            if (y.modPow(P.subtract(BigInteger.ONE).multiply(TWO.modInverse(P)).mod(P), P).compareTo(BigInteger.ONE) == 0) {
-                BigInteger r = sqrtP(y, P);
+            BigInteger x = start.mod(p).add(I).mod(p);
+            y = x.modPow(THREE, p).add(a.multiply(x).mod(p)).mod(p).add(b).mod(p);
+            if (y.modPow(p.subtract(BigInteger.ONE).multiply(TWO.modInverse(p)).mod(p), p).compareTo(BigInteger.ONE) == 0) {
+                BigInteger r = sqrtP(y, p);
                 ECPoint res = ecCurve.createPoint(x, r);
                 if (!belongs(res)) throw new CustomRuntimeException("Found mapping not on curve");
                 return res;
@@ -162,7 +162,7 @@ class EllipticCurve {
             if (BigInteger.valueOf(a).modPow(q, p).compareTo(ONE) != 0) {
                 return BigInteger.valueOf(a);
             }
-            //If i tried all the numbers in an int and got nothing somthing is wrong... this is taking too long.
+            // Once tested all the possible values of an integer, something is not working
             if (a == 0) return null;
             a++;
         }
@@ -214,7 +214,7 @@ class EllipticCurve {
         BigInteger y;
         do {
             y = new BigInteger(ecParameterSpec.getN().bitCount(), secureRandom).mod(ecParameterSpec.getN());
-            randomPoint = multiply(this.G, y);
+            randomPoint = multiply(this.g, y);
             randomPointInv = multiply(publicKey, y);
             encryptedValue = add(randomPointInv, point2DInputValue);
         } while(y.compareTo(BigInteger.ZERO) == 0 || randomPoint.isInfinity()|| randomPointInv.isInfinity());
