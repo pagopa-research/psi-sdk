@@ -46,9 +46,9 @@ public class CustomTypeConverter {
         return new String(point.getEncoded(true), charset);
     }
 
-    public static ECParameterSpec convertStringToECParameterSpec(String ecSpecName){
-        log.trace("Called convertStringToECParameterSpec() with ecSpecName = {}", ecSpecName);
-        return ECNamedCurveTable.getParameterSpec(ecSpecName);
+    public static ECParameterSpec convertKeySizeToECParameterSpec(Integer keySize){
+        log.trace("Called convertKeySizeToECParameterSpec() with keySize = {}", keySize);
+        return ECNamedCurveTable.getParameterSpec(EllipticCurve.getNameCurve(keySize));
     }
 
     public static String convertECParameterSpecToString(ECParameterSpec ecSpec){

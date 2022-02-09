@@ -39,10 +39,10 @@ class AsymmetricKeyFactory {
             AsymmetricEcKey asymmetricEcKey = generateEcKey(algorithm, keySize);
             if(algorithm.equals(PsiAlgorithm.ECBS))
                 return PsiServerKeyDescriptionFactory
-                        .createEcBsServerKeyDescription(asymmetricEcKey.privateKey, asymmetricEcKey.publicKey, asymmetricEcKey.ecSpec);
+                        .createEcBsServerKeyDescription(asymmetricEcKey.privateD, asymmetricEcKey.publicQ);
             else
                 return PsiServerKeyDescriptionFactory
-                        .createEcDhServerKeyDescription(asymmetricEcKey.privateKey, asymmetricEcKey.ecSpec);
+                        .createEcDhServerKeyDescription(asymmetricEcKey.privateD);
         }
 
         throw new PsiServerInitException("Algorithm not supported");
@@ -147,9 +147,7 @@ class AsymmetricKeyFactory {
 
         return new AsymmetricEcKey(
                 ((ECPrivateKey)pair.getPrivate()).getD(),
-                ((ECPublicKey)pair.getPublic()).getQ(),
-                ecSpec
-        );
+                ((ECPublicKey)pair.getPublic()).getQ());
     }
 
     static class AsymmetricKey {
@@ -167,14 +165,12 @@ class AsymmetricKeyFactory {
     }
 
     static class AsymmetricEcKey{
-        BigInteger privateKey;
-        ECPoint publicKey;
-        ECParameterSpec ecSpec;
+        BigInteger privateD;
+        ECPoint publicQ;
 
-        AsymmetricEcKey(BigInteger privateKey, ECPoint publicKey, ECParameterSpec ecSpec) {
-            this.privateKey = privateKey;
-            this.publicKey = publicKey;
-            this.ecSpec = ecSpec;
+        AsymmetricEcKey(BigInteger privateD, ECPoint publicQ) {
+            this.privateD = privateD;
+            this.publicQ = publicQ;
         }
     }
 }

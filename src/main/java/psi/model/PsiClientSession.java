@@ -18,9 +18,7 @@ public class PsiClientSession implements Serializable {
 
     private String generator;
 
-    private String ecSpecName;
-
-    private String ecServerPublicKey;
+    private String ecServerPublicQ;
 
     private PsiAlgorithmParameter psiAlgorithmParameter;
 
@@ -61,15 +59,11 @@ public class PsiClientSession implements Serializable {
                 psiClientSession.generator = psiServerKeyDesc.getGenerator();
                 break;
             case ECBS:
-                if (psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null)
-                    throw new PsiServerException("The fields ecSpecName and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
-                psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
-                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
+                if (psiServerKeyDesc.getEcPublicQ() == null)
+                    throw new PsiServerException("The field ecPublicQ of psiServerKeyDescription cannot be null for the ECBS algorithm");
+                psiClientSession.ecServerPublicQ = psiServerKeyDesc.getEcPublicQ();
                 break;
             case ECDH:
-                if(psiServerKeyDesc.getEcSpecName() == null )
-                    throw new PsiServerException("The fields ecSpecName of psiServerKeyDescription cannot be null for the ECDH algorithm");
-                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
                 break;
             default:
                 throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
@@ -82,12 +76,8 @@ public class PsiClientSession implements Serializable {
         return serverPublicExponent;
     }
 
-    public String getEcSpecName() {
-        return ecSpecName;
-    }
-
-    public String getEcServerPublicKey() {
-        return ecServerPublicKey;
+    public String getEcServerPublicQ() {
+        return ecServerPublicQ;
     }
 
     public PsiAlgorithmParameter getPsiAlgorithmParameter() {
@@ -104,8 +94,7 @@ public class PsiClientSession implements Serializable {
                 "modulus='" + modulus + '\'' +
                 ", serverPublicExponent='" + serverPublicExponent + '\'' +
                 ", generator='" + generator + '\'' +
-                ", ecSpecName='" + ecSpecName + '\'' +
-                ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
+                ", ecServerPublicQ='" + ecServerPublicQ + '\'' +
                 ", psiAlgorithmParameter=" + psiAlgorithmParameter +
                 '}';
     }

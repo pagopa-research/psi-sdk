@@ -14,9 +14,8 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
     private String modulus;
     private String generator;
 
-    private String ecPrivateKey;
-    private String ecPublicKey;
-    private String ecSpecName;
+    private String ecPrivateD;
+    private String ecPublicQ;
 
     protected PsiServerKeyDescription() {
     }
@@ -45,28 +44,20 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         this.modulus = modulus;
     }
 
-    public String getEcPrivateKey() {
-        return ecPrivateKey;
+    public String getEcPrivateD() {
+        return ecPrivateD;
     }
 
-    void setEcPrivateKey(String ecPrivateKey) {
-        this.ecPrivateKey = ecPrivateKey;
+    void setEcPrivateD(String ecPrivateD) {
+        this.ecPrivateD = ecPrivateD;
     }
 
-    public String getEcPublicKey() {
-        return ecPublicKey;
+    public String getEcPublicQ() {
+        return ecPublicQ;
     }
 
-    void setEcPublicKey(String ecPublicKey) {
-        this.ecPublicKey = ecPublicKey;
-    }
-
-    public String getEcSpecName() {
-        return ecSpecName;
-    }
-
-    void setEcSpecName(String ecSpecName) {
-        this.ecSpecName = ecSpecName;
+    void setEcPublicQ(String ecPublicQ) {
+        this.ecPublicQ = ecPublicQ;
     }
 
     public String getGenerator() {

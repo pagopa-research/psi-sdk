@@ -1,6 +1,5 @@
 package psi.server;
 
-import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import psi.CustomTypeConverter;
 import psi.exception.PsiClientException;
@@ -9,8 +8,7 @@ import java.math.BigInteger;
 
 public class PsiServerKeyDescriptionFactory {
 
-    private PsiServerKeyDescriptionFactory() {
-    }
+    private PsiServerKeyDescriptionFactory() {}
 
     public static PsiServerKeyDescription createBsServerKeyDescription(String privateExponent, String publicExponent, String modulus) {
         if (privateExponent == null || publicExponent == null || modulus == null) {
@@ -26,18 +24,18 @@ public class PsiServerKeyDescriptionFactory {
         return createServerKeyDescription(privateExponent, null, modulus, generator);
     }
 
-    public static PsiServerKeyDescription createEcBsServerKeyDescription(String ecPrivateKey, String ecPublicKey, String ecSpecName) {
-        if (ecPrivateKey == null || ecPublicKey == null || ecSpecName == null) {
-            throw new PsiClientException("PrivateKey, publicKey and modulus should not be null when creating a PsiServerKeyDescription for the ECBS algorithm");
+    public static PsiServerKeyDescription createEcBsServerKeyDescription(String ecPrivateD, String ecPublicQ){
+        if(ecPrivateD == null || ecPublicQ == null){
+            throw new PsiClientException("EcPrivateD and ecPublicQ should not be null when creating a PsiServerKeyDescription for the ECBS algorithm");
         }
-        return createServerEcKeyDescription(ecPrivateKey, ecPublicKey, ecSpecName);
+        return createServerEcKeyDescription(ecPrivateD, ecPublicQ);
     }
 
-    public static PsiServerKeyDescription createEcDhServerKeyDescription(String ecPrivateKey, String ecSpecName) {
-        if (ecPrivateKey == null || ecSpecName == null) {
-            throw new PsiClientException("PrivateKey and modulus should not be null when creating a PsiServerKeyDescription for the BS algorithm");
+    public static PsiServerKeyDescription createEcDhServerKeyDescription(String ecPrivateD){
+        if(ecPrivateD == null){
+            throw new PsiClientException("The field ecPrivateD should not be null when creating a PsiServerKeyDescription for the ECDH algorithm");
         }
-        return createServerEcKeyDescription(ecPrivateKey, null, ecSpecName);
+        return createServerEcKeyDescription(ecPrivateD, null);
     }
 
     public static PsiServerKeyDescription createBsServerKeyDescription(BigInteger privateExponent, BigInteger publicExponent, BigInteger modulus) {
@@ -62,24 +60,22 @@ public class PsiServerKeyDescriptionFactory {
                 CustomTypeConverter.convertBigIntegerToString(generator));
     }
 
-    public static PsiServerKeyDescription createEcBsServerKeyDescription(BigInteger ecPrivateKey, ECPoint ecPublicKey, ECParameterSpec ecSpec) {
-        if (ecPrivateKey == null || ecPublicKey == null || ecSpec == null) {
-            throw new PsiClientException("EcPrivateKey, ecPublicKey and ecSpec should not be null when creating a PsiServerKeyDescription for the ECBS algorithm");
+    public static PsiServerKeyDescription createEcBsServerKeyDescription(BigInteger ecPrivateD, ECPoint ecPublicQ){
+        if(ecPrivateD == null || ecPublicQ == null){
+            throw new PsiClientException("EcPrivateD and ecPublicQ should not be null when creating a PsiServerKeyDescription for the ECBS algorithm");
         }
         return createServerEcKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(ecPrivateKey),
-                CustomTypeConverter.convertECPointToString(ecPublicKey),
-                CustomTypeConverter.convertECParameterSpecToString(ecSpec));
+                CustomTypeConverter.convertBigIntegerToString(ecPrivateD),
+                CustomTypeConverter.convertECPointToString(ecPublicQ));
     }
 
-    public static PsiServerKeyDescription createEcDhServerKeyDescription(BigInteger ecPrivateKey, ECParameterSpec ecSpec){
-        if(ecPrivateKey == null ||  ecSpec == null){
-            throw new PsiClientException("EcPrivateKey and ecSpec should not be null when creating a PsiServerKeyDescription for the ECDH algorithm");
+    public static PsiServerKeyDescription createEcDhServerKeyDescription(BigInteger ecPrivateD){
+        if(ecPrivateD == null){
+            throw new PsiClientException("The field ecPrivateD should not be null when creating a PsiServerKeyDescription for the ECDH algorithm");
         }
         return createServerEcKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(ecPrivateKey),
-                null,
-                CustomTypeConverter.convertECParameterSpecToString(ecSpec));
+                CustomTypeConverter.convertBigIntegerToString(ecPrivateD),
+                null);
     }
 
     private static PsiServerKeyDescription createServerKeyDescription(String privateExponent, String publicExponent, String modulus, String generator) {
@@ -91,11 +87,10 @@ public class PsiServerKeyDescriptionFactory {
         return psiServerKeyDescription;
     }
 
-    private static PsiServerKeyDescription createServerEcKeyDescription(String ecPrivateKey, String ecPublicKey, String ecSpecName){
+    private static PsiServerKeyDescription createServerEcKeyDescription(String ecPrivateD, String ecPublicQ){
         PsiServerKeyDescription psiServerKeyDescription = new PsiServerKeyDescription();
-        psiServerKeyDescription.setEcPrivateKey(ecPrivateKey);
-        psiServerKeyDescription.setEcPublicKey(ecPublicKey);
-        psiServerKeyDescription.setEcSpecName(ecSpecName);
+        psiServerKeyDescription.setEcPrivateD(ecPrivateD);
+        psiServerKeyDescription.setEcPublicQ(ecPublicQ);
         return psiServerKeyDescription;
     }
 }
