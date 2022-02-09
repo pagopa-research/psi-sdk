@@ -24,6 +24,13 @@ class AsymmetricKeyFactory {
 
     private AsymmetricKeyFactory() {}
 
+    /**
+     * Method that can be used to generate a server key starting from the algorithm and the keySize.
+     *
+     * @param algorithm a PsiAlgorithm enum. Should be either EC, BS, ECDH or ECBS, else throws an exception
+     * @param keySize   size of the key
+     * @return PsiServerKeyDescription containing the generated key
+     */
     static PsiServerKeyDescription generateServerKeyDescription(PsiAlgorithm algorithm, int keySize) {
         if (algorithm.equals(PsiAlgorithm.BS) || algorithm.equals(PsiAlgorithm.DH)) {
             AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
@@ -50,7 +57,7 @@ class AsymmetricKeyFactory {
 
     /**
      * Method that can be used to generate a key starting from a modulus and a generator.
-     * It is intended to be used by clients running the DH algorithm
+     * It is intended to be used by clients running the DH algorithm.
      *
      * @param modulus   Diffie-Hellman modulus, often referred as p
      * @param generator Diffie-Hellman generator, often referred as g
@@ -80,14 +87,14 @@ class AsymmetricKeyFactory {
     }
 
     /**
-     * Method that generates a DH or a BS key from scratch with the key size passed as parameter
-     * It is intended to be used servers running the BS or RSA algorithms.
+     * Method that generates a DH or a BS key from scratch with the key size passed as parameter.
+     * It is intended to be used by servers and clients running the DH and BS algorithms.
      *
-     * @param algorithm an PsiAlgorithm enum. Should be either DH or BS, else throws an exception
+     * @param algorithm a PsiAlgorithm enum. Should be either DH or BS, else throws an exception
      * @param keySize   size of the key
      * @return an AsymmetricKey object which contains the fields that describe the key
      */
-    static AsymmetricKey generateKey(PsiAlgorithm algorithm, int keySize) {
+    private static AsymmetricKey generateKey(PsiAlgorithm algorithm, int keySize) {
         KeyPairGenerator keyGenerator;
         java.security.KeyFactory keyFactory;
         try {
@@ -131,6 +138,15 @@ class AsymmetricKeyFactory {
         return new AsymmetricKey(privateExponent, publicExponent, modulus, generator);
     }
 
+
+    /**
+     * Method that generates an ECDH or an ECBS key from scratch with the key size passed as parameter.
+     * It is intended to be used by servers and clients running the ECDH and ECBS algorithms.
+     *
+     * @param algorithm a PsiAlgorithm enum. Should be either ECDH or ECBS, else throws an exception
+     * @param keySize   size of the key
+     * @return an AsymmetricEcKey object which contains the fields that describe the key
+     */
     static AsymmetricEcKey generateEcKey(PsiAlgorithm algorithm, int keySize) {
         ECParameterSpec ecSpec;
         Security.addProvider(new BouncyCastleProvider());
@@ -152,7 +168,7 @@ class AsymmetricKeyFactory {
 
     /**
      * Method that can be used to generate an ec key starting from an ECParameterSpec.
-     * It is intended to be used by clients running the ECDH algorithm
+     * It is intended to be used by clients running the ECDH algorithm.
      *
      * @param ecSpec   ECParameterSpec generated from the selected keySize
      * @return AsymmetricEcKey containing the generated privateD
