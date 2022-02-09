@@ -77,10 +77,10 @@ public class PsiClientKeyDescriptionFactory {
 
     public static PsiClientKeyDescription createGenericPsiClientKeyDescription(String clientPrivateExponent, String serverPublicExponent, String modulus, String ecClientPrivateD, String ecServerPublicQ) {
         if (serverPublicExponent != null && ecServerPublicQ != null)
-            throw new PsiClientException("Only one of serverPublicExponent or ecServerPublicKey should be not null");
+            throw new PsiClientException("Only one of serverPublicExponent or ecServerPublicQ should be not null");
 
         if (clientPrivateExponent != null && ecClientPrivateD != null)
-            throw new PsiClientException("Only one of clientPrivateExponent or ecClientPrivateKey should be not null");
+            throw new PsiClientException("Only one of clientPrivateExponent or ecClientPrivateD should be not null");
 
         PsiClientKeyDescription psiClientKeyDescription = new PsiClientKeyDescription();
         psiClientKeyDescription.setClientPrivateExponent(clientPrivateExponent);

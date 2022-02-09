@@ -73,12 +73,12 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiServerKeyDescription that = (PsiServerKeyDescription) o;
-        return Objects.equals(privateExponent, that.privateExponent) && Objects.equals(publicExponent, that.publicExponent) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateKey, that.ecPrivateKey) && Objects.equals(ecPublicKey, that.ecPublicKey) && Objects.equals(ecSpecName, that.ecSpecName);
+        return Objects.equals(privateExponent, that.privateExponent) && Objects.equals(publicExponent, that.publicExponent) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateD, that.ecPrivateD) && Objects.equals(ecPublicQ, that.ecPublicQ);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(privateExponent, publicExponent, modulus, generator, ecPrivateKey, ecPublicKey, ecSpecName);
+        return Objects.hash(privateExponent, publicExponent, modulus, generator, ecPrivateD, ecPublicQ);
     }
 
     @Override
@@ -88,9 +88,8 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
                 ", publicExponent='" + publicExponent + '\'' +
                 ", modulus='" + modulus + '\'' +
                 ", generator='" + generator + '\'' +
-                ", ecPrivateKey='" + ecPrivateKey + '\'' +
-                ", ecPublicKey='" + ecPublicKey + '\'' +
-                ", ecSpecName='" + ecSpecName + '\'' +
+                ", ecPrivateD='" + ecPrivateD + '\'' +
+                ", ecPublicQ='" + ecPublicQ + '\'' +
                 '}';
     }
 }

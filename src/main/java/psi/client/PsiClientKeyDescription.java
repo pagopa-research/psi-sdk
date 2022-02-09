@@ -64,24 +64,22 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiClientKeyDescription that = (PsiClientKeyDescription) o;
-        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) && Objects.equals(ecServerPublicKey, that.ecServerPublicKey) && Objects.equals(ecSpecName, that.ecSpecName);
+        return Objects.equals(clientPrivateExponent, that.clientPrivateExponent) && Objects.equals(serverPublicExponent, that.serverPublicExponent) && Objects.equals(modulus, that.modulus) && Objects.equals(ecClientPrivateD, that.ecClientPrivateD) && Objects.equals(ecServerPublicQ, that.ecServerPublicQ);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateKey, ecServerPublicKey, ecSpecName);
+        return Objects.hash(clientPrivateExponent, serverPublicExponent, modulus, ecClientPrivateD, ecServerPublicQ);
     }
 
     @Override
     public String toString() {
         return "PsiClientKeyDescription{" +
-                "clientPrivateKey='" + clientPrivateKey + '\'' +
-                ", serverPublicKey='" + serverPublicKey + '\'' +
+                "clientPrivateExponent='" + clientPrivateExponent + '\'' +
+                ", serverPublicExponent='" + serverPublicExponent + '\'' +
                 ", modulus='" + modulus + '\'' +
-                ", generator='" + generator + '\'' +
-                ", ecClientPrivateKey='" + ecClientPrivateKey + '\'' +
-                ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
-                ", ecSpecName='" + ecSpecName + '\'' +
+                ", ecClientPrivateD='" + ecClientPrivateD + '\'' +
+                ", ecServerPublicQ='" + ecServerPublicQ + '\'' +
                 '}';
     }
 }
