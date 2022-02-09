@@ -47,7 +47,68 @@ class EllipticCurve {
         return n;
     }
 
+    EllipticCurve(ECParameterSpec params) {
+        ecParameterSpec = params;
+        ecCurve = params.getCurve();
+        name = getNameCurve(ecCurve.getA().getFieldSize());
+        a = ecCurve.getA().toBigInteger();
+        b = ecCurve.getB().toBigInteger();
+        g = params.getG();
+        p = new BigInteger(getPFromNameCurve(name), 16);
+        n = params.getN();
+    }
 
+    private boolean belongs(ECPoint p) {
+        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
+    }
+
+    ECPoint mapMessage(BigInteger m) {
+        if (this.p.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
+        BigInteger k = BigInteger.valueOf(200);
+        BigInteger km1 = k.subtract(BigInteger.ONE);
+        BigInteger start = m.multiply(k);
+        BigInteger y;
+        for (BigInteger I = BigInteger.ZERO; I.compareTo(km1) < 0; I = I.add(BigInteger.ONE)) {
+            BigInteger x = start.mod(p).add(I).mod(p);
+            y = x.modPow(THREE, p).add(a.multiply(x).mod(p)).mod(p).add(b).mod(p);
+            if (y.modPow(p.subtract(BigInteger.ONE).multiply(TWO.modInverse(p)).mod(p), p).compareTo(BigInteger.ONE) == 0) {
+                BigInteger r = sqrtP(y, p);
+                ECPoint res = ecCurve.createPoint(x, r);
+                if (!belongs(res)) throw new CustomRuntimeException("Found mapping not on curve");
+                return res;
+            }
+
+        }
+        throw new CustomRuntimeException("Failed to map message");
+    }
+
+    EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint ecPoint){
+        Random secureRandom = new SecureRandom();
+        ECPoint point2DInputValue = mapMessage(inputValue);
+        ECPoint randomPointInv;
+        ECPoint randomPoint;
+        ECPoint encryptedValue;
+        BigInteger y;
+        do {
+            y = new BigInteger(ecParameterSpec.getN().bitCount(), secureRandom).mod(ecParameterSpec.getN());
+            randomPoint = multiply(this.g, y);
+            randomPointInv = multiply(ecPoint, y);
+            encryptedValue = add(randomPointInv, point2DInputValue);
+        } while(y.compareTo(BigInteger.ZERO) == 0 || randomPoint.isInfinity()|| randomPointInv.isInfinity());
+
+        return new EncryptedRandomValue(encryptedValue, randomPoint);
+    }
+
+    @Override
+    public String toString() {
+        return "EllipticCurve{" +
+                "A=" + a +
+                ", B=" + b +
+                ", P=" + p +
+                ", N=" + n +
+                ", G=" + g +
+                '}';
+    }
 
     static String getNameCurve(int keySize) {
         if (keySize == 160)
@@ -79,28 +140,6 @@ class EllipticCurve {
             throw new CustomRuntimeException("Curve currently not supported.");
     }
 
-    @Override
-    public String toString() {
-        return "EllipticCurve{" +
-                "A=" + a +
-                ", B=" + b +
-                ", P=" + p +
-                ", N=" + n +
-                ", G=" + g +
-                '}';
-    }
-
-    EllipticCurve(ECParameterSpec params) {
-        ecParameterSpec = params;
-        ecCurve = params.getCurve();
-        name = getNameCurve(ecCurve.getA().getFieldSize());
-        a = ecCurve.getA().toBigInteger();
-        b = ecCurve.getB().toBigInteger();
-        g = params.getG();
-        p = new BigInteger(getPFromNameCurve(name), 16);
-        n = params.getN();
-    }
-
     private static ECPoint add(ECPoint p1, ECPoint p2) {
         return p1.add(p2);
     }
@@ -128,31 +167,6 @@ class EllipticCurve {
         // then root = res^((q+1)/2) mod p
         q = (q.add(ONE)).divide(TWO);
         return res.modPow(q, p);
-    }
-
-
-    private boolean belongs(ECPoint p) {
-        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
-    }
-
-    ECPoint mapMessage(BigInteger m) {
-        if (this.p.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
-        BigInteger k = BigInteger.valueOf(200);
-        BigInteger km1 = k.subtract(BigInteger.ONE);
-        BigInteger start = m.multiply(k);
-        BigInteger y;
-        for (BigInteger I = BigInteger.ZERO; I.compareTo(km1) < 0; I = I.add(BigInteger.ONE)) {
-            BigInteger x = start.mod(p).add(I).mod(p);
-            y = x.modPow(THREE, p).add(a.multiply(x).mod(p)).mod(p).add(b).mod(p);
-            if (y.modPow(p.subtract(BigInteger.ONE).multiply(TWO.modInverse(p)).mod(p), p).compareTo(BigInteger.ONE) == 0) {
-                BigInteger r = sqrtP(y, p);
-                ECPoint res = ecCurve.createPoint(x, r);
-                if (!belongs(res)) throw new CustomRuntimeException("Found mapping not on curve");
-                return res;
-            }
-
-        }
-        throw new CustomRuntimeException("Failed to map message");
     }
 
     private static BigInteger findNonResidue(BigInteger p) {
@@ -203,23 +217,6 @@ class EllipticCurve {
         root = partOne.multiply(partTwo);
         root = root.mod(p);
         return root;
-    }
-
-    EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint publicKey){
-        Random secureRandom = new SecureRandom();
-        ECPoint point2DInputValue = mapMessage(inputValue);
-        ECPoint randomPointInv;
-        ECPoint randomPoint;
-        ECPoint encryptedValue;
-        BigInteger y;
-        do {
-            y = new BigInteger(ecParameterSpec.getN().bitCount(), secureRandom).mod(ecParameterSpec.getN());
-            randomPoint = multiply(this.g, y);
-            randomPointInv = multiply(publicKey, y);
-            encryptedValue = add(randomPointInv, point2DInputValue);
-        } while(y.compareTo(BigInteger.ZERO) == 0 || randomPoint.isInfinity()|| randomPointInv.isInfinity());
-
-        return new EncryptedRandomValue(encryptedValue, randomPoint);
     }
 
     static class EncryptedRandomValue{
