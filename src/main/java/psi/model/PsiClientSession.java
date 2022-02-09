@@ -14,7 +14,7 @@ public class PsiClientSession implements Serializable {
 
     private String modulus;
 
-    private String serverPublicKey;
+    private String serverPublicExponent;
 
     private String generator;
 
@@ -24,10 +24,6 @@ public class PsiClientSession implements Serializable {
 
     public String getModulus() {
         return modulus;
-    }
-
-    public String getServerPublicKey() {
-        return serverPublicKey;
     }
 
     public static PsiClientSession getFromServerSession(PsiServerSession psiServerSession){
@@ -49,12 +45,12 @@ public class PsiClientSession implements Serializable {
         psiClientSession.psiAlgorithmParameter.setKeySize(psiServerSession.getPsiAlgorithmParameter().getKeySize());
 
         PsiServerKeyDescription psiServerKeyDesc = psiServerSession.getPsiServerKeyDescription();
-        switch(psiServerSession.getPsiAlgorithmParameter().getAlgorithm()){
+        switch(psiServerSession.getPsiAlgorithmParameter().getAlgorithm()) {
             case BS:
-                if (psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getPublicKey() == null)
-                    throw new PsiServerException("The fields modulus and publicKey of psiServerKeyDescription cannot be null for the BS algorithm");
+                if (psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getPublicExponent() == null)
+                    throw new PsiServerException("The fields modulus and publicExponent of psiServerKeyDescription cannot be null for the BS algorithm");
                 psiClientSession.modulus = psiServerKeyDesc.getModulus();
-                psiClientSession.serverPublicKey = psiServerKeyDesc.getPublicKey();
+                psiClientSession.serverPublicExponent = psiServerKeyDesc.getPublicExponent();
                 break;
             case DH:
                 if (psiServerKeyDesc.getModulus() == null || psiServerKeyDesc.getGenerator() == null)
@@ -76,6 +72,10 @@ public class PsiClientSession implements Serializable {
         return psiClientSession;
     }
 
+    public String getServerPublicExponent() {
+        return serverPublicExponent;
+    }
+
     public String getEcServerPublicQ() {
         return ecServerPublicQ;
     }
@@ -92,7 +92,7 @@ public class PsiClientSession implements Serializable {
     public String toString() {
         return "PsiClientSession{" +
                 "modulus='" + modulus + '\'' +
-                ", serverPublicKey='" + serverPublicKey + '\'' +
+                ", serverPublicExponent='" + serverPublicExponent + '\'' +
                 ", generator='" + generator + '\'' +
                 ", ecServerPublicQ='" + ecServerPublicQ + '\'' +
                 ", psiAlgorithmParameter=" + psiAlgorithmParameter +

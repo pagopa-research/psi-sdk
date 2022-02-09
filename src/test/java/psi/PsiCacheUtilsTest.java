@@ -17,13 +17,13 @@ class PsiCacheUtilsTest {
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
-                "privateKey1",
-                "publicKey1",
+                "privateExponent1",
+                "publicExponent1",
                 "modulus1");
 
         PsiServerKeyDescription bsKeyDescription2 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
-                "privateKey2",
-                "publicKey2",
+                "privateExponent2",
+                "publicExponent2",
                 "modulus2");
 
         Long keyId1 = CacheUtils.getKeyId(bsKeyDescription1, cacheImpl);
@@ -41,13 +41,13 @@ class PsiCacheUtilsTest {
         PsiCacheProviderImplementation cacheImpl = new PsiCacheProviderImplementation();
 
         PsiServerKeyDescription bsKeyDescription1 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
-                "privateKey1",
-                "publicKey1",
+                "privateExponent1",
+                "publicExponent1",
                 "modulus1");
 
         PsiServerKeyDescription bsKeyDescription2 = PsiServerKeyDescriptionFactory.createBsServerKeyDescription(
-                "privateKey2",
-                "publicKey2",
+                "privateExponent2",
+                "publicExponent2",
                 "modulus2");
 
         Long keyId1 = CacheUtils.getKeyId(bsKeyDescription1, cacheImpl);

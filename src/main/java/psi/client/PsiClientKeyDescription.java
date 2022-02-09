@@ -9,10 +9,9 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
 
     private static final long serialVersionUID = 1L;
 
-    private String clientPrivateKey;
-    private String serverPublicKey;
+    private String clientPrivateExponent;
+    private String serverPublicExponent;
     private String modulus;
-    private String generator;
 
     private String ecClientPrivateD;
     private String ecServerPublicQ;
@@ -20,20 +19,20 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
     protected PsiClientKeyDescription() {
     }
 
-    public String getClientPrivateKey() {
-        return clientPrivateKey;
+    public String getClientPrivateExponent() {
+        return clientPrivateExponent;
     }
 
-    void setClientPrivateKey(String clientPrivateKey) {
-        this.clientPrivateKey = clientPrivateKey;
+    void setClientPrivateExponent(String clientPrivateExponent) {
+        this.clientPrivateExponent = clientPrivateExponent;
     }
 
-    public String getServerPublicKey() {
-        return serverPublicKey;
+    public String getServerPublicExponent() {
+        return serverPublicExponent;
     }
 
-    void setServerPublicKey(String serverPublicKey) {
-        this.serverPublicKey = serverPublicKey;
+    void setServerPublicExponent(String serverPublicExponent) {
+        this.serverPublicExponent = serverPublicExponent;
     }
 
     public String getModulus() {
@@ -60,34 +59,25 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         this.ecServerPublicQ = ecServerPublicQ;
     }
 
-    public String getGenerator() {
-        return generator;
-    }
-
-    public void setGenerator(String generator) {
-        this.generator = generator;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiClientKeyDescription that = (PsiClientKeyDescription) o;
-        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateD, that.ecClientPrivateD) && Objects.equals(ecServerPublicQ, that.ecServerPublicQ);
+        return Objects.equals(clientPrivateExponent, that.clientPrivateExponent) && Objects.equals(serverPublicExponent, that.serverPublicExponent) && Objects.equals(modulus, that.modulus) && Objects.equals(ecClientPrivateD, that.ecClientPrivateD) && Objects.equals(ecServerPublicQ, that.ecServerPublicQ);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateD, ecServerPublicQ);
+        return Objects.hash(clientPrivateExponent, serverPublicExponent, modulus, ecClientPrivateD, ecServerPublicQ);
     }
 
     @Override
     public String toString() {
         return "PsiClientKeyDescription{" +
-                "clientPrivateKey='" + clientPrivateKey + '\'' +
-                ", serverPublicKey='" + serverPublicKey + '\'' +
+                "clientPrivateExponent='" + clientPrivateExponent + '\'' +
+                ", serverPublicExponent='" + serverPublicExponent + '\'' +
                 ", modulus='" + modulus + '\'' +
-                ", generator='" + generator + '\'' +
                 ", ecClientPrivateD='" + ecClientPrivateD + '\'' +
                 ", ecServerPublicQ='" + ecServerPublicQ + '\'' +
                 '}';

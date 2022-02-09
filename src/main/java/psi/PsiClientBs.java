@@ -38,7 +38,7 @@ class PsiClientBs extends PsiClientAbstract {
     private final Set<BigInteger> serverEncryptedDataset;
 
     private final BigInteger modulus;
-    private final BigInteger serverPublicKey;
+    private final BigInteger serverPublicExponent;
 
     PsiClientBs(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
 
@@ -52,14 +52,14 @@ class PsiClientBs extends PsiClientAbstract {
         this.keyAtomicCounter = new AtomicLong(0);
 
         this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
-        this.serverPublicKey = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getServerPublicKey());
+        this.serverPublicExponent = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getServerPublicExponent());
 
         // If an external key is provided, it should be equivalent to the key read from the psiClientSession
         if (psiClientKeyDescription != null) {
-            if(psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getServerPublicKey() == null)
-                throw new PsiClientException("The fields modulus and serverPublicKey in the input psiClientKeyDescription cannot be null");
-            if(!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()) || !psiClientSession.getServerPublicKey().equals(psiClientKeyDescription.getServerPublicKey()))
-                throw new PsiClientException("The fields modulus and/or serverPublicKey in the psiClientKeyDescription does not match those in the psiClientSession");
+            if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getServerPublicExponent() == null)
+                throw new PsiClientException("The fields modulus and serverPublicExponent in the input psiClientKeyDescription cannot be null");
+            if (!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()) || !psiClientSession.getServerPublicExponent().equals(psiClientKeyDescription.getServerPublicExponent()))
+                throw new PsiClientException("The fields modulus and/or serverPublicExponent in the psiClientKeyDescription does not match those in the psiClientSession");
         }
 
         // If psiCacheProvider != null, setup and validate the cache
@@ -102,7 +102,7 @@ class PsiClientBs extends PsiClientAbstract {
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
                         randomValue = new BigInteger(RANDOM_BITS, this.secureRandom).mod(modulus);
-                        encryptedValue = randomValue.modPow(serverPublicKey, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
+                        encryptedValue = randomValue.modPow(serverPublicExponent, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         statistics.incrementCacheMiss();
                         if(this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
@@ -210,6 +210,6 @@ class PsiClientBs extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createBsClientKeyDescription(this.serverPublicKey,this.modulus);
+        return PsiClientKeyDescriptionFactory.createBsClientKeyDescription(this.serverPublicExponent, this.modulus);
     }
 }

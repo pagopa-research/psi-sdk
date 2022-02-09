@@ -32,8 +32,7 @@ class PsiClientDh extends PsiClientAbstract {
     private final Set<BigInteger> serverDoubleEncryptedDataset;
 
     private final BigInteger modulus;
-    private final BigInteger clientPrivateKey;
-    private final BigInteger generator;
+    private final BigInteger clientPrivateExponent;
 
     PsiClientDh(PsiClientSession psiClientSession, PsiClientKeyDescription psiClientKeyDescription, PsiCacheProvider psiCacheProvider) {
 
@@ -45,19 +44,19 @@ class PsiClientDh extends PsiClientAbstract {
         this.keyAtomicCounter = new AtomicLong(0);
 
         this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
-        this.generator = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getGenerator());
         // keys are set from the psiClientSession
         if (psiClientKeyDescription == null) {
-            AsymmetricKeyFactory.AsymmetricKey asymmetricKey = AsymmetricKeyFactory.generateDhKeyFromModulusAndGenerator(modulus, generator);
-            this.clientPrivateKey = asymmetricKey.privateKey;
+            AsymmetricKeyFactory.AsymmetricKey asymmetricKey = AsymmetricKeyFactory.generateDhKeyFromModulusAndGenerator(
+                    modulus, CustomTypeConverter.convertStringToBigInteger(psiClientSession.getGenerator()));
+            this.clientPrivateExponent = asymmetricKey.privateExponent;
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {
-            if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getGenerator() == null)
-                throw new PsiClientException("The fields modulus and generator in the input psiClientKeyDescription cannot be null");
+            if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getClientPrivateExponent() == null)
+                throw new PsiClientException("The fields modulus and clientPrivateExponent in the input psiClientKeyDescription cannot be null");
             if (!psiClientSession.getModulus().equals(psiClientKeyDescription.getModulus()))
-                throw new PsiClientException("The field modulus and generator in the psiClientKeyDescription do not match those in the psiClientSession");
-            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateKey());
+                throw new PsiClientException("The field modulus in the psiClientKeyDescription does not match those in the psiClientSession");
+            this.clientPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateExponent());
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
@@ -99,7 +98,7 @@ class PsiClientDh extends PsiClientAbstract {
                         // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                         if (encryptedValue == null) {
                             encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                            encryptedValue = encryptedValue.modPow(clientPrivateKey, modulus);
+                            encryptedValue = encryptedValue.modPow(clientPrivateExponent, modulus);
                             statistics.incrementCacheMiss();
                             // If the cache support is enabled, the result is stored in the cache
                             if (this.cacheEnabled) {
@@ -149,7 +148,7 @@ class PsiClientDh extends PsiClientAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        encryptedValue = bigIntegerValue.modPow(this.clientPrivateKey, modulus);
+                        encryptedValue = bigIntegerValue.modPow(this.clientPrivateExponent, modulus);
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
@@ -197,7 +196,7 @@ class PsiClientDh extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(this.clientPrivateKey, this.modulus, this.generator);
+        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(this.clientPrivateExponent, this.modulus);
     }
 
 }

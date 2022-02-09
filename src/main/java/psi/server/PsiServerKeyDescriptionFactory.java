@@ -10,18 +10,18 @@ public class PsiServerKeyDescriptionFactory {
 
     private PsiServerKeyDescriptionFactory() {}
 
-    public static PsiServerKeyDescription createBsServerKeyDescription(String privateKey, String publicKey, String modulus){
-        if(privateKey == null || publicKey == null || modulus == null){
-            throw new PsiClientException("PrivateKey, publicKey and modulus should not be null when creating a PsiServerKeyDescription for the BS algorithm");
+    public static PsiServerKeyDescription createBsServerKeyDescription(String privateExponent, String publicExponent, String modulus) {
+        if (privateExponent == null || publicExponent == null || modulus == null) {
+            throw new PsiClientException("PrivateExponent, publicExponent and modulus should not be null when creating a PsiServerKeyDescription for the BS algorithm");
         }
-        return createServerKeyDescription(privateKey, publicKey, modulus, null);
+        return createServerKeyDescription(privateExponent, publicExponent, modulus, null);
     }
 
-    public static PsiServerKeyDescription createDhServerKeyDescription(String privateKey, String modulus, String generator) {
-        if (privateKey == null || modulus == null) {
-            throw new PsiClientException("PrivateKey and modulus should not be null when creating a PsiServerKeyDescription for the DH algorithm");
+    public static PsiServerKeyDescription createDhServerKeyDescription(String privateExponent, String modulus, String generator) {
+        if (privateExponent == null || modulus == null) {
+            throw new PsiClientException("PrivateExponent, modulus and generator should not be null when creating a PsiServerKeyDescription for the DH algorithm");
         }
-        return createServerKeyDescription(privateKey, null, modulus, generator);
+        return createServerKeyDescription(privateExponent, null, modulus, generator);
     }
 
     public static PsiServerKeyDescription createEcBsServerKeyDescription(String ecPrivateD, String ecPublicQ){
@@ -38,23 +38,23 @@ public class PsiServerKeyDescriptionFactory {
         return createServerEcKeyDescription(ecPrivateD, null);
     }
 
-    public static PsiServerKeyDescription createBsServerKeyDescription(BigInteger privateKey, BigInteger publicKey, BigInteger modulus){
-        if(privateKey == null || publicKey == null || modulus == null){
-            throw new PsiClientException("PrivateKey, publicKey and modulus should not be null when creating a PsiServerKeyDescription for the BS algorithm");
+    public static PsiServerKeyDescription createBsServerKeyDescription(BigInteger privateExponent, BigInteger publicExponent, BigInteger modulus) {
+        if (privateExponent == null || publicExponent == null || modulus == null) {
+            throw new PsiClientException("PrivateExponent, publicExponent and modulus should not be null when creating a PsiServerKeyDescription for the BS algorithm");
         }
         return createServerKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(privateKey),
-                CustomTypeConverter.convertBigIntegerToString(publicKey),
+                CustomTypeConverter.convertBigIntegerToString(privateExponent),
+                CustomTypeConverter.convertBigIntegerToString(publicExponent),
                 CustomTypeConverter.convertBigIntegerToString(modulus),
                 null);
     }
 
-    public static PsiServerKeyDescription createDhServerKeyDescription(BigInteger privateKey, BigInteger modulus, BigInteger generator) {
-        if (privateKey == null || modulus == null || generator == null) {
-            throw new PsiClientException("PrivateKey, modulus and generator should not be null when creating a PsiServerKeyDescription for the DH algorithm");
+    public static PsiServerKeyDescription createDhServerKeyDescription(BigInteger privateExponent, BigInteger modulus, BigInteger generator) {
+        if (privateExponent == null || modulus == null || generator == null) {
+            throw new PsiClientException("PrivateExponent, modulus and generator should not be null when creating a PsiServerKeyDescription for the DH algorithm");
         }
         return createServerKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(privateKey),
+                CustomTypeConverter.convertBigIntegerToString(privateExponent),
                 null,
                 CustomTypeConverter.convertBigIntegerToString(modulus),
                 CustomTypeConverter.convertBigIntegerToString(generator));
@@ -78,10 +78,10 @@ public class PsiServerKeyDescriptionFactory {
                 null);
     }
 
-    private static PsiServerKeyDescription createServerKeyDescription(String privateKey, String publicKey, String modulus, String generator) {
+    private static PsiServerKeyDescription createServerKeyDescription(String privateExponent, String publicExponent, String modulus, String generator) {
         PsiServerKeyDescription psiServerKeyDescription = new PsiServerKeyDescription();
-        psiServerKeyDescription.setPrivateKey(privateKey);
-        psiServerKeyDescription.setPublicKey(publicKey);
+        psiServerKeyDescription.setPrivateExponent(privateExponent);
+        psiServerKeyDescription.setPublicExponent(publicExponent);
         psiServerKeyDescription.setModulus(modulus);
         psiServerKeyDescription.setGenerator(generator);
         return psiServerKeyDescription;
