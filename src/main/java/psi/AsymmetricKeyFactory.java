@@ -29,10 +29,10 @@ class AsymmetricKeyFactory {
             AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
             if (algorithm.equals(PsiAlgorithm.BS))
                 return PsiServerKeyDescriptionFactory
-                        .createBsServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.publicKey, asymmetricKey.modulus);
+                        .createBsServerKeyDescription(asymmetricKey.privateExponent, asymmetricKey.publicExponent, asymmetricKey.modulus);
             else
                 return PsiServerKeyDescriptionFactory
-                        .createDhServerKeyDescription(asymmetricKey.privateKey, asymmetricKey.modulus, asymmetricKey.generator);
+                        .createDhServerKeyDescription(asymmetricKey.privateExponent, asymmetricKey.modulus, asymmetricKey.generator);
         }
 
         if (algorithm.equals(PsiAlgorithm.ECBS) || algorithm.equals(PsiAlgorithm.ECDH)) {
@@ -72,8 +72,8 @@ class AsymmetricKeyFactory {
         KeyPair pair = keyGenerator.genKeyPair();
         try {
             DHPrivateKeySpec dhPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), DHPrivateKeySpec.class);
-            BigInteger privateKey = (dhPrivateKeySpec.getX());
-            return new AsymmetricKey(privateKey, null, modulus, generator);
+            BigInteger privateExponent = (dhPrivateKeySpec.getX());
+            return new AsymmetricKey(privateExponent, null, modulus, generator);
         } catch (InvalidKeySpecException e) {
             throw new KeyGenerationException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
         }
@@ -101,8 +101,8 @@ class AsymmetricKeyFactory {
         keyGenerator.initialize(keySize);
         KeyPair pair = keyGenerator.genKeyPair();
 
-        BigInteger privateKey;
-        BigInteger publicKey = null;
+        BigInteger privateExponent;
+        BigInteger publicExponent = null;
         BigInteger modulus;
         BigInteger generator = null;
 
@@ -112,13 +112,13 @@ class AsymmetricKeyFactory {
                     RSAPrivateKeySpec rsaPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), RSAPrivateKeySpec.class);
                     RSAPublicKeySpec rsaPublicKeySpec = keyFactory.getKeySpec(pair.getPublic(), RSAPublicKeySpec.class);
                     modulus = (rsaPrivateKeySpec.getModulus());
-                    privateKey = (rsaPrivateKeySpec.getPrivateExponent());
-                    publicKey = (rsaPublicKeySpec.getPublicExponent());
+                    privateExponent = (rsaPrivateKeySpec.getPrivateExponent());
+                    publicExponent = (rsaPublicKeySpec.getPublicExponent());
                     break;
                 case DH:
                     DHPrivateKeySpec dhPrivateKeySpec = keyFactory.getKeySpec(pair.getPrivate(), DHPrivateKeySpec.class);
                     modulus = dhPrivateKeySpec.getP();
-                    privateKey = dhPrivateKeySpec.getX();
+                    privateExponent = dhPrivateKeySpec.getX();
                     generator = dhPrivateKeySpec.getG();
                     break;
                 default:
@@ -128,7 +128,7 @@ class AsymmetricKeyFactory {
             throw new KeyGenerationException("KeySpec is invalid. Verify whether both the input algorithm and key size are correct and compatible.");
         }
 
-        return new AsymmetricKey(privateKey, publicKey, modulus, generator);
+        return new AsymmetricKey(privateExponent, publicExponent, modulus, generator);
     }
 
     static AsymmetricEcKey generateEcKey(PsiAlgorithm algorithm, int keySize) {
@@ -152,15 +152,15 @@ class AsymmetricKeyFactory {
         );
     }
 
-    static class AsymmetricKey{
-        BigInteger privateKey;
-        BigInteger publicKey;
+    static class AsymmetricKey {
+        BigInteger privateExponent;
+        BigInteger publicExponent;
         BigInteger modulus;
         BigInteger generator;
 
-        AsymmetricKey(BigInteger privateKey, BigInteger publicKey, BigInteger modulus, BigInteger generator) {
-            this.privateKey = privateKey;
-            this.publicKey = publicKey;
+        AsymmetricKey(BigInteger privateExponent, BigInteger publicExponent, BigInteger modulus, BigInteger generator) {
+            this.privateExponent = privateExponent;
+            this.publicExponent = publicExponent;
             this.modulus = modulus;
             this.generator = generator;
         }

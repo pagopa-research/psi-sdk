@@ -44,8 +44,8 @@ class PsiServerBs extends PsiServerAbstract {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKeyDescription(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
-            if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getPrivateKey() == null || psiServerKeyDescription.getPublicKey() == null)
-                throw new PsiServerInitException("The keys and/or modulus passed in the input psiServerKeyDescription are either null or empty");
+            if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getPrivateExponent() == null || psiServerKeyDescription.getPublicExponent() == null)
+                throw new PsiServerInitException("The exponents and/or modulus passed in the input psiServerKeyDescription are either null or empty");
             // TODO: check whether keys are valid wrt each other
         }
         psiServerSession.setPsiServerKeyDescription(psiServerKeyDescription);
@@ -63,7 +63,7 @@ class PsiServerBs extends PsiServerAbstract {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
-        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
+        BigInteger serverPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateExponent());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
 
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
@@ -87,7 +87,7 @@ class PsiServerBs extends PsiServerAbstract {
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
                         encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                        encryptedValue = encryptedValue.modPow(serverPrivateKey, modulus);
+                        encryptedValue = encryptedValue.modPow(serverPrivateExponent, modulus);
                         encryptedValue = hashFactory.hash(encryptedValue);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
@@ -111,7 +111,7 @@ class PsiServerBs extends PsiServerAbstract {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
-        BigInteger serverPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateKey());
+        BigInteger serverPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateExponent());
         BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
 
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
@@ -132,7 +132,7 @@ class PsiServerBs extends PsiServerAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        encryptedValue = bigIntegerValue.modPow(serverPrivateKey, modulus);
+                        encryptedValue = bigIntegerValue.modPow(serverPrivateExponent, modulus);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (psiServerSession.getCacheEnabled()) {
@@ -157,10 +157,11 @@ class PsiServerBs extends PsiServerAbstract {
 
     // Helper method used to validate the required fields of the psiServerKeyDescription for this algorithm
     private void validatePsiServerKeyDescription(){
-        if(psiServerSession.getPsiServerKeyDescription() == null
-                || psiServerSession.getPsiServerKeyDescription().getPrivateKey() == null
-                || psiServerSession.getPsiServerKeyDescription().getPublicKey() == null
+        if (psiServerSession.getPsiServerKeyDescription() == null
+                || psiServerSession.getPsiServerKeyDescription().getPrivateExponent() == null
+                || psiServerSession.getPsiServerKeyDescription().getPublicExponent() == null
                 || psiServerSession.getPsiServerKeyDescription().getModulus() == null
-        ) throw new PsiServerException("The fields privateKey, publicKey and modulus of the PsiServerKeyDescription for BS should not be null");
+        )
+            throw new PsiServerException("The fields privateExponent, publicExponent and modulus of the PsiServerKeyDescription for BS should not be null");
     }
 }

@@ -6,7 +6,7 @@ public class PsiRuntimeConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer threads = null;
+    private Integer threads;
 
     private Integer threadTimeoutSeconds = null;
 

@@ -12,18 +12,18 @@ public class PsiClientKeyDescriptionFactory {
     private PsiClientKeyDescriptionFactory() {
     }
 
-    public static PsiClientKeyDescription createBsClientKeyDescription(String serverPublicKey, String modulus) {
-        if (serverPublicKey == null || modulus == null || serverPublicKey.isEmpty() || modulus.isEmpty()) {
-            throw new PsiClientException("Both serverPublicKey and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
+    public static PsiClientKeyDescription createBsClientKeyDescription(String serverPublicExponent, String modulus) {
+        if (serverPublicExponent == null || modulus == null || serverPublicExponent.isEmpty() || modulus.isEmpty()) {
+            throw new PsiClientException("Both serverPublicExponent and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
         }
-        return createClientKeyDescription(null, serverPublicKey, modulus, null);
+        return createClientKeyDescription(null, serverPublicExponent, modulus);
     }
 
-    public static PsiClientKeyDescription createDhClientKeyDescription(String clientPrivateKey, String modulus, String generator) {
-        if (clientPrivateKey == null || modulus == null || generator == null || clientPrivateKey.isEmpty() || modulus.isEmpty() || generator.isEmpty()) {
-            throw new PsiClientException("The fields clientPrivateKey, modulus and generator should not be null when creating a PsiClientDescription for the DH algorithm");
+    public static PsiClientKeyDescription createDhClientKeyDescription(String clientPrivateExponent, String modulus) {
+        if (clientPrivateExponent == null || modulus == null || clientPrivateExponent.isEmpty() || modulus.isEmpty()) {
+            throw new PsiClientException("The fields clientPrivateExponent and modulus should not be null when creating a PsiClientDescription for the DH algorithm");
         }
-        return createClientKeyDescription(clientPrivateKey, null, modulus, generator);
+        return createClientKeyDescription(clientPrivateExponent, null, modulus);
     }
 
     public static PsiClientKeyDescription createEcBsClientKeyDescription(String ecServerPublicKey, String ecSpecName) {
@@ -40,25 +40,23 @@ public class PsiClientKeyDescriptionFactory {
         return createClientEcKeyDescription(ecClientPrivateKey, null, ecSpecName);
     }
 
-    public static PsiClientKeyDescription createBsClientKeyDescription(BigInteger serverPublicKey, BigInteger modulus) {
-        if (serverPublicKey == null || modulus == null) {
-            throw new PsiClientException("Both serverPublicKey and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
+    public static PsiClientKeyDescription createBsClientKeyDescription(BigInteger serverPublicExponent, BigInteger modulus) {
+        if (serverPublicExponent == null || modulus == null) {
+            throw new PsiClientException("Both serverPublicExponent and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
         }
         return createClientKeyDescription(null,
-                CustomTypeConverter.convertBigIntegerToString(serverPublicKey),
-                CustomTypeConverter.convertBigIntegerToString(modulus),
-                null);
+                CustomTypeConverter.convertBigIntegerToString(serverPublicExponent),
+                CustomTypeConverter.convertBigIntegerToString(modulus));
     }
 
-    public static PsiClientKeyDescription createDhClientKeyDescription(BigInteger clientPrivateKey, BigInteger modulus, BigInteger generator) {
-        if (clientPrivateKey == null || modulus == null || generator == null) {
-            throw new PsiClientException("The fields clientPrivateKey, modulus and generator should not be null when creating a PsiClientDescription for the DH algorithm");
+    public static PsiClientKeyDescription createDhClientKeyDescription(BigInteger clientPrivateExponent, BigInteger modulus) {
+        if (clientPrivateExponent == null || modulus == null) {
+            throw new PsiClientException("The fields clientPrivateExponent and modulus should not be null when creating a PsiClientDescription for the DH algorithm");
         }
         return createClientKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(clientPrivateKey),
+                CustomTypeConverter.convertBigIntegerToString(clientPrivateExponent),
                 null,
-                CustomTypeConverter.convertBigIntegerToString(modulus),
-                CustomTypeConverter.convertBigIntegerToString(generator));
+                CustomTypeConverter.convertBigIntegerToString(modulus));
     }
 
     public static PsiClientKeyDescription createEcBsClientKeyDescription(ECPoint ecServerPublicKey, ECParameterSpec ecSpec) {
@@ -80,30 +78,28 @@ public class PsiClientKeyDescriptionFactory {
                 CustomTypeConverter.convertECParameterSpecToString(ecSpec));
     }
 
-    public static PsiClientKeyDescription createGenericPsiClientKeyDescription(String clientPrivateKey, String serverPublicKey, String modulus, String generator, String ecClientPrivateKey, String ecServerPublicKey, String ecSpecName) {
-        if (serverPublicKey != null && ecServerPublicKey != null)
-            throw new PsiClientException("Only one of serverPublicKey or ecServerPublicKey should be not null");
+    public static PsiClientKeyDescription createGenericPsiClientKeyDescription(String clientPrivateExponent, String serverPublicExponent, String modulus, String ecClientPrivateKey, String ecServerPublicKey, String ecSpecName) {
+        if (serverPublicExponent != null && ecServerPublicKey != null)
+            throw new PsiClientException("Only one of serverPublicExponent or ecServerPublicKey should be not null");
 
-        if (clientPrivateKey != null && ecClientPrivateKey != null)
-            throw new PsiClientException("Only one of clientPrivateKey or ecClientPrivateKey should be not null");
+        if (clientPrivateExponent != null && ecClientPrivateKey != null)
+            throw new PsiClientException("Only one of clientPrivateExponent or ecClientPrivateKey should be not null");
 
         PsiClientKeyDescription psiClientKeyDescription = new PsiClientKeyDescription();
-        psiClientKeyDescription.setClientPrivateKey(clientPrivateKey);
-        psiClientKeyDescription.setServerPublicKey(serverPublicKey);
+        psiClientKeyDescription.setClientPrivateExponent(clientPrivateExponent);
+        psiClientKeyDescription.setServerPublicExponent(serverPublicExponent);
         psiClientKeyDescription.setModulus(modulus);
-        psiClientKeyDescription.setGenerator(generator);
         psiClientKeyDescription.setEcClientPrivateKey(ecClientPrivateKey);
         psiClientKeyDescription.setEcServerPublicKey(ecServerPublicKey);
         psiClientKeyDescription.setEcSpecName(ecSpecName);
         return psiClientKeyDescription;
     }
 
-    private static PsiClientKeyDescription createClientKeyDescription(String clientPrivateKey, String serverPublicKey, String modulus, String generator) {
+    private static PsiClientKeyDescription createClientKeyDescription(String clientPrivateExponent, String serverPublicExponent, String modulus) {
         PsiClientKeyDescription psiClientKeyDescription = new PsiClientKeyDescription();
-        psiClientKeyDescription.setClientPrivateKey(clientPrivateKey);
-        psiClientKeyDescription.setServerPublicKey(serverPublicKey);
+        psiClientKeyDescription.setClientPrivateExponent(clientPrivateExponent);
+        psiClientKeyDescription.setServerPublicExponent(serverPublicExponent);
         psiClientKeyDescription.setModulus(modulus);
-        psiClientKeyDescription.setGenerator(generator);
         return psiClientKeyDescription;
     }
 
