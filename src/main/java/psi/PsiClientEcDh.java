@@ -34,7 +34,7 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     private final Set<ECPoint> serverDoubleEncryptedDataset;
 
-    private final BigInteger clientPrivateKey;
+    private final BigInteger clientPrivateD;
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
 
@@ -57,15 +57,15 @@ class PsiClientEcDh extends PsiClientAbstract {
             //TODO: non è corretto...generare la chiave a partire dal modulo
             AsymmetricKeyFactory.AsymmetricEcKey asymmetricEcKey =
                     AsymmetricKeyFactory.generateEcKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize());
-            this.clientPrivateKey = asymmetricEcKey.privateKey; //TODO
+            this.clientPrivateD = asymmetricEcKey.privateD; //TODO
             //TODO: for some reason the modulus does not change
             //TODO: maybe it's enough that the privateKey is smaller than the module?
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {
-            if (psiClientKeyDescription.getEcClientPrivateKey() == null)
-                throw new PsiClientException("The field clientPrivateKey in the input psiClientKeyDescription cannot be null");
-            this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getEcClientPrivateKey());
+            if (psiClientKeyDescription.getEcClientPrivateD() == null)
+                throw new PsiClientException("The field ecClientPrivateD in the input psiClientKeyDescription cannot be null");
+            this.clientPrivateD = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getEcClientPrivateD());
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
@@ -105,7 +105,7 @@ class PsiClientEcDh extends PsiClientAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        encryptedValue = EllipticCurve.multiply(ellipticCurve.mapMessage(bigIntegerValue), this.clientPrivateKey);
+                        encryptedValue = EllipticCurve.multiply(ellipticCurve.mapMessage(bigIntegerValue), this.clientPrivateD);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
@@ -156,7 +156,7 @@ class PsiClientEcDh extends PsiClientAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        encryptedValue = EllipticCurve.multiply(ecPointValue, this.clientPrivateKey);
+                        encryptedValue = EllipticCurve.multiply(ecPointValue, this.clientPrivateD);
                         statistics.incrementCacheMiss();
                         if (this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
@@ -204,7 +204,7 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(this.clientPrivateKey);
+        return PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(this.clientPrivateD);
     }
 
 }

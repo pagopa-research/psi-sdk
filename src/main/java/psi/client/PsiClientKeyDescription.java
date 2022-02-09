@@ -14,8 +14,8 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
     private String modulus;
     private String generator;
 
-    private String ecClientPrivateKey;
-    private String ecServerPublicKey;
+    private String ecClientPrivateD;
+    private String ecServerPublicQ;
 
     protected PsiClientKeyDescription() {
     }
@@ -44,20 +44,20 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         this.modulus = modulus;
     }
 
-    public String getEcClientPrivateKey() {
-        return ecClientPrivateKey;
+    public String getEcClientPrivateD() {
+        return ecClientPrivateD;
     }
 
-    void setEcClientPrivateKey(String ecClientPrivateKey) {
-        this.ecClientPrivateKey = ecClientPrivateKey;
+    void setEcClientPrivateD(String ecClientPrivateD) {
+        this.ecClientPrivateD = ecClientPrivateD;
     }
 
-    public String getEcServerPublicKey() {
-        return ecServerPublicKey;
+    public String getEcServerPublicQ() {
+        return ecServerPublicQ;
     }
 
-    void setEcServerPublicKey(String ecServerPublicKey) {
-        this.ecServerPublicKey = ecServerPublicKey;
+    void setEcServerPublicQ(String ecServerPublicQ) {
+        this.ecServerPublicQ = ecServerPublicQ;
     }
 
     public String getGenerator() {
@@ -73,12 +73,12 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiClientKeyDescription that = (PsiClientKeyDescription) o;
-        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) && Objects.equals(ecServerPublicKey, that.ecServerPublicKey);
+        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateD, that.ecClientPrivateD) && Objects.equals(ecServerPublicQ, that.ecServerPublicQ);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateKey, ecServerPublicKey);
+        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateD, ecServerPublicQ);
     }
 
     @Override
@@ -88,8 +88,8 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
                 ", generator='" + generator + '\'' +
-                ", ecClientPrivateKey='" + ecClientPrivateKey + '\'' +
-                ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
+                ", ecClientPrivateD='" + ecClientPrivateD + '\'' +
+                ", ecServerPublicQ='" + ecServerPublicQ + '\'' +
                 '}';
     }
 }

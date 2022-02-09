@@ -36,7 +36,7 @@ class PsiClientEcBs extends PsiClientAbstract {
     private final Map<Long, ECPoint> clientReversedDatasetMap;
     private final Set<ECPoint> serverEncryptedDataset;
 
-    private final ECPoint serverPublicKey;
+    private final ECPoint serverPublicQ;
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
 
@@ -51,16 +51,16 @@ class PsiClientEcBs extends PsiClientAbstract {
         this.keyAtomicCounter = new AtomicLong(0);
 
         ECParameterSpec ecSpec = CustomTypeConverter.convertKeySizeToECParameterSpec(psiClientSession.getPsiAlgorithmParameter().getKeySize());
-        this.serverPublicKey = CustomTypeConverter.convertStringToECPoint(ecSpec.getCurve(), psiClientSession.getEcServerPublicKey());
+        this.serverPublicQ = CustomTypeConverter.convertStringToECPoint(ecSpec.getCurve(), psiClientSession.getEcServerPublicQ());
         this.ellipticCurve = new EllipticCurve(ecSpec);
         this.ecCurve = ecSpec.getCurve();
 
         // keys are set from the psiClientSession
         if(psiClientKeyDescription != null) {
-            if(psiClientKeyDescription.getEcServerPublicKey() == null)
-                throw new PsiClientException("The field ecServerPublicKey in the input psiClientKeyDescription cannot be null");
-            if(!psiClientSession.getEcServerPublicKey().equals(psiClientKeyDescription.getEcServerPublicKey()))
-                throw new PsiClientException("The field ecServerPublicKey in the psiClientKeyDescription does not match the one in the psiClientSession");
+            if(psiClientKeyDescription.getEcServerPublicQ() == null)
+                throw new PsiClientException("The field ecServerPublicQ in the input psiClientKeyDescription cannot be null");
+            if(!psiClientSession.getEcServerPublicQ().equals(psiClientKeyDescription.getEcServerPublicQ()))
+                throw new PsiClientException("The field ecServerPublicQ in the psiClientKeyDescription does not match the one in the psiClientSession");
         }
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
@@ -102,7 +102,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        EllipticCurve.EncryptedRandomValue encryptedRandomValue = this.ellipticCurve.generateEncryptedRandomValue(bigIntegerValue, this.serverPublicKey);
+                        EllipticCurve.EncryptedRandomValue encryptedRandomValue = this.ellipticCurve.generateEncryptedRandomValue(bigIntegerValue, this.serverPublicQ);
                         encryptedValue = encryptedRandomValue.getEncrypted();
                         randomValue = encryptedRandomValue.getRandom();
                         statistics.incrementCacheMiss();
@@ -212,7 +212,7 @@ class PsiClientEcBs extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicKey);
+        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicQ);
     }
 
 }

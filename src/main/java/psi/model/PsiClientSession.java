@@ -18,7 +18,7 @@ public class PsiClientSession implements Serializable {
 
     private String generator;
 
-    private String ecServerPublicKey;
+    private String ecServerPublicQ;
 
     private PsiAlgorithmParameter psiAlgorithmParameter;
 
@@ -63,9 +63,9 @@ public class PsiClientSession implements Serializable {
                 psiClientSession.generator = psiServerKeyDesc.getGenerator();
                 break;
             case ECBS:
-                if (psiServerKeyDesc.getEcPublicKey() == null)
-                    throw new PsiServerException("The field ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
-                psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
+                if (psiServerKeyDesc.getEcPublicQ() == null)
+                    throw new PsiServerException("The field ecPublicQ of psiServerKeyDescription cannot be null for the ECBS algorithm");
+                psiClientSession.ecServerPublicQ = psiServerKeyDesc.getEcPublicQ();
                 break;
             case ECDH:
                 break;
@@ -76,8 +76,8 @@ public class PsiClientSession implements Serializable {
         return psiClientSession;
     }
 
-    public String getEcServerPublicKey() {
-        return ecServerPublicKey;
+    public String getEcServerPublicQ() {
+        return ecServerPublicQ;
     }
 
     public PsiAlgorithmParameter getPsiAlgorithmParameter() {
@@ -94,7 +94,7 @@ public class PsiClientSession implements Serializable {
                 "modulus='" + modulus + '\'' +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", generator='" + generator + '\'' +
-                ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
+                ", ecServerPublicQ='" + ecServerPublicQ + '\'' +
                 ", psiAlgorithmParameter=" + psiAlgorithmParameter +
                 '}';
     }

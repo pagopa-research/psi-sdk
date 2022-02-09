@@ -65,9 +65,9 @@ class CustomTypeConverterTest {
     @Test
     void ecPointConversionTest(){
         AsymmetricKeyFactory.AsymmetricEcKey asymmetricEcKey = AsymmetricKeyFactory.generateEcKey(PsiAlgorithm.ECBS, 512);
-        EllipticCurve ellipticCurve = new EllipticCurve(asymmetricEcKey.ecSpec);
+        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter.convertKeySizeToECParameterSpec(512));
 
-        ECPoint ecPoint = EllipticCurve.multiply(ellipticCurve.mapMessage(BigInteger.TEN), asymmetricEcKey.privateKey);
+        ECPoint ecPoint = EllipticCurve.multiply(ellipticCurve.mapMessage(BigInteger.TEN), asymmetricEcKey.privateD);
 
         String stringEcPoint = CustomTypeConverter.convertECPointToString(ecPoint);
 

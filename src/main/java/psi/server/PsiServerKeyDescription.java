@@ -14,8 +14,8 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
     private String modulus;
     private String generator;
 
-    private String ecPrivateKey;
-    private String ecPublicKey;
+    private String ecPrivateD;
+    private String ecPublicQ;
 
     protected PsiServerKeyDescription() {
     }
@@ -44,20 +44,20 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         this.modulus = modulus;
     }
 
-    public String getEcPrivateKey() {
-        return ecPrivateKey;
+    public String getEcPrivateD() {
+        return ecPrivateD;
     }
 
-    void setEcPrivateKey(String ecPrivateKey) {
-        this.ecPrivateKey = ecPrivateKey;
+    void setEcPrivateD(String ecPrivateD) {
+        this.ecPrivateD = ecPrivateD;
     }
 
-    public String getEcPublicKey() {
-        return ecPublicKey;
+    public String getEcPublicQ() {
+        return ecPublicQ;
     }
 
-    void setEcPublicKey(String ecPublicKey) {
-        this.ecPublicKey = ecPublicKey;
+    void setEcPublicQ(String ecPublicQ) {
+        this.ecPublicQ = ecPublicQ;
     }
 
     public String getGenerator() {
@@ -73,12 +73,12 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiServerKeyDescription that = (PsiServerKeyDescription) o;
-        return Objects.equals(privateKey, that.privateKey) && Objects.equals(publicKey, that.publicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateKey, that.ecPrivateKey) && Objects.equals(ecPublicKey, that.ecPublicKey);
+        return Objects.equals(privateKey, that.privateKey) && Objects.equals(publicKey, that.publicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateD, that.ecPrivateD) && Objects.equals(ecPublicQ, that.ecPublicQ);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(privateKey, publicKey, modulus, generator, ecPrivateKey, ecPublicKey);
+        return Objects.hash(privateKey, publicKey, modulus, generator, ecPrivateD, ecPublicQ);
     }
 
     @Override
@@ -88,8 +88,8 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
                 ", publicKey='" + publicKey + '\'' +
                 ", modulus='" + modulus + '\'' +
                 ", generator='" + generator + '\'' +
-                ", ecPrivateKey='" + ecPrivateKey + '\'' +
-                ", ecPublicKey='" + ecPublicKey + '\'' +
+                ", ecPrivateD='" + ecPrivateD + '\'' +
+                ", ecPublicQ='" + ecPublicQ + '\'' +
                 '}';
     }
 }
