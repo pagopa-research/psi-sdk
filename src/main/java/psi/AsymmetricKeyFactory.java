@@ -158,7 +158,7 @@ class AsymmetricKeyFactory {
      * @return AsymmetricEcKey containing the generated privateD
      */
     static AsymmetricEcKey generateEcDhKeyFromECParameterSpec(ECParameterSpec ecSpec) {
-
+        Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator keyGenerator;
         try {
             keyGenerator = KeyPairGenerator.getInstance("EC", "BC");
