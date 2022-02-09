@@ -16,7 +16,6 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
 
     private String ecPrivateKey;
     private String ecPublicKey;
-    private String ecSpecName;
 
     protected PsiServerKeyDescription() {
     }
@@ -61,14 +60,6 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         this.ecPublicKey = ecPublicKey;
     }
 
-    public String getEcSpecName() {
-        return ecSpecName;
-    }
-
-    void setEcSpecName(String ecSpecName) {
-        this.ecSpecName = ecSpecName;
-    }
-
     public String getGenerator() {
         return generator;
     }
@@ -82,12 +73,12 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiServerKeyDescription that = (PsiServerKeyDescription) o;
-        return Objects.equals(privateKey, that.privateKey) && Objects.equals(publicKey, that.publicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateKey, that.ecPrivateKey) && Objects.equals(ecPublicKey, that.ecPublicKey) && Objects.equals(ecSpecName, that.ecSpecName);
+        return Objects.equals(privateKey, that.privateKey) && Objects.equals(publicKey, that.publicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecPrivateKey, that.ecPrivateKey) && Objects.equals(ecPublicKey, that.ecPublicKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(privateKey, publicKey, modulus, generator, ecPrivateKey, ecPublicKey, ecSpecName);
+        return Objects.hash(privateKey, publicKey, modulus, generator, ecPrivateKey, ecPublicKey);
     }
 
     @Override
@@ -99,7 +90,6 @@ public class PsiServerKeyDescription implements PsiKeyDescription, Serializable 
                 ", generator='" + generator + '\'' +
                 ", ecPrivateKey='" + ecPrivateKey + '\'' +
                 ", ecPublicKey='" + ecPublicKey + '\'' +
-                ", ecSpecName='" + ecSpecName + '\'' +
                 '}';
     }
 }

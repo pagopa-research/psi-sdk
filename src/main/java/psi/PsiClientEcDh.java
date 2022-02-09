@@ -48,7 +48,7 @@ class PsiClientEcDh extends PsiClientAbstract {
         this.keyAtomicCounter = new AtomicLong(0);
 
 
-        ECParameterSpec ecSpec = CustomTypeConverter.convertStringToECParameterSpec(psiClientSession.getEcSpecName());
+        ECParameterSpec ecSpec = CustomTypeConverter.convertKeySizeToECParameterSpec(psiClientSession.getPsiAlgorithmParameter().getKeySize());
         this.ellipticCurve = new EllipticCurve(ecSpec);
         this.ecCurve = ecSpec.getCurve();
 
@@ -63,10 +63,8 @@ class PsiClientEcDh extends PsiClientAbstract {
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {
-            if (psiClientKeyDescription.getEcSpecName() == null || psiClientKeyDescription.getEcClientPrivateKey() == null)
-                throw new PsiClientException("The fields ecSpecName and clientPrivateKey in the input psiClientKeyDescription cannot be null");
-            if (!psiClientSession.getEcSpecName().equals(psiClientKeyDescription.getEcSpecName()))
-                throw new PsiClientException("The field ecSpecName in the psiClientKeyDescription does not match the one in the psiClientSession");
+            if (psiClientKeyDescription.getEcClientPrivateKey() == null)
+                throw new PsiClientException("The field clientPrivateKey in the input psiClientKeyDescription cannot be null");
             this.clientPrivateKey = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getEcClientPrivateKey());
         }
 
@@ -206,7 +204,7 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(this.clientPrivateKey, this.ellipticCurve.getEcParameterSpec());
+        return PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(this.clientPrivateKey);
     }
 
 }

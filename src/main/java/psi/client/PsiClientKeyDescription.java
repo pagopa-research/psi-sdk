@@ -16,7 +16,6 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
 
     private String ecClientPrivateKey;
     private String ecServerPublicKey;
-    private String ecSpecName;
 
     protected PsiClientKeyDescription() {
     }
@@ -61,14 +60,6 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         this.ecServerPublicKey = ecServerPublicKey;
     }
 
-    public String getEcSpecName() {
-        return ecSpecName;
-    }
-
-    void setEcSpecName(String ecSpecName) {
-        this.ecSpecName = ecSpecName;
-    }
-
     public String getGenerator() {
         return generator;
     }
@@ -82,12 +73,12 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PsiClientKeyDescription that = (PsiClientKeyDescription) o;
-        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) && Objects.equals(ecServerPublicKey, that.ecServerPublicKey) && Objects.equals(ecSpecName, that.ecSpecName);
+        return Objects.equals(clientPrivateKey, that.clientPrivateKey) && Objects.equals(serverPublicKey, that.serverPublicKey) && Objects.equals(modulus, that.modulus) && Objects.equals(generator, that.generator) && Objects.equals(ecClientPrivateKey, that.ecClientPrivateKey) && Objects.equals(ecServerPublicKey, that.ecServerPublicKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateKey, ecServerPublicKey, ecSpecName);
+        return Objects.hash(clientPrivateKey, serverPublicKey, modulus, generator, ecClientPrivateKey, ecServerPublicKey);
     }
 
     @Override
@@ -99,7 +90,6 @@ public class PsiClientKeyDescription implements PsiKeyDescription, Serializable 
                 ", generator='" + generator + '\'' +
                 ", ecClientPrivateKey='" + ecClientPrivateKey + '\'' +
                 ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
-                ", ecSpecName='" + ecSpecName + '\'' +
                 '}';
     }
 }

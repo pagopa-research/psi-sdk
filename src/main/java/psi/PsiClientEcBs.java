@@ -50,20 +50,18 @@ class PsiClientEcBs extends PsiClientAbstract {
         this.statisticList = new ConcurrentLinkedQueue<>();
         this.keyAtomicCounter = new AtomicLong(0);
 
-        ECParameterSpec ecSpec = CustomTypeConverter.convertStringToECParameterSpec(psiClientSession.getEcSpecName());
+        ECParameterSpec ecSpec = CustomTypeConverter.convertKeySizeToECParameterSpec(psiClientSession.getPsiAlgorithmParameter().getKeySize());
         this.serverPublicKey = CustomTypeConverter.convertStringToECPoint(ecSpec.getCurve(), psiClientSession.getEcServerPublicKey());
         this.ellipticCurve = new EllipticCurve(ecSpec);
         this.ecCurve = ecSpec.getCurve();
 
         // keys are set from the psiClientSession
         if(psiClientKeyDescription != null) {
-            if(psiClientKeyDescription.getEcSpecName() == null || psiClientKeyDescription.getEcServerPublicKey() == null)
-                throw new PsiClientException("The fields ecSpec and ecServerPublicKey in the input psiClientKeyDescription cannot be null");
-            if(!psiClientSession.getEcSpecName().equals(psiClientKeyDescription.getEcSpecName()) ||
-                    !psiClientSession.getEcServerPublicKey().equals(psiClientKeyDescription.getEcServerPublicKey()))
-                throw new PsiClientException("The fields ecSpec and/or ecServerPublicKey in the psiClientKeyDescription does not match those in the psiClientSession");
+            if(psiClientKeyDescription.getEcServerPublicKey() == null)
+                throw new PsiClientException("The field ecServerPublicKey in the input psiClientKeyDescription cannot be null");
+            if(!psiClientSession.getEcServerPublicKey().equals(psiClientKeyDescription.getEcServerPublicKey()))
+                throw new PsiClientException("The field ecServerPublicKey in the psiClientKeyDescription does not match the one in the psiClientSession");
         }
-
 
         // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
         // If psiCacheProvider != null, setup and validate the cache
@@ -214,7 +212,7 @@ class PsiClientEcBs extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicKey, this.ellipticCurve.getEcParameterSpec());
+        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicKey);
     }
 
 }

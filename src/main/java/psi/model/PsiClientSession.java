@@ -18,8 +18,6 @@ public class PsiClientSession implements Serializable {
 
     private String generator;
 
-    private String ecSpecName;
-
     private String ecServerPublicKey;
 
     private PsiAlgorithmParameter psiAlgorithmParameter;
@@ -65,25 +63,17 @@ public class PsiClientSession implements Serializable {
                 psiClientSession.generator = psiServerKeyDesc.getGenerator();
                 break;
             case ECBS:
-                if (psiServerKeyDesc.getEcPublicKey() == null || psiServerKeyDesc.getEcSpecName() == null)
-                    throw new PsiServerException("The fields ecSpecName and ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
+                if (psiServerKeyDesc.getEcPublicKey() == null)
+                    throw new PsiServerException("The field ecPublicKey of psiServerKeyDescription cannot be null for the ECBS algorithm");
                 psiClientSession.ecServerPublicKey = psiServerKeyDesc.getEcPublicKey();
-                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
                 break;
             case ECDH:
-                if(psiServerKeyDesc.getEcSpecName() == null )
-                    throw new PsiServerException("The fields ecSpecName of psiServerKeyDescription cannot be null for the ECDH algorithm");
-                psiClientSession.ecSpecName = psiServerKeyDesc.getEcSpecName();
                 break;
             default:
                 throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");
         }
 
         return psiClientSession;
-    }
-
-    public String getEcSpecName() {
-        return ecSpecName;
     }
 
     public String getEcServerPublicKey() {
@@ -104,7 +94,6 @@ public class PsiClientSession implements Serializable {
                 "modulus='" + modulus + '\'' +
                 ", serverPublicKey='" + serverPublicKey + '\'' +
                 ", generator='" + generator + '\'' +
-                ", ecSpecName='" + ecSpecName + '\'' +
                 ", ecServerPublicKey='" + ecServerPublicKey + '\'' +
                 ", psiAlgorithmParameter=" + psiAlgorithmParameter +
                 '}';

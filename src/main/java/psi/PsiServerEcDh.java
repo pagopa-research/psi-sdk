@@ -46,8 +46,8 @@ class PsiServerEcDh extends PsiServerAbstract {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKeyDescription(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
         } // keys are loaded from serverKeyDescription
         else {
-            if (psiServerKeyDescription.getEcSpecName() == null || psiServerKeyDescription.getEcPrivateKey() == null)
-                throw new PsiServerInitException("The serverKeyDescription and/or modulus ecSpecName in the input psiServerKeyDescription are either null or empty");
+            if (psiServerKeyDescription.getEcPrivateKey() == null)
+                throw new PsiServerInitException("The privateKey in the input psiServerKeyDescription is empty");
             // TODO: check whether keys are valid wrt each other
         }
         psiServerSession.setPsiServerKeyDescription(psiServerKeyDescription);
@@ -67,8 +67,8 @@ class PsiServerEcDh extends PsiServerAbstract {
 
         BigInteger privateKey = CustomTypeConverter.convertStringToBigInteger(
                 psiServerSession.getPsiServerKeyDescription().getEcPrivateKey());
-        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter.convertStringToECParameterSpec(
-                psiServerSession.getPsiServerKeyDescription().getEcSpecName()));
+        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter
+                .convertKeySizeToECParameterSpec(psiServerSession.getPsiAlgorithmParameter().getKeySize()));
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
@@ -116,8 +116,8 @@ class PsiServerEcDh extends PsiServerAbstract {
 
         BigInteger privateKey = CustomTypeConverter.convertStringToBigInteger(
                 psiServerSession.getPsiServerKeyDescription().getEcPrivateKey());
-        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter.convertStringToECParameterSpec(
-                psiServerSession.getPsiServerKeyDescription().getEcSpecName()));
+        EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter
+                .convertKeySizeToECParameterSpec(psiServerSession.getPsiAlgorithmParameter().getKeySize()));
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
@@ -165,7 +165,6 @@ class PsiServerEcDh extends PsiServerAbstract {
     private void validatePsiServerKeyDescription(){
         if(psiServerSession.getPsiServerKeyDescription() == null
                 || psiServerSession.getPsiServerKeyDescription().getEcPrivateKey() == null
-                || psiServerSession.getPsiServerKeyDescription().getEcSpecName() == null
         ) throw new PsiServerException("The fields ecPrivateKey, ecPublicKey and ecSpec of the PsiServerKeyDescription for BS should not be null");
     }
 }

@@ -91,7 +91,6 @@ class ClientServerKeyDescriptionTest {
             assertEquals(this.psiServerSession.getPsiServerKeyDescription().getModulus(), this.psiServerKeyDescription.getModulus());
             assertEquals(this.psiServerSession.getPsiServerKeyDescription().getEcPrivateKey(), this.psiServerKeyDescription.getEcPrivateKey());
             assertEquals(this.psiServerSession.getPsiServerKeyDescription().getEcPublicKey(), this.psiServerKeyDescription.getEcPublicKey());
-            assertEquals(this.psiServerSession.getPsiServerKeyDescription().getEcSpecName(), this.psiServerKeyDescription.getEcSpecName());
 
             // Get server instance
             PsiServer psiServer = PsiServerFactory.loadSession(this.psiServerSession);
