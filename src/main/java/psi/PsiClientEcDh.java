@@ -54,12 +54,8 @@ class PsiClientEcDh extends PsiClientAbstract {
 
         // keys are set from the psiClientSession
         if (psiClientKeyDescription == null) {
-            //TODO: non è corretto...generare la chiave a partire dal modulo
-            AsymmetricKeyFactory.AsymmetricEcKey asymmetricEcKey =
-                    AsymmetricKeyFactory.generateEcKey(psiClientSession.getPsiAlgorithmParameter().getAlgorithm(), psiClientSession.getPsiAlgorithmParameter().getKeySize());
-            this.clientPrivateD = asymmetricEcKey.privateD; //TODO
-            //TODO: for some reason the modulus does not change
-            //TODO: maybe it's enough that the privateKey is smaller than the module?
+            AsymmetricKeyFactory.AsymmetricEcKey asymmetricEcKey = AsymmetricKeyFactory.generateEcDhKeyFromECParameterSpec(ecSpec);
+            this.clientPrivateD = asymmetricEcKey.privateD;
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
         else {

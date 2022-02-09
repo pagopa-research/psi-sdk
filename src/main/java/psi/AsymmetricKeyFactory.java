@@ -150,6 +150,30 @@ class AsymmetricKeyFactory {
                 ((ECPublicKey)pair.getPublic()).getQ());
     }
 
+
+    /**
+     * Method that can be used to generate an ec key starting from an ECParameterSpec.
+     * It is intended to be used by clients running the ECDH algorithm
+     *
+     * @param ecSpec   ECParameterSpec generated from the selected keySize
+     * @return AsymmetricEcKey containing the generated privateD
+     */
+    static AsymmetricEcKey generateEcDhKeyFromECParameterSpec(ECParameterSpec ecSpec) {
+
+        KeyPairGenerator keyGenerator;
+        try {
+            keyGenerator = KeyPairGenerator.getInstance("EC", "BC");
+            keyGenerator.initialize(ecSpec, new SecureRandom());
+        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new KeyGenerationException("EC key generator not available");
+        }
+        KeyPair pair = keyGenerator.genKeyPair();
+
+        return new AsymmetricEcKey(
+                ((ECPrivateKey)pair.getPrivate()).getD(),
+                null);
+    }
+
     static class AsymmetricKey{
         BigInteger privateKey;
         BigInteger publicKey;
