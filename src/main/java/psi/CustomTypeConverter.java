@@ -30,36 +30,62 @@ class CustomTypeConverter {
 
     private static final Charset charset = StandardCharsets.ISO_8859_1;
 
+    /**
+     * Converts a String value into a BigInteger.
+     * @param string String representation of the BigInteger value
+     * @return the BigInteger representation of the String based on the selected charset
+     */
     static BigInteger convertStringToBigInteger(String string){
         log.trace("Called convertStringToBigInteger() with string = {}", string);
          return new BigInteger(string.getBytes(charset));
      }
 
+    /**
+     * Converts a BigInteger value into a String.
+     * @param bigInteger BigInteger value to be converted
+     * @return the String representation of the BigInteger based on the selected charset
+     */
      static String convertBigIntegerToString(BigInteger bigInteger){
          log.trace("Called convertBigIntegerToString() with bigInteger = {}", bigInteger);
          return new String(bigInteger.toByteArray(), charset);
      }
 
+    /**
+     * Converts a String value into an ECPoint.
+     * @param curve     curve used to convert the string into a point
+     * @param string    String representation of the ECPoint value
+     * @return the ECPoint obtained converting the String on the provided curve
+     */
     static ECPoint convertStringToECPoint(ECCurve curve, String string){
         log.trace("Called convertStringToECPoint() with curve = {}, string = {}", curve, string);
         return curve.decodePoint(string.getBytes(charset));
     }
 
+    /**
+     * Converts an ECPoint value into a String.
+     * @param point ECPoint value to be converted
+     * @return the String representation of the ECPoint
+     */
     static String convertECPointToString(ECPoint point){
         log.trace("Called convertECPointToString() with point = {}", point);
         return new String(point.getEncoded(true), charset);
     }
 
+    /**
+     * Converts a key size value into an ECParameterSpec.
+     * @param keySize size of the key
+     * @return the ECParameterSpec obtained from the provided key size
+     */
     static ECParameterSpec convertKeySizeToECParameterSpec(Integer keySize){
         log.trace("Called convertKeySizeToECParameterSpec() with keySize = {}", keySize);
         return ECNamedCurveTable.getParameterSpec(EllipticCurve.getNameCurve(keySize));
     }
 
-    static String convertECParameterSpecToString(ECParameterSpec ecSpec){
-        log.trace("Called convertECParameterSpecToString() with ecSpec = {}", ecSpec);
-        return EllipticCurve.getNameCurve(ecSpec.getCurve().getA().getFieldSize());
-    }
-
+    /**
+     * Converts a generic Serializable Object into a string.
+     * @param object object to be serialized
+     * @return the serialized String representation of object
+     */
     static <T> String convertObjectToString(T object){
         log.trace("Called convertObjectToString() with object = {}", object);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -73,16 +99,22 @@ class CustomTypeConverter {
         }
     }
 
-    static <T> T convertStringToObject(String base64, Class<T> typeParameterClass){
-        log.trace("Called convertStringToObject() with base64 = {}, typeParameterClass = {}", base64, typeParameterClass);
+    /**
+     * Converts a String value into an Object of class T.
+     * @param string         serialized String representation of the object
+     * @param typeParamClass class of the object to be retrieved
+     * @return the object obtained converting the String based on the specified class
+     */
+    static <T> T convertStringToObject(String string, Class<T> typeParamClass){
+        log.trace("Called convertStringToObject() with string = {}, typeParamClass = {}", string, typeParamClass);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        String decodedCursor = new String(Base64.getDecoder().decode(base64));
+        String decodedCursor = new String(Base64.getDecoder().decode(string));
         try {
             JsonNode jsonNode =  new ObjectMapper().readTree(decodedCursor);
-            return objectMapper.treeToValue(jsonNode, typeParameterClass);
+            return objectMapper.treeToValue(jsonNode, typeParamClass);
         } catch (JsonProcessingException e) {
-            throw new CustomRuntimeException("Impossible to convert base64 to object");
+            throw new CustomRuntimeException("Impossible to convert string to object");
         }
     }
 }
