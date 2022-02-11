@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
+/**
+ * Cache object used to store the result of the mathematical operations performed in DH and BS (excluding the one
+ * producing an additional random value linked to the encrypted one) algorithms.
+ */
 class CacheObjectEncrypted implements CacheObject, Serializable {
 
     private static final long serialVersionUID = 1L;

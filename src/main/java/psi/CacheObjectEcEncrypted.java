@@ -6,6 +6,10 @@ import org.bouncycastle.math.ec.ECPoint;
 import java.io.Serializable;
 import java.util.Arrays;
 
+/**
+ * Cache object used to store the result of the mathematical operations performed in ECDH and ECBS (excluding the one
+ * producing an additional random value linked to the encrypted one) algorithms.
+ */
 class CacheObjectEcEncrypted implements CacheObject, Serializable {
 
     private static final long serialVersionUID = 1L;
