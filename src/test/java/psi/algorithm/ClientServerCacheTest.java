@@ -5,14 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.*;
 import psi.client.PsiClient;
-import psi.client.PsiClientKeyDescription;
 import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;
 import psi.server.PsiServer;
-import psi.server.PsiServerKeyDescription;
 
 import java.util.HashSet;
 import java.util.List;

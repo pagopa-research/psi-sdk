@@ -6,8 +6,6 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import psi.cache.PsiCacheProvider;
-import psi.client.PsiClientKeyDescription;
-import psi.client.PsiClientKeyDescriptionFactory;
 import psi.exception.PsiClientException;
 import psi.model.PsiClientSession;
 import psi.model.PsiPhaseStatistics;

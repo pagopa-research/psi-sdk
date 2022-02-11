@@ -2,7 +2,6 @@ package psi;
 
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
-import psi.server.PsiServerKeyDescription;
 
 public class PsiServerSession {
 

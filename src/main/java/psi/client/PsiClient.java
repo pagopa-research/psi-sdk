@@ -1,5 +1,6 @@
 package psi.client;
 
+import psi.PsiClientKeyDescription;
 import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;
 

@@ -1,4 +1,4 @@
-package psi.server;
+package psi;
 
 import psi.model.PsiKeyDescription;
 

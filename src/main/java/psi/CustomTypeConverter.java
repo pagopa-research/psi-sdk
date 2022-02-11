@@ -18,7 +18,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class CustomTypeConverter {
+/**
+ * This class offers a series of utilities to convert object from/to a String representation, useful to store and/or
+ * transfer them while hiding the internal complexity of the objects used by the sdk.
+ */
+class CustomTypeConverter {
 
     private static final Logger log = LoggerFactory.getLogger(CustomTypeConverter.class);
 
@@ -26,37 +30,37 @@ public class CustomTypeConverter {
 
     private static final Charset charset = StandardCharsets.ISO_8859_1;
 
-    public static BigInteger convertStringToBigInteger(String string){
+    static BigInteger convertStringToBigInteger(String string){
         log.trace("Called convertStringToBigInteger() with string = {}", string);
          return new BigInteger(string.getBytes(charset));
      }
 
-     public static String convertBigIntegerToString(BigInteger bigInteger){
+     static String convertBigIntegerToString(BigInteger bigInteger){
          log.trace("Called convertBigIntegerToString() with bigInteger = {}", bigInteger);
          return new String(bigInteger.toByteArray(), charset);
      }
 
-    public static ECPoint convertStringToECPoint(ECCurve curve, String string){
+    static ECPoint convertStringToECPoint(ECCurve curve, String string){
         log.trace("Called convertStringToECPoint() with curve = {}, string = {}", curve, string);
         return curve.decodePoint(string.getBytes(charset));
     }
 
-    public static String convertECPointToString(ECPoint point){
+    static String convertECPointToString(ECPoint point){
         log.trace("Called convertECPointToString() with point = {}", point);
         return new String(point.getEncoded(true), charset);
     }
 
-    public static ECParameterSpec convertKeySizeToECParameterSpec(Integer keySize){
+    static ECParameterSpec convertKeySizeToECParameterSpec(Integer keySize){
         log.trace("Called convertKeySizeToECParameterSpec() with keySize = {}", keySize);
         return ECNamedCurveTable.getParameterSpec(EllipticCurve.getNameCurve(keySize));
     }
 
-    public static String convertECParameterSpecToString(ECParameterSpec ecSpec){
+    static String convertECParameterSpecToString(ECParameterSpec ecSpec){
         log.trace("Called convertECParameterSpecToString() with ecSpec = {}", ecSpec);
         return EllipticCurve.getNameCurve(ecSpec.getCurve().getA().getFieldSize());
     }
 
-    public static <T> String convertObjectToString(T object){
+    static <T> String convertObjectToString(T object){
         log.trace("Called convertObjectToString() with object = {}", object);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -69,7 +73,7 @@ public class CustomTypeConverter {
         }
     }
 
-    public static <T> T convertStringToObject(String base64, Class<T> typeParameterClass){
+    static <T> T convertStringToObject(String base64, Class<T> typeParameterClass){
         log.trace("Called convertStringToObject() with base64 = {}, typeParameterClass = {}", base64, typeParameterClass);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);

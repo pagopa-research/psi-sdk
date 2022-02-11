@@ -1,7 +1,6 @@
-package psi.server;
+package psi;
 
 import org.bouncycastle.math.ec.ECPoint;
-import psi.CustomTypeConverter;
 import psi.exception.PsiClientException;
 
 import java.math.BigInteger;

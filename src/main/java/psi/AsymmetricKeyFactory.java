@@ -9,8 +9,6 @@ import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.KeyGenerationException;
 import psi.exception.PsiServerInitException;
 import psi.model.PsiAlgorithm;
-import psi.server.PsiServerKeyDescription;
-import psi.server.PsiServerKeyDescriptionFactory;
 
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPrivateKeySpec;

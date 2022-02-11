@@ -2,7 +2,6 @@ package psi;
 
 import psi.cache.PsiCacheProvider;
 import psi.client.PsiClient;
-import psi.client.PsiClientKeyDescription;
 import psi.exception.PsiClientException;
 import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;

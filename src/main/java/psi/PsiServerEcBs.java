@@ -11,7 +11,6 @@ import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
-import psi.server.PsiServerKeyDescription;
 
 import java.math.BigInteger;
 import java.util.*;
