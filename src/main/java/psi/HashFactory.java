@@ -13,6 +13,9 @@ import java.security.Security;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class provides hashing facilities. The default digest algorithm used is SHA-256, but can be modified at runtime.
+ */
 class HashFactory {
 
     private static final Logger log = LoggerFactory.getLogger(HashFactory.class);
@@ -32,30 +35,28 @@ class HashFactory {
         }
     }
 
+    /**
+     * Computes a digest of the input value using a full hash domain function, namely a hash function that maps to an
+     * output value whose size equals the one expressed by the modulusByteLength variable.
+     * @param input value to be hashed
+     * @return a BigInteger representation of the result of the full hash domain function
+     */
     BigInteger hashFullDomain(BigInteger input) {
-        return computeHashFullDomainInner(input, this.digestHash, this.modulusByteLength);
-    }
-
-    BigInteger hash(BigInteger input) {
-        return new BigInteger(this.digestHash.digest(input.toByteArray()));
-    }
-
-    private static BigInteger computeHashFullDomainInner(BigInteger input, MessageDigest digest, int modulusByteLength) {
-        log.trace("Calling computeFullDomainHashInner with input = {}, modulusByteLength = {}", input, modulusByteLength);
-        byte[] result = new byte[modulusByteLength];
+        log.trace("Calling hashFullDomain with input = {}", input);
+        byte[] result = new byte[this.modulusByteLength];
         result[0] = (byte) 0xff;
-        // Create a temp structure used to store the value to be hashed: (input | i) with i in (1,n)
+        // Creates a temp structure used to store the value to be hashed: (input | i) with i in (1,n)
         int incPosition = input.toByteArray().length;
         byte[] inputArray = new byte[incPosition + 1];
         System.arraycopy(input.toByteArray(), 0, inputArray, 0, incPosition);
-        // The last byte is used to generate different inputs during the iterations
+        // The last byte is used to generate different inputs, by incrementing it at each iteration
         inputArray[incPosition] = 0;
         int pos = 0;
 
-        while (pos < modulusByteLength){
-            byte[] hashedValue = digest.digest(inputArray);
+        while (pos < this.modulusByteLength){
+            byte[] hashedValue = this.digestHash.digest(inputArray);
             System.arraycopy(hashedValue, 0, result, pos,
-                    pos+hashedValue.length < modulusByteLength ? hashedValue.length : modulusByteLength - pos);
+                    pos+hashedValue.length < this.modulusByteLength ? hashedValue.length : this.modulusByteLength - pos);
 
             pos += hashedValue.length;
             inputArray[incPosition]++;
@@ -64,16 +65,38 @@ class HashFactory {
         return new BigInteger(result);
     }
 
+    /**
+     * Computes a digest of the input value.
+     * @param input value to be hashed
+     * @return  a BigInteger representation of the result of the hash function
+     */
+    BigInteger hash(BigInteger input) {
+        return new BigInteger(this.digestHash.digest(input.toByteArray()));
+    }
+
+    /**
+     * Sets the hashing algorithm used to perform internal operations.
+     * @param hashingAlgorithm String representation of the hashing algorithm to be used
+     * @throws NoSuchAlgorithmException if no Provider supports a MessageDigest implementation for the specified algorithm.
+     */
     void setHashingAlgorithm(String hashingAlgorithm) throws NoSuchAlgorithmException {
         this.hashingAlgorithm = hashingAlgorithm;
         this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
 
     }
 
+    /**
+     * Retrieve the currently used hashing algorithm.
+     * @return the currently used hashing algorithm.
+     */
     String getHashingAlgorithm() {
         return hashingAlgorithm;
     }
 
+    /**
+     * Retrieve the list of hashing algorithms offered by the current security provider.
+     * @return the list of supported hashing algorithm
+     */
     static List<String> getSupportedHashAlgorithms() {
         List<String> algorithmList = new LinkedList<>();
         String type = (MessageDigest.class).getSimpleName();

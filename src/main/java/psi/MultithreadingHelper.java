@@ -6,6 +6,9 @@ import psi.exception.CustomRuntimeException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class provides common facilities for multi-threading support.
+ */
 class MultithreadingHelper {
 
     private MultithreadingHelper() {

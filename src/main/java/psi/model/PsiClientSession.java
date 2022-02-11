@@ -2,7 +2,6 @@ package psi.model;
 
 import psi.PsiServerKeyDescription;
 import psi.PsiServerSession;
-import psi.exception.CustomRuntimeException;
 import psi.exception.PsiServerException;
 
 import java.io.Serializable;
@@ -34,7 +33,7 @@ public class PsiClientSession implements Serializable {
             throw new PsiServerException("The fields algorithm, keySize and cacheEnabled of psiServerSession cannot be null");
 
         if(psiServerSession.getPsiServerKeyDescription() == null)
-            throw new CustomRuntimeException("The PsiServerKeyDescription of the psiServerSession cannot be null");
+            throw new PsiServerException("The PsiServerKeyDescription of the psiServerSession cannot be null");
 
         if(!Arrays.asList(PsiAlgorithm.values()).contains(psiServerSession.getPsiAlgorithmParameter().getAlgorithm()))
             throw new PsiServerException("The algorithm in psiServerSession is unsupported or invalid");

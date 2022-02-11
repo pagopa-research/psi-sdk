@@ -58,10 +58,20 @@ class EllipticCurve {
         n = params.getN();
     }
 
+    /**
+     * Checks if the input ECPoint belongs to the curve the current elliptic curve.
+     * @param p an ECPoint
+     * @return true if the input ECPoint belongs to the curve, false otherwise
+     */
     private boolean belongs(ECPoint p) {
         return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
     }
 
+    /**
+     * Maps the input value to an ECPoint of the current elliptic curve.
+     * @param m BigInteger input value
+     * @return ECPoint mapping of the input value
+     */
     ECPoint mapMessage(BigInteger m) {
         if (this.p.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
         BigInteger k = BigInteger.valueOf(200);
@@ -125,7 +135,7 @@ class EllipticCurve {
             throw new CustomRuntimeException("Input key size (" + keySize + ") currently not supported for EC algorithms (ECDH and ECRSA). Supported values are 160, 224, 256, 384, 512 or 521.");
     }
 
-    static String getPFromNameCurve(String name) {
+    private static String getPFromNameCurve(String name) {
         if (Objects.equals(name, "secp160r2"))
             return "fffffffffffffffffffffffffffffffeffffac73";
         else if (Objects.equals(name, "secp224k1"))
@@ -184,7 +194,6 @@ class EllipticCurve {
 
     /**
      * Calculates square root of res mod p using a start exponent q.
-     *
      * @param res the residue
      * @param q   the prime number
      * @param p   the prime number

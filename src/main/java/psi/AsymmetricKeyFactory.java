@@ -7,7 +7,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.KeyGenerationException;
-import psi.exception.PsiServerInitException;
 import psi.model.PsiAlgorithm;
 
 import javax.crypto.spec.DHParameterSpec;
@@ -50,7 +49,7 @@ class AsymmetricKeyFactory {
                         .createEcDhServerKeyDescription(asymmetricEcKey.privateD);
         }
 
-        throw new PsiServerInitException("Algorithm not supported");
+        throw new KeyGenerationException("Algorithm not supported");
     }
 
     /**
