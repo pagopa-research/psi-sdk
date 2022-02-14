@@ -7,6 +7,9 @@ import psi.server.PsiServer;
 
 import java.util.List;
 
+/**
+ * Abstract representation of a PsiServer containing variables common to all the psiClient implementation,
+ */
 abstract class PsiServerAbstract implements PsiServer {
 
     private static final int DEFAULT_THREADS = 4;

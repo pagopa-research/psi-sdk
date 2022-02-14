@@ -5,6 +5,16 @@ import psi.model.PsiKeyDescription;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * This object contains the variables used by the server to perform mathematical encryption operations.
+ * The set of variables is a superset of the ones required by each psi implementation. In particular:
+ * <ul>
+ *   <li>DH uses modulus, generator and privateExponent (the modulus and the generator are sent to the client)</li>
+ *   <li>BS uses modulus, privateExponent and publicExponent (the modulus and the publicExponent are sent to the client)</li>
+ *   <li>ECDH uses ecPrivateD</li>
+ *   <li>ECBS uses ecPrivateD and ecPublicQ (the ecPublicQ is sent to the client)</li>
+ * </ul>
+ */
 public class PsiServerKeyDescription implements PsiKeyDescription, Serializable {
 
     private static final long serialVersionUID = 1L;

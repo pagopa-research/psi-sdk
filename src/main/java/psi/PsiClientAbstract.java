@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * Abstract representation of a PsiClient containing variables common to all the psiClient implementation,
+ */
 abstract class PsiClientAbstract implements PsiClient {
 
     private static final int DEFAULT_THREADS = 4;

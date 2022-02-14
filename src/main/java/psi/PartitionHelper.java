@@ -4,8 +4,7 @@ import java.util.*;
 
 /**
  * This class offers the utilities to split collections (Maps or Sets) respect the number of requested partitions.
- * These functionalities are used during the encryption operations to exploit the multithreading facilities  offered by
- * the sdk.
+ * It is used during the encryption operations to exploit the multithreading facilities offered by the sdk.
  */
 class PartitionHelper {
 

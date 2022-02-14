@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PsiCacheProviderImplementation implements PsiCacheProvider {
+class PsiCacheProviderImplementation implements PsiCacheProvider {
 
     private Map<String, String> cache = new ConcurrentHashMap<>();
 
@@ -22,7 +22,7 @@ public class PsiCacheProviderImplementation implements PsiCacheProvider {
             System.out.println("Ho sovrascritto un valore");;
     }
 
-    public long size (){
+    long size(){
         return cache.size();
     }
 }

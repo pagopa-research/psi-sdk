@@ -17,6 +17,11 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
+/**
+ * This class provides facilities to retrieve the client/server keys, namely the values used during the mathematical
+ * encryption operations, whenever they are not explicitly provided by the user.
+ */
+
 class AsymmetricKeyFactory {
 
     private AsymmetricKeyFactory() {}

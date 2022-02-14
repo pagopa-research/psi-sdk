@@ -156,6 +156,7 @@ class PsiClientBs extends PsiClientAbstract {
                             statistics.incrementCacheHit();
                         }
                     }
+                    // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (reversedValue == null) {
                         reversedValue = hashFactory.hash(entry.getValue().multiply(randomValue.modInverse(modulus)).mod(modulus));
                         statistics.incrementCacheMiss();

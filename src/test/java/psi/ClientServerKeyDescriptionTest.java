@@ -1,9 +1,8 @@
-package psi.algorithm;
+package psi;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import psi.*;
 import psi.client.PsiClient;
 import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;

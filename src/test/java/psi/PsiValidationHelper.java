@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class PsiValidationHelper {
+class PsiValidationHelper {
 
     private static final Logger log = LoggerFactory.getLogger(PsiValidationHelper.class);
 
@@ -30,7 +30,7 @@ public class PsiValidationHelper {
         return smallerSet;
     }
 
-    public static boolean validateResult(Set<String> serverDataset, Set<String> clientDataset, Set<String> psiSet) {
+    static boolean validateResult(Set<String> serverDataset, Set<String> clientDataset, Set<String> psiSet) {
 
         if (psiSet == null || serverDataset == null || clientDataset == null) {
             log.error("Result is null...Have you run the PSI algorithm");
