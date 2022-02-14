@@ -3,6 +3,11 @@ package psi.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * This object contains the information required to select the encryption algorithm to perform psi. It is
+ * sent from the client to the server to initialize server-side psi computation.
+ */
+
 public class PsiAlgorithmParameter implements Serializable {
 
     private static final long serialVersionUID = 1L;

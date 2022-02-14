@@ -4,6 +4,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * This object is used to track statistics about each phase of the psi computation, like time elapsed and cache
+ * hit/miss amount. It is not required by the psi itself but is useful to study the behaviour of the system.
+ */
 public class PsiPhaseStatistics {
 
     public enum PsiPhase {ENCRYPTION, DOUBLE_ENCRYPTION, REVERSE_MAP, PSI}
