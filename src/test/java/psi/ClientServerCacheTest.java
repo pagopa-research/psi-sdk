@@ -18,6 +18,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class to verify the correct behaviour enabling the cache support.
+ */
 class ClientServerCacheTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientServerCacheTest.class);

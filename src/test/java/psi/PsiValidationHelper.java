@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Support class used to verify the correctness of the computed psi.
+ */
 class PsiValidationHelper {
 
     private static final Logger log = LoggerFactory.getLogger(PsiValidationHelper.class);

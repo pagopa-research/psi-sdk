@@ -62,8 +62,8 @@ class PsiServerBs extends PsiServerAbstract {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
-        BigInteger serverPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateExponent());
-        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
+        BigInteger serverPrivateExponent = CustomTypeConverter.convertStringToBigInteger(this.psiServerSession.getPsiServerKeyDescription().getPrivateExponent());
+        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(this.psiServerSession.getPsiServerKeyDescription().getModulus());
 
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
         List<Set<String>> partitionList = PartitionHelper.partitionSet(inputSet, this.threads);
@@ -76,7 +76,7 @@ class PsiServerBs extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(psiServerSession.getCacheEnabled()) {
+                    if(this.psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -90,7 +90,7 @@ class PsiServerBs extends PsiServerAbstract {
                         encryptedValue = hashFactory.hash(encryptedValue);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (psiServerSession.getCacheEnabled()) {
+                        if (this.psiServerSession.getCacheEnabled()) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -98,9 +98,9 @@ class PsiServerBs extends PsiServerAbstract {
                 }
             });
         }
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return encryptedSet;
     }
 
@@ -110,8 +110,8 @@ class PsiServerBs extends PsiServerAbstract {
         validatePsiServerKeyDescription();
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
-        BigInteger serverPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getPrivateExponent());
-        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(psiServerSession.getPsiServerKeyDescription().getModulus());
+        BigInteger serverPrivateExponent = CustomTypeConverter.convertStringToBigInteger(this.psiServerSession.getPsiServerKeyDescription().getPrivateExponent());
+        BigInteger modulus = CustomTypeConverter.convertStringToBigInteger(this.psiServerSession.getPsiServerKeyDescription().getModulus());
 
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
         List<Map<Long, String>> partitionList = PartitionHelper.partitionMap(inputMap, this.threads);
@@ -122,7 +122,7 @@ class PsiServerBs extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (psiServerSession.getCacheEnabled()) {
+                    if (this.psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -134,7 +134,7 @@ class PsiServerBs extends PsiServerAbstract {
                         encryptedValue = bigIntegerValue.modPow(serverPrivateExponent, modulus);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (psiServerSession.getCacheEnabled()) {
+                        if (this.psiServerSession.getCacheEnabled()) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -142,24 +142,24 @@ class PsiServerBs extends PsiServerAbstract {
                 }
             });
         }
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return encryptedMap;
     }
 
     @Override
     public PsiServerKeyDescription getServerKeyDescription() {
         log.debug("Called getServerKeyDescription()");
-        return psiServerSession.getPsiServerKeyDescription();
+        return this.psiServerSession.getPsiServerKeyDescription();
     }
 
     // Helper method used to validate the required fields of the psiServerKeyDescription for this algorithm
     private void validatePsiServerKeyDescription(){
-        if (psiServerSession.getPsiServerKeyDescription() == null
-                || psiServerSession.getPsiServerKeyDescription().getPrivateExponent() == null
-                || psiServerSession.getPsiServerKeyDescription().getPublicExponent() == null
-                || psiServerSession.getPsiServerKeyDescription().getModulus() == null
+        if (this.psiServerSession.getPsiServerKeyDescription() == null
+                || this.psiServerSession.getPsiServerKeyDescription().getPrivateExponent() == null
+                || this.psiServerSession.getPsiServerKeyDescription().getPublicExponent() == null
+                || this.psiServerSession.getPsiServerKeyDescription().getModulus() == null
         )
             throw new PsiServerException("The fields privateExponent, publicExponent and modulus of the PsiServerKeyDescription for BS should not be null");
     }

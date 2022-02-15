@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
+/**
+ * Test class to verify the correctness of the PsiCacheProvider implementation used to test the sdk.
+ */
 class PsiCacheProviderImplementationTest {
 
     @Test

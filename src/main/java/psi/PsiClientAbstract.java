@@ -33,20 +33,20 @@ abstract class PsiClientAbstract implements PsiClient {
     protected Queue<PsiPhaseStatistics> statisticList;
 
     public Integer getThreads() {
-        return threads;
+        return this.threads;
     }
 
     public Boolean getCacheEnabled() {
-        return cacheEnabled;
+        return this.cacheEnabled;
     }
 
     public PsiCacheProvider getPsiCacheProvider() {
-        return psiCacheProvider;
+        return this.psiCacheProvider;
     }
 
     public List<PsiPhaseStatistics> getStatisticList() {
-        List<PsiPhaseStatistics> psiPhaseStatisticsList = new ArrayList<>(statisticList.size());
-        statisticList.iterator().forEachRemaining(elem -> psiPhaseStatisticsList.add(0, elem));
+        List<PsiPhaseStatistics> psiPhaseStatisticsList = new ArrayList<>(this.statisticList.size());
+        this.statisticList.iterator().forEachRemaining(elem -> psiPhaseStatisticsList.add(0, elem));
         return psiPhaseStatisticsList;
     }
 
@@ -60,10 +60,10 @@ abstract class PsiClientAbstract implements PsiClient {
     @Override
     public String toString() {
         return "PsiAbstractClient{" +
-                ", threads=" + threads +
-                ", cacheEnabled=" + cacheEnabled +
-                ", keyId=" + keyId +
-                ", psiCacheProvider=" + psiCacheProvider +
+                ", threads=" + this.threads +
+                ", cacheEnabled=" + this.cacheEnabled +
+                ", keyId=" + this.keyId +
+                ", psiCacheProvider=" + this.psiCacheProvider +
                 '}';
     }
 }

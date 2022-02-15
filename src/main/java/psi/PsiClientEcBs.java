@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 class PsiClientEcBs extends PsiClientAbstract {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(PsiClientEcBs.class);
 
     // Collections used to store working element sets
     private final Map<Long, BigInteger> clientClearDatasetMap;
@@ -84,16 +84,16 @@ class PsiClientEcBs extends PsiClientAbstract {
             executorService.submit(() -> {
 
                 for(String value : partition){
-                    Long key = keyAtomicCounter.incrementAndGet();
+                    Long key = this.keyAtomicCounter.incrementAndGet();
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(value);
                     ECPoint encryptedValue = null;
                     ECPoint randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
                     if(this.cacheEnabled) {
-                        Optional<CacheObjectEcRandomEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, CacheObjectEcRandomEncrypted.class, this.psiCacheProvider);
+                        Optional<CacheObjectEcRandomEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, CacheObjectEcRandomEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
-                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
-                            randomValue = encryptedCacheObjectOptional.get().getRandomValue(ecCurve);
+                            encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(this.ecCurve);
+                            randomValue = encryptedCacheObjectOptional.get().getRandomValue(this.ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
@@ -105,19 +105,19 @@ class PsiClientEcBs extends PsiClientAbstract {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if(this.cacheEnabled) {
-                            CacheUtils.putCachedObject(keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectEcRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectEcRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
                         }
                     }
-                    clientClearDatasetMap.put(key, bigIntegerValue);
-                    clientRandomDatasetMap.put(key, randomValue);
+                    this.clientClearDatasetMap.put(key, bigIntegerValue);
+                    this.clientRandomDatasetMap.put(key, randomValue);
                     clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertECPointToString(encryptedValue));
                  }
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
     }
 
@@ -141,21 +141,21 @@ class PsiClientEcBs extends PsiClientAbstract {
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.REVERSE_MAP);
 
         log.debug("Called computeReversedMap");
-        List<Map<Long, ECPoint>> doubleEncryptedMapPartition = PartitionHelper.partitionMap(clientDoubleEncryptedDatasetMap, threads);
+        List<Map<Long, ECPoint>> doubleEncryptedMapPartition = PartitionHelper.partitionMap(this.clientDoubleEncryptedDatasetMap, this.threads);
         ExecutorService executorService = Executors.newFixedThreadPool(doubleEncryptedMapPartition.size());
         for(Map<Long, ECPoint> partition : doubleEncryptedMapPartition){
             executorService.submit(() -> {
 
                 for(Map.Entry<Long, ECPoint> entry : partition.entrySet()) {
-                    ECPoint randomValue = clientRandomDatasetMap.get(entry.getKey());
+                    ECPoint randomValue = this.clientRandomDatasetMap.get(entry.getKey());
                     ECPoint reversedValue = null;
                     BigInteger cacheKeyValue = null; // Used as key value during caching operations
                     // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
                         cacheKeyValue = concatEcPoints(entry.getValue(), randomValue);
-                        Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
+                        Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
-                            reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
+                            reversedValue = encryptedCacheObjectOptional.get().getEncryptedValue(this.ecCurve);
                             statistics.incrementCacheHit();
                         }
                     }
@@ -165,17 +165,17 @@ class PsiClientEcBs extends PsiClientAbstract {
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
-                            CacheUtils.putCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEcEncrypted(reversedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEcEncrypted(reversedValue), this.psiCacheProvider);
                         }
                     }
-                    clientReversedDatasetMap.put(entry.getKey(), reversedValue);
+                    this.clientReversedDatasetMap.put(entry.getKey(), reversedValue);
                 }
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
     }
 
     @Override
@@ -184,18 +184,18 @@ class PsiClientEcBs extends PsiClientAbstract {
 
         computeReversedMap();
         Set<String> psi = ConcurrentHashMap.newKeySet();
-        List<Map<Long, ECPoint>> reversedMapPartition = PartitionHelper.partitionMap(clientReversedDatasetMap, threads);
+        List<Map<Long, ECPoint>> reversedMapPartition = PartitionHelper.partitionMap(this.clientReversedDatasetMap, this.threads);
         ExecutorService executorService = Executors.newFixedThreadPool(reversedMapPartition.size());
         for(Map<Long, ECPoint> partition : reversedMapPartition){
             executorService.submit(() -> {
                 for(Map.Entry<Long, ECPoint> entry : partition.entrySet()){
-                    if(serverEncryptedDataset.contains(entry.getValue()))
-                        psi.add(CustomTypeConverter.convertBigIntegerToString(clientClearDatasetMap.get(entry.getKey())));
+                    if(this.serverEncryptedDataset.contains(entry.getValue()))
+                        psi.add(CustomTypeConverter.convertBigIntegerToString(this.clientClearDatasetMap.get(entry.getKey())));
                 }
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
         return psi;
     }

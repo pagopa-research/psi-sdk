@@ -7,7 +7,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// This class is used to test the EncryptionCacheProviderImplementation used to perform other tests
+/**
+ * Test class to verify the correctness of the PsiCacheUtils.
+ */
 class PsiCacheUtilsTest {
 
     @Test

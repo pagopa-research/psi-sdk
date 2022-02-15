@@ -15,6 +15,9 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class to verify the correct behaviour while using internally generated keys.
+ */
 class ClientServerBasicTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientServerBasicTest.class);

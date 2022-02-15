@@ -9,6 +9,9 @@ import java.math.BigInteger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Test class to verify the correctness of the CustomTypeConverter.
+ */
 class CustomTypeConverterTest {
 
     private boolean isStringToBigIntegerConversionBidirectional(String s){

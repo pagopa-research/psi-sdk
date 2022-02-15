@@ -28,19 +28,19 @@ abstract class PsiServerAbstract implements PsiServer {
     protected List<PsiPhaseStatistics> statisticList;
 
     public int getThreads() {
-        return threads;
+        return this.threads;
     }
 
     public PsiServerSession getServerSession() {
-        return psiServerSession;
+        return this.psiServerSession;
     }
 
     public PsiCacheProvider getPsiCacheProvider() {
-        return psiCacheProvider;
+        return this.psiCacheProvider;
     }
 
     public List<PsiPhaseStatistics> getStatisticList() {
-        return statisticList;
+        return this.statisticList;
     }
 
     public void setConfiguration(PsiRuntimeConfiguration configuration){

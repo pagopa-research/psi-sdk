@@ -65,9 +65,9 @@ class PsiServerEcDh extends PsiServerAbstract {
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         BigInteger ecPrivateD = CustomTypeConverter.convertStringToBigInteger(
-                psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
+                this.psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
         EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter
-                .convertKeySizeToECParameterSpec(psiServerSession.getPsiAlgorithmParameter().getKeySize()));
+                .convertKeySizeToECParameterSpec(this.psiServerSession.getPsiAlgorithmParameter().getKeySize()));
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
         Set<String> encryptedSet = ConcurrentHashMap.newKeySet();
@@ -79,7 +79,7 @@ class PsiServerEcDh extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(psiServerSession.getCacheEnabled()) {
+                    if(this.psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
@@ -91,7 +91,7 @@ class PsiServerEcDh extends PsiServerAbstract {
                         encryptedValue = EllipticCurve.multiply(ellipticCurve.mapMessage(bigIntegerValue), ecPrivateD);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (psiServerSession.getCacheEnabled()) {
+                        if (this.psiServerSession.getCacheEnabled()) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -99,9 +99,9 @@ class PsiServerEcDh extends PsiServerAbstract {
                 }
             });
         }
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return encryptedSet;
     }
 
@@ -114,9 +114,9 @@ class PsiServerEcDh extends PsiServerAbstract {
 
 
         BigInteger ecPrivateD = CustomTypeConverter.convertStringToBigInteger(
-                psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
+                this.psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
         EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter
-                .convertKeySizeToECParameterSpec(psiServerSession.getPsiAlgorithmParameter().getKeySize()));
+                .convertKeySizeToECParameterSpec(this.psiServerSession.getPsiAlgorithmParameter().getKeySize()));
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
         Map<Long, String> encryptedMap = new ConcurrentHashMap<>();
@@ -129,7 +129,7 @@ class PsiServerEcDh extends PsiServerAbstract {
                     ECPoint ecPointValue = CustomTypeConverter.convertStringToECPoint(ecCurve, entry.getValue());
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (psiServerSession.getCacheEnabled()) {
+                    if (this.psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
@@ -141,7 +141,7 @@ class PsiServerEcDh extends PsiServerAbstract {
                         encryptedValue = EllipticCurve.multiply(ecPointValue, ecPrivateD);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (psiServerSession.getCacheEnabled()) {
+                        if (this.psiServerSession.getCacheEnabled()) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -149,21 +149,21 @@ class PsiServerEcDh extends PsiServerAbstract {
                 }
             });
         }
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return encryptedMap;
     }
 
     @Override
     public PsiServerKeyDescription getServerKeyDescription() {
-        return psiServerSession.getPsiServerKeyDescription();
+        return this.psiServerSession.getPsiServerKeyDescription();
     }
 
     // Helper method used to validate the required fields of the psiServerKeyDescription for this algorithm
     private void validatePsiServerKeyDescription(){
-        if(psiServerSession.getPsiServerKeyDescription() == null
-                || psiServerSession.getPsiServerKeyDescription().getEcPrivateD() == null
+        if(this.psiServerSession.getPsiServerKeyDescription() == null
+                || this.psiServerSession.getPsiServerKeyDescription().getEcPrivateD() == null
         ) throw new PsiServerException("The fields ecPrivateD of the PsiServerKeyDescription for ECDH should not be null");
     }
 }
