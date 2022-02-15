@@ -3,7 +3,15 @@ package psi;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 
-public class PsiServerSession {
+import java.io.Serializable;
+
+/**
+ * This object, created during the initialization of a psi session, contains all the information required to build a
+ * PsiServer instance.
+ */
+public class PsiServerSession implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private PsiAlgorithmParameter psiAlgorithmParameter;
     private Boolean cacheEnabled;
