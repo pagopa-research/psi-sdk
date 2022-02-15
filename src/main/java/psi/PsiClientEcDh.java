@@ -25,13 +25,12 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final AtomicLong keyAtomicCounter;
-
+    // Collections used to store working element sets
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, ECPoint> clientDoubleEncryptedDatasetMap;
-
     private final Set<ECPoint> serverDoubleEncryptedDataset;
 
+    // Variables used to perform encryption operations
     private final BigInteger clientPrivateD;
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
@@ -61,8 +60,6 @@ class PsiClientEcDh extends PsiClientAbstract {
                 throw new PsiClientException("The field ecClientPrivateD in the input psiClientKeyDescription cannot be null");
             this.clientPrivateD = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getEcClientPrivateD());
         }
-
-        // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
 
         // If psiCacheProvider != null, setup and validate the cache
         if (psiCacheProvider == null)
@@ -141,6 +138,7 @@ class PsiClientEcDh extends PsiClientAbstract {
                     BigInteger keyValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry); //This value is used only to search in cache
                     ECPoint ecPointValue = CustomTypeConverter.convertStringToECPoint(ecCurve, serverEncryptedEntry);
                     ECPoint encryptedValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
                         Optional<CacheObjectEcEncrypted> encryptedEcCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedEcCacheObjectOptional.isPresent()) {
@@ -152,6 +150,7 @@ class PsiClientEcDh extends PsiClientAbstract {
                     if (encryptedValue == null) {
                         encryptedValue = EllipticCurve.multiply(ecPointValue, this.clientPrivateD);
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }

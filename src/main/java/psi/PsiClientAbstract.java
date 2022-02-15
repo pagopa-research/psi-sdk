@@ -8,17 +8,23 @@ import psi.model.PsiRuntimeConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static psi.GlobalVariables.DEFAULT_THREADS;
+import static psi.GlobalVariables.DEFAULT_THREAD_TIMEOUT_SECONDS;
 
 /**
  * Abstract representation of a PsiClient containing variables common to all the psiClient implementation,
  */
 abstract class PsiClientAbstract implements PsiClient {
+    // Atomic counter used to uniquely identify client elements
+    AtomicLong keyAtomicCounter;
 
-    private static final int DEFAULT_THREADS = 4;
-    private static final int DEFAULT_THREAD_TIMEOUT_SECONDS = 10800;
+    // Identifier of the current key, used to store and retrieve values to/from the cache
+    protected Long keyId;
 
     Boolean cacheEnabled;
-    protected Long keyId;
+
     protected PsiCacheProvider psiCacheProvider;
 
     protected int threads = DEFAULT_THREADS;
@@ -32,10 +38,6 @@ abstract class PsiClientAbstract implements PsiClient {
 
     public Boolean getCacheEnabled() {
         return cacheEnabled;
-    }
-
-    public Long getKeyId() {
-        return keyId;
     }
 
     public PsiCacheProvider getPsiCacheProvider() {

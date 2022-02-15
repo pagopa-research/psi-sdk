@@ -43,11 +43,11 @@ class PsiServerEcDh extends PsiServerAbstract {
         // keys are created from scratch
         if (psiServerKeyDescription == null) {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKeyDescription(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
-        } // keys are loaded from serverKeyDescription
+        }
+        // keys are loaded from serverKeyDescription
         else {
             if (psiServerKeyDescription.getEcPrivateD() == null)
                 throw new PsiServerInitException("The field ecPrivateD in the input psiServerKeyDescription is empty");
-            // TODO: check whether keys are valid wrt each other
         }
         psiServerSession.setPsiServerKeyDescription(psiServerKeyDescription);
 

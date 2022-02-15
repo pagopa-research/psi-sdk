@@ -25,16 +25,16 @@ class PsiClientBs extends PsiClientAbstract {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final int RANDOM_BITS = 2048;
-
-    private final AtomicLong keyAtomicCounter;
-
     private final SecureRandom secureRandom;
+
+    // Collections used to store working element sets
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, BigInteger> clientRandomDatasetMap;
     private final Map<Long, BigInteger> clientDoubleEncryptedDatasetMap;
     private final Map<Long, BigInteger> clientReversedDatasetMap;
     private final Set<BigInteger> serverEncryptedDataset;
 
+    // Variables used to perform encryption operations
     private final BigInteger modulus;
     private final BigInteger serverPublicExponent;
 
@@ -52,7 +52,7 @@ class PsiClientBs extends PsiClientAbstract {
         this.modulus = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getModulus());
         this.serverPublicExponent = CustomTypeConverter.convertStringToBigInteger(psiClientSession.getServerPublicExponent());
 
-        // If an external key is provided, it should be equivalent to the key read from the psiClientSession
+        // If an external key description is provided, it should match with the values contained into psiClientSession
         if (psiClientKeyDescription != null) {
             if (psiClientKeyDescription.getModulus() == null || psiClientKeyDescription.getServerPublicExponent() == null)
                 throw new PsiClientException("The fields modulus and serverPublicExponent in the input psiClientKeyDescription cannot be null");
@@ -102,6 +102,7 @@ class PsiClientBs extends PsiClientAbstract {
                         randomValue = new BigInteger(RANDOM_BITS, this.secureRandom).mod(modulus);
                         encryptedValue = randomValue.modPow(serverPublicExponent, modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(modulus);
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if(this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
                         }
@@ -148,6 +149,7 @@ class PsiClientBs extends PsiClientAbstract {
                 for(Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
                     BigInteger randomValue = clientRandomDatasetMap.get(entry.getKey());
                     BigInteger reversedValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
                         cacheKeyValue = concatBigIntegers(entry.getValue(), randomValue);
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, CacheObjectEncrypted.class, this.psiCacheProvider);
@@ -160,6 +162,7 @@ class PsiClientBs extends PsiClientAbstract {
                     if (reversedValue == null) {
                         reversedValue = hashFactory.hash(entry.getValue().multiply(randomValue.modInverse(modulus)).mod(modulus));
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEncrypted(reversedValue), this.psiCacheProvider); //TODO, come sopra
                         }

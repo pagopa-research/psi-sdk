@@ -22,13 +22,12 @@ class PsiClientDh extends PsiClientAbstract {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final AtomicLong keyAtomicCounter;
-
+    // Collections used to store working element sets
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, BigInteger> clientDoubleEncryptedDatasetMap;
-
     private final Set<BigInteger> serverDoubleEncryptedDataset;
 
+    // Variables used to perform encryption operations
     private final BigInteger modulus;
     private final BigInteger clientPrivateExponent;
 
@@ -56,8 +55,6 @@ class PsiClientDh extends PsiClientAbstract {
                 throw new PsiClientException("The field modulus in the psiClientKeyDescription does not match those in the psiClientSession");
             this.clientPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateExponent());
         }
-
-        // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
 
         // If psiCacheProvider != null, setup and validate the cache
         if (psiCacheProvider == null)
@@ -137,6 +134,7 @@ class PsiClientDh extends PsiClientAbstract {
                 for (String serverEncryptedEntry : partition) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry);
                     BigInteger encryptedValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
@@ -148,6 +146,7 @@ class PsiClientDh extends PsiClientAbstract {
                     if (encryptedValue == null) {
                         encryptedValue = bigIntegerValue.modPow(this.clientPrivateExponent, modulus);
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }

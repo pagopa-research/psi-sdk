@@ -26,14 +26,14 @@ class PsiClientEcBs extends PsiClientAbstract {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final AtomicLong keyAtomicCounter;
-
+    // Collections used to store working element sets
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, ECPoint> clientRandomDatasetMap;
     private final Map<Long, ECPoint> clientDoubleEncryptedDatasetMap;
     private final Map<Long, ECPoint> clientReversedDatasetMap;
     private final Set<ECPoint> serverEncryptedDataset;
 
+    // Variables used to perform encryption operations
     private final ECPoint serverPublicQ;
     private final ECCurve ecCurve;
     private final EllipticCurve ellipticCurve;
@@ -53,7 +53,7 @@ class PsiClientEcBs extends PsiClientAbstract {
         this.ellipticCurve = new EllipticCurve(ecSpec);
         this.ecCurve = ecSpec.getCurve();
 
-        // keys are set from the psiClientSession
+        // If an external key description is provided, it should match with the values contained into psiClientSession
         if(psiClientKeyDescription != null) {
             if(psiClientKeyDescription.getEcServerPublicQ() == null)
                 throw new PsiClientException("The field ecServerPublicQ in the input psiClientKeyDescription cannot be null");
@@ -61,7 +61,6 @@ class PsiClientEcBs extends PsiClientAbstract {
                 throw new PsiClientException("The field ecServerPublicQ in the psiClientKeyDescription does not match the one in the psiClientSession");
         }
 
-        // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
         // If psiCacheProvider != null, setup and validate the cache
         if(psiCacheProvider == null)
             this.cacheEnabled = false;
@@ -104,6 +103,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                         encryptedValue = encryptedRandomValue.getEncrypted();
                         randomValue = encryptedRandomValue.getRandom();
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if(this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectEcRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
                         }
@@ -150,6 +150,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                     ECPoint randomValue = clientRandomDatasetMap.get(entry.getKey());
                     ECPoint reversedValue = null;
                     BigInteger cacheKeyValue = null; // Used as key value during caching operations
+                    // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
                         cacheKeyValue = concatEcPoints(entry.getValue(), randomValue);
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
@@ -158,9 +159,11 @@ class PsiClientEcBs extends PsiClientAbstract {
                             statistics.incrementCacheHit();
                         }
                     }
+                    // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (reversedValue == null){
                         reversedValue = EllipticCurve.sub(entry.getValue(), randomValue);
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
                             CacheUtils.putCachedObject(keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEcEncrypted(reversedValue), this.psiCacheProvider);
                         }

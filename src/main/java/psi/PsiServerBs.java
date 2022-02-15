@@ -41,11 +41,11 @@ class PsiServerBs extends PsiServerAbstract {
         // keys are created from scratch
         if (psiServerKeyDescription == null) {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKeyDescription(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
-        } // keys are loaded from serverKeyDescription
+        }
+        // keys are loaded from serverKeyDescription
         else {
             if (psiServerKeyDescription.getModulus() == null || psiServerKeyDescription.getPrivateExponent() == null || psiServerKeyDescription.getPublicExponent() == null)
                 throw new PsiServerInitException("The exponents and/or modulus passed in the input psiServerKeyDescription are either null or empty");
-            // TODO: check whether keys are valid wrt each other
         }
         psiServerSession.setPsiServerKeyDescription(psiServerKeyDescription);
 
