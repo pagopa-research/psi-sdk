@@ -6,8 +6,8 @@ import java.util.Objects;
 
 /**
  * Cache object used to store the results of the client-side mathematical operations performed in BS algorithm.
- * Differently by CacheObjectEncrypted, this object stores an additional random value used and produced during the
- * encryption of its own dataset performed by the BS client.
+ * Differently to CacheObjectEncrypted, this object stores an additional random value, which is produced
+ * by the BS client when loading its own dataset.
  */
 class CacheObjectRandomEncrypted implements CacheObject, Serializable {
 

@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * Cache object used to store the results of the client-side mathematical operations performed in ECBS algorithm.
- * Differently by CacheObjectEncrypted, this object stores an additional random value used and produced during the
- * encryption of its own dataset performed by the ECBS client.
+ * Cache object used to store the results of the client-side mathematical operations performed in the ECBS algorithm.
+ * Differently to CacheObjectEcEncrypted, this object stores an additional random value, which is produced
+ * by the ECBS client when loading its own dataset.
  */
 class CacheObjectEcRandomEncrypted implements CacheObject, Serializable {
 

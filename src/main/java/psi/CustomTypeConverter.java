@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * This class offers a series of utilities to convert object from/to a String representation, useful to store and/or
+ * Provides methods that convert complex objects from/to a String representation, which is useful to store and/or
  * transfer them while hiding the internal complexity of the objects used by the sdk.
  */
 class CustomTypeConverter {

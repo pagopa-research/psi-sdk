@@ -8,8 +8,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * This object represents the response sent from the server to the client to initialize client-side psi computation,
- * based on the psiAlgorithmParameter selected by the client itself.
+ * Represents the response sent from the server to the client to initialize the client-side psi computation.
  */
 public class PsiClientSession implements Serializable {
 

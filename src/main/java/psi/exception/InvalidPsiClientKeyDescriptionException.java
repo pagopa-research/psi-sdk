@@ -2,7 +2,7 @@ package psi.exception;
 
 /**
  * This exception is thrown whenever the user is trying to generate a generic PsiClientKeyDescription, but the input
- * parameters are not compliant versus any of the available algorithms.
+ * parameters are not compliant with any of the available algorithms.
  */
 public class InvalidPsiClientKeyDescriptionException extends Exception {
 

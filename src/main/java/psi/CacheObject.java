@@ -1,7 +1,7 @@
 package psi;
 
 /**
- * The interface used to identify cacheable objects.
+ * General interface of cacheable objects.
  */
 interface CacheObject {
 

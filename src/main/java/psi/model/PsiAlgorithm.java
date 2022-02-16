@@ -6,8 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This enumeration lists all the encryption algorithm that can be used to implement psi. Each algorithm bring itself
- * the information about the supported key sizes.
+ * Lists all the supported PSI algorithms and the respective supported key sizes.
  */
 
 public enum PsiAlgorithm {

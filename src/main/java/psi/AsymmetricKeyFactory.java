@@ -18,7 +18,7 @@ import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
 /**
- * This class provides facilities to retrieve the client/server keys, namely the values used during the mathematical
+ * Provides facilities to retrieve the client/server keys, namely the values used during the mathematical
  * encryption operations, whenever they are not explicitly provided by the user.
  */
 
@@ -27,7 +27,7 @@ class AsymmetricKeyFactory {
     private AsymmetricKeyFactory() {}
 
     /**
-     * Method that can be used to generate a server key starting from the algorithm and the keySize.
+     * Generates a server key for the input PSI algorithm and keySize.
      *
      * @param algorithm a PsiAlgorithm enum. Should be either EC, BS, ECDH or ECBS, else throws an exception
      * @param keySize   size of the key
@@ -58,7 +58,7 @@ class AsymmetricKeyFactory {
     }
 
     /**
-     * Method that can be used to generate a key starting from a modulus and a generator.
+     * Generates a key starting from a modulus and a generator.
      * It is intended to be used by clients running the DH algorithm.
      *
      * @param modulus   Diffie-Hellman modulus, often referred as p
@@ -89,8 +89,8 @@ class AsymmetricKeyFactory {
     }
 
     /**
-     * Method that generates a DH or a BS key from scratch with the key size passed as parameter.
-     * It is intended to be used by servers and clients running the DH and BS algorithms.
+     * Generates a DH or a BS key from scratch with the key size passed as parameter.
+     * It is intended to be used by servers and clients running the DH or BS algorithm.
      *
      * @param algorithm a PsiAlgorithm enum. Should be either DH or BS, else throws an exception
      * @param keySize   size of the key
@@ -142,8 +142,8 @@ class AsymmetricKeyFactory {
 
 
     /**
-     * Method that generates an ECDH or an ECBS key from scratch with the key size passed as parameter.
-     * It is intended to be used by servers and clients running the ECDH and ECBS algorithms.
+     * Generates an ECDH or ECBS key from scratch with the key size passed as parameter.
+     * It is intended to be used by servers and clients running the ECDH or ECBS algorithm.
      *
      * @param algorithm a PsiAlgorithm enum. Should be either ECDH or ECBS, else throws an exception
      * @param keySize   size of the key
@@ -169,10 +169,10 @@ class AsymmetricKeyFactory {
     }
 
     /**
-     * Method that can be used to generate an ec key starting from an ECParameterSpec.
+     * Generates an elliptic curve key starting from an ECParameterSpec.
      * It is intended to be used by clients running the ECDH algorithm.
      *
-     * @param ecSpec   ECParameterSpec generated from the selected keySize
+     * @param ecSpec ECParameterSpec generated from the selected keySize
      * @return AsymmetricEcKey containing the generated privateD
      */
     static AsymmetricEcKey generateEcDhKeyFromECParameterSpec(ECParameterSpec ecSpec) {

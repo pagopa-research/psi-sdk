@@ -8,7 +8,7 @@ import psi.server.PsiServer;
 import java.util.List;
 
 /**
- * Abstract representation of a PsiServer containing variables common to all the psiClient implementation,
+ * Abstract representation of a PsiServer containing methods and variables shared by all the PsiServer implementations
  */
 abstract class PsiServerAbstract implements PsiServer {
 

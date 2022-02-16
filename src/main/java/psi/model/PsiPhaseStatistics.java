@@ -5,8 +5,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * This object is used to track statistics about each phase of the psi computation, like time elapsed and cache
- * hit/miss amount. It is not required by the psi itself but is useful to study the behaviour of the system.
+ * Tracks run-time statistics for different phases of the psi computation, such as the elapsed time and the amount of cache
+ * hit/miss. It is not strictly required to compute the psi, but provides helpful insights on the correctness/performance
+ * of the sdk integration.
  */
 public class PsiPhaseStatistics {
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * Abstract representation of a PsiClient containing variables common to all the psiClient implementation,
+ * Abstract representation of a PsiClient containing methods and variables shared by all the PsiClient implementations
  */
 abstract class PsiClientAbstract implements PsiClient {
 

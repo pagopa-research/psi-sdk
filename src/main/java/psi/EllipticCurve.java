@@ -11,10 +11,8 @@ import java.util.Objects;
 import java.util.Random;
 
 /**
- * This class represents an Elliptic Curve characterized by the following equation.
- * y^2 = x^3 + A*x + B (mod P)
+ * Represents an Elliptic Curve characterized by the equation y^2 = x^3 + A*x + B (mod P)
  */
-
 class EllipticCurve {
     private static final BigInteger THREE = BigInteger.valueOf(3);
     private static final BigInteger TWO = BigInteger.valueOf(2);
@@ -59,12 +57,40 @@ class EllipticCurve {
     }
 
     /**
-     * Checks if the input ECPoint belongs to the curve the current elliptic curve.
-     * @param p an ECPoint
-     * @return true if the input ECPoint belongs to the curve, false otherwise
+     * Calculates the square root of res mod p using a starting exponent q.
+     *
+     * @param res the residue
+     * @param q   the prime number
+     * @param p   the prime number
+     * @return square root of res mod p or null if none can be found
      */
-    private boolean belongs(ECPoint p) {
-        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
+    private static BigInteger complexSqrtP(BigInteger res, BigInteger q, BigInteger p) {
+        BigInteger a = findNonResidue(p);
+        if (a == null) return null;
+        BigInteger t = (p.subtract(ONE)).divide(TWO);
+        BigInteger negativePower = t; // a^negativePower mod p = -1 mod p this will be used to get the right power
+        //res^q mod p = a^((p-1)/2) mod p
+
+        while (q.mod(TWO).compareTo(ZERO) == 0) {
+            q = q.divide(TWO);
+            t = t.divide(TWO);
+            //check to make sure that the right power was gonnen
+            if (res.modPow(q, p).compareTo(a.modPow(t, p)) != 0) {
+                //-(a^t mod p) = a^t*a^negativePower mod p = a^t+(negativePower) mod p
+                t = t.add(negativePower);
+            }
+        }
+        BigInteger inverseRes = res.modInverse(p);
+        //	inverseRes^((q-1)/2)
+        q = (q.subtract(ONE)).divide(TWO);
+        BigInteger partOne = inverseRes.modPow(q, p);
+        //  a^(t/2)
+        t = t.divide(TWO);
+        BigInteger partTwo = a.modPow(t, p);
+        BigInteger root;
+        root = partOne.multiply(partTwo);
+        root = root.mod(p);
+        return root;
     }
 
     /**
@@ -193,39 +219,13 @@ class EllipticCurve {
     }
 
     /**
-     * Calculates square root of res mod p using a start exponent q.
-     * @param res the residue
-     * @param q   the prime number
-     * @param p   the prime number
-     * @return square root of res mod p or null if none can be found
+     * Checks if the input ECPoint belongs to the current elliptic curve.
+     *
+     * @param p an ECPoint
+     * @return true if the input ECPoint belongs to the curve, false otherwise
      */
-    private static BigInteger complexSqrtP(BigInteger res, BigInteger q, BigInteger p) {
-        BigInteger a = findNonResidue(p);
-        if (a == null) return null;
-        BigInteger t = (p.subtract(ONE)).divide(TWO);
-        BigInteger negativePower = t; // a^negativePower mod p = -1 mod p this will be used to get the right power
-        //res^q mod p = a^((p-1)/2) mod p
-
-        while (q.mod(TWO).compareTo(ZERO) == 0) {
-            q = q.divide(TWO);
-            t = t.divide(TWO);
-            //check to make sure that the right power was gonnen
-            if (res.modPow(q, p).compareTo(a.modPow(t, p)) != 0) {
-                //-(a^t mod p) = a^t*a^negativePower mod p = a^t+(negativePower) mod p
-                t = t.add(negativePower);
-            }
-        }
-        BigInteger inverseRes = res.modInverse(p);
-        //	inverseRes^((q-1)/2)
-        q = (q.subtract(ONE)).divide(TWO);
-        BigInteger partOne = inverseRes.modPow(q, p);
-        //  a^(t/2)
-        t = t.divide(TWO);
-        BigInteger partTwo = a.modPow(t, p);
-        BigInteger root;
-        root = partOne.multiply(partTwo);
-        root = root.mod(p);
-        return root;
+    private boolean belongs(ECPoint p) {
+        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
     }
 
     static class EncryptedRandomValue{

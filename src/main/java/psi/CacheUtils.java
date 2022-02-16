@@ -11,9 +11,9 @@ import java.security.SecureRandom;
 import java.util.Optional;
 
 /**
- * This class represents a decoupling layer between the external cache implementation and the facilities required
- * by the algorithms, providing a set of methods that hide the translation of objects passed to the cache into
- * cacheable values.
+ * Represents a decoupling layer between the external cache implementation and the internal facilities used
+ * by the PSI algorithms. It contains a set of methods that translate more complex object into cacheable
+ * key-value entries and vice-versa.
  */
 class CacheUtils {
 
@@ -47,10 +47,11 @@ class CacheUtils {
 
     /**
      * Starting from all the input parameters involved into the encrypted value computation, builds a single string that
-     * can be used as key of the cache element.
-     * @param keyId             id associated to the keyDescription
-     * @param cacheObjectType   enum representing an operation type
-     * @param input             input value of the encryption operation
+     * can be used as key of the cache object.
+     *
+     * @param keyId           id associated to the keyDescription
+     * @param cacheObjectType enum representing an operation type
+     * @param input           input value of the encryption operation
      * @return a string that uniquely represents the input parameters
      */
     private static String generateKeyString(Long keyId, CacheOperationType cacheObjectType, BigInteger input){
@@ -65,7 +66,7 @@ class CacheUtils {
      * @param typeParameterClass    class type of the object to be retrieved
      * @param psiCacheProvider      cache provider implementation
      * @return an Optional containing the cached value corresponding to the input triple (keyId, cacheObjectType,
-     * input), or Optional.empty() if the cache does not contains any value associated to these parameters.
+     * input), or Optional.empty() if the cache does not contain any value associated to these parameters.
      */
     static <T> Optional<T> getCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, Class<T> typeParameterClass, PsiCacheProvider psiCacheProvider){
         String key = generateKeyString(keyId, cacheObjectType, input);
@@ -77,13 +78,14 @@ class CacheUtils {
     }
 
     /**
-     * If the cache does not contains any value associated to the triple (keyId, cacheObjectType, input), stores it with
+     * If the cache does not contain any value associated to the triple (keyId, cacheObjectType, input), stores it with
      * the specified input value, otherwise the state of the cache does not change.
-     * @param keyId             id associated to the keyDescription
-     * @param cacheObjectType   enum representing an operation type
-     * @param input             input value of the encryption operation
-     * @param output            output value of the encryption operation
-     * @param psiCacheProvider  cache provider implementation
+     *
+     * @param keyId            id associated to the keyDescription
+     * @param cacheObjectType  enum representing an operation type
+     * @param input            input value of the encryption operation
+     * @param output           output value of the encryption operation
+     * @param psiCacheProvider cache provider implementation
      */
     static void putCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, CacheObject output, PsiCacheProvider psiCacheProvider){
         String key = generateKeyString(keyId, cacheObjectType, input);

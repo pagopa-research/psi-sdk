@@ -4,25 +4,30 @@ import java.util.Optional;
 
 /**
  * An interface representing a key-value cache used by the sdk to store the results of heavyweight mathematical
- * operations, in order to use these results when requested again with the same inputs (e.g. operation type, keys).
- * Since the cache is used to reduce the computational time required, the provided service must guarantee fast responses.
- * Since the cache must serve concurrently by multiple requests, its implementations has to be thread safe.
+ * operations (e.g., encryption operations), which can be read in subsequent executions with the same inputs
+ * (e.g. operation type, keys) to speed up the execution.
+ * Since the goal of the cache is to reduce the computational time with respect to running the actual computations,
+ * reading and writing to the cache should be relatively lightweight.
+ * When the cache is enabled, the sdk performs concurrent calls to the caching layer.
+ * Consequently, the implementations of this interface should be thread safe.
  */
 public interface PsiCacheProvider {
 
     /**
-     * Retrieves the value to which the specified key is mapped.
-     * @param key the key whose associated value is to be returned
+     * Gets the value associated to the input key.
+     *
+     * @param key the key whose associated value is returned
      * @return an Optional containing the cached value to which the specified key is mapped,
-     *          or Optional.empty() if the cache contains no mapping for the key
+     * or Optional.empty() if the cache contains no mapping for the key
      */
-    public Optional<String> get(String key);
+    Optional<String> get(String key);
 
     /**
-     * If the specified key is not contained into the cache, stores it with the specified input value,
-     * otherwise the state of the cache does not change.
-     * @param key   key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
+     * If the specified key is not present in the cache, stores it with the passed value. If it
+     * is already present, do nothing.
+     *
+     * @param key   key of the cache entry
+     * @param value value of the cache entry associated to the key
      */
-    public void put(String key, String value);
+    void put(String key, String value);
 }
