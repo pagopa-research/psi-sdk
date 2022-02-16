@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test class to verify the correct behaviour while using external keys.
+ * Test class that verifies the correct behaviour when using external keys.
  */
 class ClientServerKeyDescriptionTest {
 

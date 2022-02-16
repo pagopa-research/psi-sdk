@@ -16,7 +16,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class to verify the correct behaviour while using internally generated keys.
+ * Test class that verifies the correct behaviour when using auto-generated keys.
  */
 class ClientServerBasicTest {
 

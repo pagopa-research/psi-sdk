@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * This object contains the variables used by the client to perform mathematical encryption operations.
+ * Contains the variables used by the client to perform encryption operations.
  * The set of variables is a superset of the ones required by each psi implementation. In particular:
  * <ul>
  *   <li>DH uses modulus and clientPrivateExponent</li>

@@ -83,7 +83,7 @@ class PsiClientDh extends PsiClientAbstract {
                         BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                         BigInteger encryptedValue = null;
                         // If the cache support is enabled, the result is searched in the cache
-                        if (this.cacheEnabled) {
+                        if (Boolean.TRUE.equals(this.cacheEnabled)) {
                             Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                             if (encryptedCacheObjectOptional.isPresent()) {
                                 encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -96,7 +96,7 @@ class PsiClientDh extends PsiClientAbstract {
                             encryptedValue = encryptedValue.modPow(this.clientPrivateExponent, this.modulus);
                             statistics.incrementCacheMiss();
                             // If the cache support is enabled, the result is stored in the cache
-                            if (this.cacheEnabled) {
+                            if (Boolean.TRUE.equals(this.cacheEnabled)) {
                                 CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                             }
                         }
@@ -135,7 +135,7 @@ class PsiClientDh extends PsiClientAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry);
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (this.cacheEnabled) {
+                    if (Boolean.TRUE.equals(this.cacheEnabled)) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -147,7 +147,7 @@ class PsiClientDh extends PsiClientAbstract {
                         encryptedValue = bigIntegerValue.modPow(this.clientPrivateExponent, this.modulus);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.cacheEnabled) {
+                        if (Boolean.TRUE.equals(this.cacheEnabled)) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }

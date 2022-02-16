@@ -8,7 +8,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class to verify the correctness of the PsiCacheUtils.
+ * Test class that verifies the correctness of the PsiCacheUtils.
  */
 class PsiCacheUtilsTest {
 

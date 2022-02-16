@@ -73,7 +73,7 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     @Override
     public Map<Long, String> loadAndEncryptClientDataset(Set<String> clearClientDataset) {
-        this.log.debug("Called loadAndEncryptClientDataset");
+        log.debug("Called loadAndEncryptClientDataset");
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         List<Set<String>> clientDatasetPartitions = PartitionHelper.partitionSet(clearClientDataset, this.threads);
@@ -110,7 +110,7 @@ class PsiClientEcDh extends PsiClientAbstract {
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, this.log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
         this.statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
@@ -118,7 +118,7 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     @Override
     public void loadDoubleEncryptedClientDataset(Map<Long, String> doubleEncryptedClientDatasetMap) {
-        this.log.debug("Called loadDoubleEncryptedClientDataset");
+        log.debug("Called loadDoubleEncryptedClientDataset");
         for (Map.Entry<Long, String> entry : doubleEncryptedClientDatasetMap.entrySet()) {
             this.clientDoubleEncryptedDatasetMap.put(entry.getKey(), CustomTypeConverter.convertStringToECPoint(this.ecCurve,entry.getValue()));
         }
@@ -126,7 +126,7 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     @Override
     public void loadAndProcessServerDataset(Set<String> serverEncryptedDataset) {
-        this.log.debug("Called loadServerDataset");
+        log.debug("Called loadServerDataset");
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.DOUBLE_ENCRYPTION);
 
         List<Set<String>> partitionList = PartitionHelper.partitionSet(serverEncryptedDataset, this.threads);
@@ -161,19 +161,19 @@ class PsiClientEcDh extends PsiClientAbstract {
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, this.log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
         this.statisticList.add(statistics.close());
     }
 
     // Loads the clientReversedDatasetMap which contains a decryption of the clientDoubleEncryptedDatasetMap entries
     private void computeReversedMap() {
-        this.log.debug("Called computeReversedMap");
+        log.debug("Called computeReversedMap");
     }
 
     @Override
     public Set<String> computePsi() {
-        this.log.debug("Called loadServerDataset");
+        log.debug("Called loadServerDataset");
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.PSI);
 
         computeReversedMap();
@@ -189,7 +189,7 @@ class PsiClientEcDh extends PsiClientAbstract {
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, this.log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
         this.statisticList.add(statistics.close());
         return psi;

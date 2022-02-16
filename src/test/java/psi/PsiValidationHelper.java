@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Support class used to verify the correctness of the computed psi.
+ * Support class that checks whether the computed psi is a correct intersection.
  */
 class PsiValidationHelper {
 

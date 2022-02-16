@@ -89,7 +89,7 @@ class PsiClientBs extends PsiClientAbstract {
                     BigInteger encryptedValue = null;
                     BigInteger randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(this.cacheEnabled) {
+                    if(Boolean.TRUE.equals(this.cacheEnabled)) {
                         Optional<CacheObjectRandomEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, CacheObjectRandomEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -103,7 +103,7 @@ class PsiClientBs extends PsiClientAbstract {
                         encryptedValue = randomValue.modPow(this.serverPublicExponent, this.modulus).multiply(hashFactory.hashFullDomain(bigIntegerValue)).mod(this.modulus);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if(this.cacheEnabled) {
+                        if(Boolean.TRUE.equals(this.cacheEnabled)) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
                         }
                     }
@@ -150,7 +150,7 @@ class PsiClientBs extends PsiClientAbstract {
                     BigInteger randomValue = this.clientRandomDatasetMap.get(entry.getKey());
                     BigInteger reversedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (this.cacheEnabled) {
+                    if (Boolean.TRUE.equals(this.cacheEnabled)) {
                         cacheKeyValue = concatBigIntegers(entry.getValue(), randomValue);
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
@@ -163,8 +163,8 @@ class PsiClientBs extends PsiClientAbstract {
                         reversedValue = hashFactory.hash(entry.getValue().multiply(randomValue.modInverse(this.modulus)).mod(this.modulus));
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.cacheEnabled) {
-                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEncrypted(reversedValue), this.psiCacheProvider); //TODO, come sopra
+                        if (Boolean.TRUE.equals(this.cacheEnabled)) {
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEncrypted(reversedValue), this.psiCacheProvider);
                         }
                     }
                     this.clientReversedDatasetMap.put(entry.getKey(), reversedValue);

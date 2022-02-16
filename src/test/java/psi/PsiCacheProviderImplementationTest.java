@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class to verify the correctness of the PsiCacheProvider implementation used to test the sdk.
+ * Test class that verifies the correctness of the PsiCacheProvider implementation used to test the sdk.
  */
 class PsiCacheProviderImplementationTest {
 

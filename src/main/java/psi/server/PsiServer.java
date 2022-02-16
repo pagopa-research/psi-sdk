@@ -11,15 +11,17 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This interface exposes the server APIs required to calculate psi regardless of the algorithm used.
- * Note: all the input and output collections are devised to work on Strings in order to facilitate the exchanges
- * between the parties while hiding the complexity od the implementations. Thus, if the domain of the psi is different
- * from String, it has to be previously converted.
+ * Interface that provides the methods that perform the server-side computation of the PSI for all the supported algorithms.
+ * Instances of this class should be created by calling the methods in the <code>PsiServerFactory</code> class.
+ * All the input and output collections are devised to work on Strings in order to facilitate the data exchange
+ * between the parties and/or from external data sources.
+ * Thus, the conversion of the datasets to String is required and outside the scope of this sdk.
  */
 public interface PsiServer {
 
     /**
-     * Encrypts and returns the input element set. It is used to encrypt the clear server dataset.
+     * Encrypts and returns the input element set. This should be called to encrypt the clear server dataset.
+     *
      * @param inputSet set of elements to be encrypted by the server
      * @return a Set containing the encrypted input dataset
      */
@@ -27,10 +29,12 @@ public interface PsiServer {
 
     /**
      * Encrypts and returns the set of values contained into the input map. It is used to encrypt the client dataset,
-     * previously encrypted by the client itself. The keys are used as identifier to link encrypted values with the
-     * original ones.
+     * previously encrypted by the client itself. The keys of the map are identifiers that link together
+     * different evolutions of the same entries.
+     *
      * @param encryptedDatasetMap a map which values must be encrypted by the server
-     * @return a Map with the same key of the input map, associated to the corresponding encrypted values
+     * @return a Map where for each entry the key is the same as the input entry, and the value
+     * is a server-side encryption of the value from the input entry
      */
     Map<Long, String> encryptDatasetMap(Map<Long, String> encryptedDatasetMap);
 
@@ -42,8 +46,9 @@ public interface PsiServer {
 
     PsiServerKeyDescription getServerKeyDescription();
 
+
     /**
-     * Retrieves the statistics collected during the execution of the PsiServer.
+     * Retrieves the statistics associated to the different phases of the PSI calculation performed by this object.
      * @return a list containing a different PsiPhaseStatistics for each encryption phase
      */
     List<PsiPhaseStatistics> getStatisticList();

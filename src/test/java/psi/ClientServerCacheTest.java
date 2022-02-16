@@ -19,7 +19,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class to verify the correct behaviour enabling the cache support.
+ * Test class that verifies the correct behaviour when using the cache.
  */
 class ClientServerCacheTest {
 

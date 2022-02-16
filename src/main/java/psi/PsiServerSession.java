@@ -6,7 +6,7 @@ import psi.model.PsiAlgorithmParameter;
 import java.io.Serializable;
 
 /**
- * This object, created during the initialization of a psi session, contains all the information required to build a
+ * Object created during the initialization of a psi session which contains all the information required to load a
  * PsiServer instance.
  */
 public class PsiServerSession implements Serializable {

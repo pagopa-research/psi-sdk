@@ -12,7 +12,7 @@ import psi.server.PsiServer;
 import java.util.Arrays;
 
 /**
- * This class offers to the user a generic interface to initialize or load a specific PsiServer implementation and
+ * Offers a generic interface to initialize or load a specific PsiServer implementation and
  * configuration depending on the provided inputs (algorithm parameters, key description and cache provider).
  */
 public class PsiServerFactory {
@@ -20,8 +20,11 @@ public class PsiServerFactory {
     private PsiServerFactory() {}
 
     /**
-     * Initialize a new server session based on the input parameters.
-     * @param psiAlgorithmParameter containing the algorithm and the key size selected by the client
+     * Initialize a new server session based on the input PsiAlgorithmParameter.
+     * The keys of the returned PsiServerSession are generated automatically. Methods of the returned object
+     * do not use the cache.
+     *
+     * @param psiAlgorithmParameter contains the algorithm and the key size selected by the client
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the PsiAlgorithmParameter
      * @throws UnsupportedKeySizeException if the specified key size is not supported for the selected algorithm
@@ -31,10 +34,12 @@ public class PsiServerFactory {
     }
 
     /**
-     * Initialize a new server session based on the input parameters, and externally  setup the PsiServerKeyDescription
-     * used by the computation.
-     * @param psiAlgorithmParameter     containing the algorithm and the key size selected by the client
-     * @param psiServerKeyDescription   containing the information used to perform encryption operations (e.g. exponent of the private key)
+     * Initialize a new server session based on the input PsiAlgorithmParameter and the input PsiServerKeyDescription.
+     * The returned PsiServerSession uses the keys passed in PsiServerKeyDescription.
+     * Methods of the returned object do not use the cache.
+     *
+     * @param psiAlgorithmParameter     contains the algorithm and the key size selected by the client
+     * @param psiServerKeyDescription   contains the keys used to perform encryption operations (e.g. exponent of the private key)
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the PsiAlgorithmParameter
      * @throws UnsupportedKeySizeException if the specified key size is not supported for the selected algorithm
@@ -48,9 +53,11 @@ public class PsiServerFactory {
     }
 
     /**
-     * Initialize a new server session based on the input parameters. If a not null PsiCacheProvider implementation is
-     * passed, the cache support in automatically enabled.
-     * @param psiAlgorithmParameter containing the algorithm and the key size selected by the client
+     * Initialize a new server session based on the input PsiAlgorithmParameter and the passed PsiCacheProvider implementation.
+     * The keys of the returned PsiServerSession are generated automatically.
+     * Methods of the returned object use the cache whenever possible.
+     *
+     * @param psiAlgorithmParameter contains the algorithm and the key size selected by the client
      * @param psiCacheProvider      implementation of the psiCacheProvider
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the PsiAlgorithmParameter
@@ -61,11 +68,13 @@ public class PsiServerFactory {
     }
 
     /**
-     * Initialize a new server session based on the input parameters, and externally setup the PsiServerKeyDescription
-     * used by the computation. If a not null PsiCacheProvider implementation is passed, the cache support in
-     * automatically enabled.
-     * @param psiAlgorithmParameter     containing the algorithm and the key size selected by the client
-     * @param psiServerKeyDescription   containing the information used to perform encryption operations (e.g. exponent of the private key)
+     * Initialize a new server session based on the input PsiAlgorithmParameter, the input PsiServerKeyDescription and the
+     * passed PsiCacheProvider implementation.
+     * The returned PsiServerSession uses the keys passed in PsiServerKeyDescription.
+     * Methods of the returned object use the cache whenever possible.
+     *
+     * @param psiAlgorithmParameter     contains the algorithm and the key size selected by the client
+     * @param psiServerKeyDescription   contains the keys used to perform encryption operations (e.g. exponent of the private key)
      * @param psiCacheProvider          implementation of the psiCacheProvider
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
      * in the PsiAlgorithmParameter
@@ -82,7 +91,8 @@ public class PsiServerFactory {
     /**
      * Calls the static method of the specific PsiServer subclass matching the algorithm set in the
      * PsiAlgorithmParameter.
-     * @param psiAlgorithmParameter   containing the algorithm and the key size selected by the client
+     *
+     * @param psiAlgorithmParameter   contains the algorithm and the key size selected by the client
      * @param psiServerKeyDescription if not null, the algorithm uses the input keys. If null, creates a new key
      * @param psiCacheProvider        if not null, uses this object as a cache provider. If null, no cache is used
      * @return a ServerSession which is an instance of the PsiServer subclass that matches the algorithm defined
@@ -114,9 +124,10 @@ public class PsiServerFactory {
     }
 
     /**
-     * Create a PsiServer, selecting the relative implementation based on the input algorithm. The PsiServer is
-     * initialized with the information contained into the PsiServerSession object.
-     * @param psiServerSession containing all the information required to build a PsiServer
+     * Creates a PsiServer, selecting the relative implementation based on the input algorithm. The PsiServer is
+     * initialized with the information contained in the input PsiServerSession object.
+     *
+     * @param psiServerSession contains all the information required to build a PsiServer
      * @return a PsiServer instance that matches the algorithm defined in the PsiAlgorithmParameter
      */
     public static PsiServer loadSession(PsiServerSession psiServerSession) {
@@ -126,7 +137,8 @@ public class PsiServerFactory {
     /**
      * Create a PsiServer, selecting the relative implementation based on the input algorithm. The PsiServer is
      * initialized with the information contained into the PsiServerSession object.
-     * @param psiServerSession containing all the information required to build a PsiServer
+     *
+     * @param psiServerSession contains all the information required to build a PsiServer
      * @param psiCacheProvider if not null, uses this object as a cache provider
      * @return a PsiServer instance that matches the algorithm defined in the PsiAlgorithmParameter
      */
@@ -137,10 +149,10 @@ public class PsiServerFactory {
                 || psiServerSession.getPsiAlgorithmParameter().getKeySize() == null)
             throw new PsiServerInitException("The fields cacheEnabled, algorithm and keySize of the input psiServerSession cannot be null");
 
-        if (psiServerSession.getCacheEnabled() && psiCacheProvider == null)
+        if (Boolean.TRUE.equals(psiServerSession.getCacheEnabled()) && psiCacheProvider == null)
             throw new PsiServerException("The session has the cache enabled but you didn't pass an implementation of psiCacheProvider as parameter of loadSession()");
 
-        if (!psiServerSession.getCacheEnabled() && psiCacheProvider != null)
+        if (Boolean.TRUE.equals(!psiServerSession.getCacheEnabled()) && psiCacheProvider != null)
             throw new PsiServerException("The session has the cache disabled but you still passed an implementation of psiCacheProvider as parameter of loadSession()");
 
         if (!psiServerSession.getPsiAlgorithmParameter().getAlgorithm().getSupportedKeySize().contains(psiServerSession.getPsiAlgorithmParameter().getKeySize()))

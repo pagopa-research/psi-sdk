@@ -89,7 +89,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                     ECPoint encryptedValue = null;
                     ECPoint randomValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(this.cacheEnabled) {
+                    if(Boolean.TRUE.equals(this.cacheEnabled)) {
                         Optional<CacheObjectEcRandomEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, CacheObjectEcRandomEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(this.ecCurve);
@@ -104,7 +104,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                         randomValue = encryptedRandomValue.getRandom();
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if(this.cacheEnabled) {
+                        if(Boolean.TRUE.equals(this.cacheEnabled)) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.BLIND_SIGNATURE_ENCRYPTION, bigIntegerValue, new CacheObjectEcRandomEncrypted(randomValue, encryptedValue),this.psiCacheProvider);
                         }
                     }
@@ -151,7 +151,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                     ECPoint reversedValue = null;
                     BigInteger cacheKeyValue = null; // Used as key value during caching operations
                     // If the cache support is enabled, the result is searched in the cache
-                    if (this.cacheEnabled) {
+                    if (Boolean.TRUE.equals(this.cacheEnabled)) {
                         cacheKeyValue = concatEcPoints(entry.getValue(), randomValue);
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
@@ -164,7 +164,7 @@ class PsiClientEcBs extends PsiClientAbstract {
                         reversedValue = EllipticCurve.sub(entry.getValue(), randomValue);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.cacheEnabled) {
+                        if (Boolean.TRUE.equals(this.cacheEnabled)) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.REVERSE_VALUE, cacheKeyValue, new CacheObjectEcEncrypted(reversedValue), this.psiCacheProvider);
                         }
                     }

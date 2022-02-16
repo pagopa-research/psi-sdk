@@ -3,8 +3,8 @@ package psi;
 import java.util.*;
 
 /**
- * This class offers the utilities to split collections (Maps or Sets) respect the number of requested partitions.
- * It is used during the encryption operations to exploit the multithreading facilities offered by the sdk.
+ * Offers utilities to split Maps or Sets in the requested number of partitions.
+ * It is called by the sdk to run encryption operations in parallel on multiple threads.
  */
 class PartitionHelper {
 

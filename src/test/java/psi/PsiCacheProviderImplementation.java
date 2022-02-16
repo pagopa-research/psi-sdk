@@ -7,11 +7,11 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * PsiCacheProvider implementation used to test the sdk.
+ * Basic PsiCacheProvider implementation used to test the sdk.
  */
 class PsiCacheProviderImplementation implements PsiCacheProvider {
 
-    private Map<String, String> cache = new ConcurrentHashMap<>();
+    private final Map<String, String> cache = new ConcurrentHashMap<>();
 
     public Optional<String> get(String key){
         String output = cache.get(key);
@@ -20,9 +20,10 @@ class PsiCacheProviderImplementation implements PsiCacheProvider {
         else
             return Optional.of(output);
     }
+
     public void put(String key, String value){
         if(cache.putIfAbsent(key, value) != null)
-            System.out.println("Ho sovrascritto un valore");;
+            System.out.println("Value overwritten");;
     }
 
     long size(){

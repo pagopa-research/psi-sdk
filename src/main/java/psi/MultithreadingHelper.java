@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class provides common facilities for multi-threading support.
+ * Offers utilities for multi-threading management.
  */
 class MultithreadingHelper {
 

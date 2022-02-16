@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This class provides hashing facilities. The default digest algorithm used is SHA-256, but can be modified at runtime.
+ * Provides hashing functionaities. The default digest algorithm is SHA-256, but can be modified at runtime.
  */
 class HashFactory {
 
@@ -22,7 +22,7 @@ class HashFactory {
 
     private MessageDigest digestHash;
 
-    private int modulusByteLength;
+    private final int modulusByteLength;
 
     private String hashingAlgorithm = "SHA-256";
 
