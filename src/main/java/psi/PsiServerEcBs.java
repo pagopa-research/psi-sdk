@@ -43,11 +43,11 @@ class PsiServerEcBs extends PsiServerAbstract {
         // keys are created from scratch
         if (psiServerKeyDescription == null) {
             psiServerKeyDescription = AsymmetricKeyFactory.generateServerKeyDescription(psiAlgorithmParameter.getAlgorithm(), psiAlgorithmParameter.getKeySize());
-        } // keys are loaded from serverKeyDescription
+        }
+        // keys are loaded from serverKeyDescription
         else {
             if (psiServerKeyDescription.getEcPrivateD() == null || psiServerKeyDescription.getEcPublicQ() == null)
                 throw new PsiServerInitException("The fields ecPrivateD and ecPublicQ passed in the input psiServerKeyDescription are empty");
-            // TODO: check whether keys are valid wrt each other
         }
         psiServerSession.setPsiServerKeyDescription(psiServerKeyDescription);
 
@@ -65,9 +65,9 @@ class PsiServerEcBs extends PsiServerAbstract {
         PsiPhaseStatistics statistics = PsiPhaseStatistics.startStatistic(PsiPhaseStatistics.PsiPhase.ENCRYPTION);
 
         BigInteger ecPrivateD = CustomTypeConverter.convertStringToBigInteger(
-                psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
+                this.psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
         EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter
-                .convertKeySizeToECParameterSpec(psiServerSession.getPsiAlgorithmParameter().getKeySize()));
+                .convertKeySizeToECParameterSpec(this.psiServerSession.getPsiAlgorithmParameter().getKeySize()));
         BigInteger ecPrivateDInverse = ecPrivateD.modInverse(ellipticCurve.getN());
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
@@ -80,7 +80,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(psiServerSession.getCacheEnabled()) {
+                    if(this.psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
@@ -92,7 +92,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                         encryptedValue = EllipticCurve.multiply(ellipticCurve.mapMessage(bigIntegerValue), ecPrivateDInverse);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (psiServerSession.getCacheEnabled()) {
+                        if (this.psiServerSession.getCacheEnabled()) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -100,9 +100,9 @@ class PsiServerEcBs extends PsiServerAbstract {
                 }
             });
         }
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return encryptedSet;
     }
 
@@ -115,9 +115,9 @@ class PsiServerEcBs extends PsiServerAbstract {
 
 
         BigInteger ecPrivateD = CustomTypeConverter.convertStringToBigInteger(
-                psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
+                this.psiServerSession.getPsiServerKeyDescription().getEcPrivateD());
         EllipticCurve ellipticCurve = new EllipticCurve(CustomTypeConverter
-                .convertKeySizeToECParameterSpec(psiServerSession.getPsiAlgorithmParameter().getKeySize()));
+                .convertKeySizeToECParameterSpec(this.psiServerSession.getPsiAlgorithmParameter().getKeySize()));
         BigInteger ecPrivateDInverse = ecPrivateD.modInverse(ellipticCurve.getN());
         ECCurve ecCurve = ellipticCurve.getEcCurve();
 
@@ -131,7 +131,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                     ECPoint ecPointValue = CustomTypeConverter.convertStringToECPoint(ecCurve, entry.getValue());
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (psiServerSession.getCacheEnabled()) {
+                    if (this.psiServerSession.getCacheEnabled()) {
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
@@ -143,7 +143,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                         encryptedValue = EllipticCurve.multiply(ecPointValue, ecPrivateDInverse);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (psiServerSession.getCacheEnabled()) {
+                        if (this.psiServerSession.getCacheEnabled()) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -151,22 +151,22 @@ class PsiServerEcBs extends PsiServerAbstract {
                 }
             });
         }
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return encryptedMap;
     }
 
     @Override
     public PsiServerKeyDescription getServerKeyDescription() {
-        return psiServerSession.getPsiServerKeyDescription();
+        return this.psiServerSession.getPsiServerKeyDescription();
     }
 
     // Helper method used to validate the required fields of the psiServerKeyDescription for this algorithm
     private void validatePsiServerKeyDescription(){
-        if(psiServerSession.getPsiServerKeyDescription() == null
-                || psiServerSession.getPsiServerKeyDescription().getEcPrivateD() == null
-                || psiServerSession.getPsiServerKeyDescription().getEcPublicQ() == null
+        if(this.psiServerSession.getPsiServerKeyDescription() == null
+                || this.psiServerSession.getPsiServerKeyDescription().getEcPrivateD() == null
+                || this.psiServerSession.getPsiServerKeyDescription().getEcPublicQ() == null
         ) throw new PsiServerException("The fields ecPrivateD, ecPublicQ of the PsiServerKeyDescription for ECBS should not be null");
     }
 }

@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * PsiCacheProvider implementation used to test the sdk.
+ */
 class PsiCacheProviderImplementation implements PsiCacheProvider {
 
     private Map<String, String> cache = new ConcurrentHashMap<>();

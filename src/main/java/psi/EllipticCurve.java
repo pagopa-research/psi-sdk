@@ -30,34 +30,34 @@ class EllipticCurve {
     private ECParameterSpec ecParameterSpec;
 
     ECCurve getEcCurve() {
-        return ecCurve;
+        return this.ecCurve;
     }
 
     String getName() {
-        return name;
+        return this.name;
     }
 
     ECParameterSpec getEcParameterSpec() {
-        return ecParameterSpec;
+        return this.ecParameterSpec;
     }
 
     BigInteger getN() {
-        return n;
+        return this.n;
     }
 
     EllipticCurve(ECParameterSpec params) {
-        ecParameterSpec = params;
-        ecCurve = params.getCurve();
-        name = getNameCurve(ecCurve.getA().getFieldSize());
-        a = ecCurve.getA().toBigInteger();
-        b = ecCurve.getB().toBigInteger();
-        g = params.getG();
-        p = new BigInteger(getPFromNameCurve(name), 16);
-        n = params.getN();
+        this.ecParameterSpec = params;
+        this.ecCurve = params.getCurve();
+        this.name = getNameCurve(this.ecCurve.getA().getFieldSize());
+        this.a = this.ecCurve.getA().toBigInteger();
+        this.b = this.ecCurve.getB().toBigInteger();
+        this.g = params.getG();
+        this.p = new BigInteger(getPFromNameCurve(this.name), 16);
+        this.n = params.getN();
     }
 
     /**
-     * Calculates the square root of res mod p using a starting exponent q.
+     * Calculates square root of res mod p using q as the starting exponent.
      *
      * @param res the residue
      * @param q   the prime number
@@ -74,9 +74,9 @@ class EllipticCurve {
         while (q.mod(TWO).compareTo(ZERO) == 0) {
             q = q.divide(TWO);
             t = t.divide(TWO);
-            //check to make sure that the right power was gonnen
+            // check to make sure that the right power was gone
             if (res.modPow(q, p).compareTo(a.modPow(t, p)) != 0) {
-                //-(a^t mod p) = a^t*a^negativePower mod p = a^t+(negativePower) mod p
+                // -(a^t mod p) = a^t*a^negativePower mod p = a^t+(negativePower) mod p
                 t = t.add(negativePower);
             }
         }
@@ -94,28 +94,13 @@ class EllipticCurve {
     }
 
     /**
-     * Maps the input value to an ECPoint of the current elliptic curve.
-     * @param m BigInteger input value
-     * @return ECPoint mapping of the input value
+     * Checks if the input ECPoint belongs to the current elliptic curve.
+     *
+     * @param p an ECPoint
+     * @return true if the input ECPoint belongs to the curve, false otherwise
      */
-    ECPoint mapMessage(BigInteger m) {
-        if (this.p.compareTo(m) < 0) throw new CustomRuntimeException("need to hash");
-        BigInteger k = BigInteger.valueOf(200);
-        BigInteger km1 = k.subtract(BigInteger.ONE);
-        BigInteger start = m.multiply(k);
-        BigInteger y;
-        for (BigInteger I = BigInteger.ZERO; I.compareTo(km1) < 0; I = I.add(BigInteger.ONE)) {
-            BigInteger x = start.mod(p).add(I).mod(p);
-            y = x.modPow(THREE, p).add(a.multiply(x).mod(p)).mod(p).add(b).mod(p);
-            if (y.modPow(p.subtract(BigInteger.ONE).multiply(TWO.modInverse(p)).mod(p), p).compareTo(BigInteger.ONE) == 0) {
-                BigInteger r = sqrtP(y, p);
-                ECPoint res = ecCurve.createPoint(x, r);
-                if (!belongs(res)) throw new CustomRuntimeException("Found mapping not on curve");
-                return res;
-            }
-
-        }
-        throw new CustomRuntimeException("Failed to map message");
+    private boolean belongs(ECPoint p) {
+        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(this.a.multiply(p.getXCoord().toBigInteger())).add(this.b)).mod(this.p).intValue() == 0;
     }
 
     EncryptedRandomValue generateEncryptedRandomValue(BigInteger inputValue, ECPoint ecPoint){
@@ -126,7 +111,7 @@ class EllipticCurve {
         ECPoint encryptedValue;
         BigInteger y;
         do {
-            y = new BigInteger(ecParameterSpec.getN().bitCount(), secureRandom).mod(ecParameterSpec.getN());
+            y = new BigInteger(this.ecParameterSpec.getN().bitCount(), secureRandom).mod(this.ecParameterSpec.getN());
             randomPoint = multiply(this.g, y);
             randomPointInv = multiply(ecPoint, y);
             encryptedValue = add(randomPointInv, point2DInputValue);
@@ -138,11 +123,11 @@ class EllipticCurve {
     @Override
     public String toString() {
         return "EllipticCurve{" +
-                "A=" + a +
-                ", B=" + b +
-                ", P=" + p +
-                ", N=" + n +
-                ", G=" + g +
+                "A=" + this.a +
+                ", B=" + this.b +
+                ", P=" + this.p +
+                ", N=" + this.n +
+                ", G=" + this.g +
                 '}';
     }
 
@@ -219,13 +204,29 @@ class EllipticCurve {
     }
 
     /**
-     * Checks if the input ECPoint belongs to the current elliptic curve.
+     * Maps the input value to an ECPoint of the current elliptic curve.
      *
-     * @param p an ECPoint
-     * @return true if the input ECPoint belongs to the curve, false otherwise
+     * @param m BigInteger input value
+     * @return ECPoint mapping of the input value
      */
-    private boolean belongs(ECPoint p) {
-        return p.getYCoord().toBigInteger().pow(2).subtract(p.getXCoord().toBigInteger().pow(3).add(a.multiply(p.getXCoord().toBigInteger())).add(b)).mod(this.p).intValue() == 0;
+    ECPoint mapMessage(BigInteger m) {
+        if (this.p.compareTo(m) < 0) throw new CustomRuntimeException("Unexpected: Hashing missing");
+        BigInteger k = BigInteger.valueOf(200);
+        BigInteger km1 = k.subtract(BigInteger.ONE);
+        BigInteger start = m.multiply(k);
+        BigInteger y;
+        for (BigInteger I = BigInteger.ZERO; I.compareTo(km1) < 0; I = I.add(BigInteger.ONE)) {
+            BigInteger x = start.mod(this.p).add(I).mod(this.p);
+            y = x.modPow(THREE, this.p).add(this.a.multiply(x).mod(this.p)).mod(this.p).add(this.b).mod(this.p);
+            if (y.modPow(this.p.subtract(BigInteger.ONE).multiply(TWO.modInverse(this.p)).mod(this.p), this.p).compareTo(BigInteger.ONE) == 0) {
+                BigInteger r = sqrtP(y, this.p);
+                ECPoint res = this.ecCurve.createPoint(x, r);
+                if (!belongs(res)) throw new CustomRuntimeException("Found mapping outside the curve");
+                return res;
+            }
+
+        }
+        throw new CustomRuntimeException("Failed to map message");
     }
 
     static class EncryptedRandomValue{
@@ -238,11 +239,11 @@ class EllipticCurve {
         }
 
         ECPoint getEncrypted() {
-            return encrypted;
+            return this.encrypted;
         }
 
         ECPoint getRandom() {
-            return random;
+            return this.random;
         }
     }
 }

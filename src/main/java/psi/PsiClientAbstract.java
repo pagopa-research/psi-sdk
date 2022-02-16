@@ -8,17 +8,23 @@ import psi.model.PsiRuntimeConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static psi.GlobalVariables.DEFAULT_THREADS;
+import static psi.GlobalVariables.DEFAULT_THREAD_TIMEOUT_SECONDS;
 
 /**
  * Abstract representation of a PsiClient containing methods and variables shared by all the PsiClient implementations
  */
 abstract class PsiClientAbstract implements PsiClient {
+    // Atomic counter used to uniquely identify client elements
+    AtomicLong keyAtomicCounter;
 
-    private static final int DEFAULT_THREADS = 4;
-    private static final int DEFAULT_THREAD_TIMEOUT_SECONDS = 10800;
+    // Identifier of the current key, used to store and retrieve values to/from the cache
+    protected Long keyId;
 
     Boolean cacheEnabled;
-    protected Long keyId;
+
     protected PsiCacheProvider psiCacheProvider;
 
     protected int threads = DEFAULT_THREADS;
@@ -27,24 +33,20 @@ abstract class PsiClientAbstract implements PsiClient {
     protected Queue<PsiPhaseStatistics> statisticList;
 
     public Integer getThreads() {
-        return threads;
+        return this.threads;
     }
 
     public Boolean getCacheEnabled() {
-        return cacheEnabled;
-    }
-
-    public Long getKeyId() {
-        return keyId;
+        return this.cacheEnabled;
     }
 
     public PsiCacheProvider getPsiCacheProvider() {
-        return psiCacheProvider;
+        return this.psiCacheProvider;
     }
 
     public List<PsiPhaseStatistics> getStatisticList() {
-        List<PsiPhaseStatistics> psiPhaseStatisticsList = new ArrayList<>(statisticList.size());
-        statisticList.iterator().forEachRemaining(elem -> psiPhaseStatisticsList.add(0, elem));
+        List<PsiPhaseStatistics> psiPhaseStatisticsList = new ArrayList<>(this.statisticList.size());
+        this.statisticList.iterator().forEachRemaining(elem -> psiPhaseStatisticsList.add(0, elem));
         return psiPhaseStatisticsList;
     }
 
@@ -58,10 +60,10 @@ abstract class PsiClientAbstract implements PsiClient {
     @Override
     public String toString() {
         return "PsiAbstractClient{" +
-                ", threads=" + threads +
-                ", cacheEnabled=" + cacheEnabled +
-                ", keyId=" + keyId +
-                ", psiCacheProvider=" + psiCacheProvider +
+                ", threads=" + this.threads +
+                ", cacheEnabled=" + this.cacheEnabled +
+                ", keyId=" + this.keyId +
+                ", psiCacheProvider=" + this.psiCacheProvider +
                 '}';
     }
 }

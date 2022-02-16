@@ -29,9 +29,9 @@ class HashFactory {
     HashFactory(BigInteger modulus){
         this.modulusByteLength = (int) Math.ceil(modulus.bitLength() / 8.0) + 1;
         try {
-            this.digestHash = MessageDigest.getInstance(hashingAlgorithm);
+            this.digestHash = MessageDigest.getInstance(this.hashingAlgorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new CustomRuntimeException("The algorithm "+hashingAlgorithm+" is not supported as hashing function");
+            throw new CustomRuntimeException("The algorithm "+ this.hashingAlgorithm +" is not supported as hashing function");
         }
     }
 
@@ -90,7 +90,7 @@ class HashFactory {
      * @return the currently used hashing algorithm.
      */
     String getHashingAlgorithm() {
-        return hashingAlgorithm;
+        return this.hashingAlgorithm;
     }
 
     /**

@@ -20,15 +20,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 class PsiClientDh extends PsiClientAbstract {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(PsiClientDh.class);
 
-    private final AtomicLong keyAtomicCounter;
-
+    // Collections used to store working element sets
     private final Map<Long, BigInteger> clientClearDatasetMap;
     private final Map<Long, BigInteger> clientDoubleEncryptedDatasetMap;
-
     private final Set<BigInteger> serverDoubleEncryptedDataset;
 
+    // Variables used to perform encryption operations
     private final BigInteger modulus;
     private final BigInteger clientPrivateExponent;
 
@@ -45,7 +44,7 @@ class PsiClientDh extends PsiClientAbstract {
         // keys are set from the psiClientSession
         if (psiClientKeyDescription == null) {
             AsymmetricKeyFactory.AsymmetricKey asymmetricKey = AsymmetricKeyFactory.generateDhKeyFromModulusAndGenerator(
-                    modulus, CustomTypeConverter.convertStringToBigInteger(psiClientSession.getGenerator()));
+                    this.modulus, CustomTypeConverter.convertStringToBigInteger(psiClientSession.getGenerator()));
             this.clientPrivateExponent = asymmetricKey.privateExponent;
         }
         // keys are loaded from psiClientKeyDescription, but should still match those of the psiClientSession
@@ -56,8 +55,6 @@ class PsiClientDh extends PsiClientAbstract {
                 throw new PsiClientException("The field modulus in the psiClientKeyDescription does not match those in the psiClientSession");
             this.clientPrivateExponent = CustomTypeConverter.convertStringToBigInteger(psiClientKeyDescription.getClientPrivateExponent());
         }
-
-        // TODO: check whether keys are valid wrt each other. Needed both when using the clientKeyDescription and when only using the psiClientSession
 
         // If psiCacheProvider != null, setup and validate the cache
         if (psiCacheProvider == null)
@@ -80,7 +77,7 @@ class PsiClientDh extends PsiClientAbstract {
         ExecutorService executorService = Executors.newFixedThreadPool(clientDatasetPartitions.size());
         for (Set<String> partition : clientDatasetPartitions) {
             executorService.submit(() -> {
-                    HashFactory hashFactory = new HashFactory(modulus);
+                    HashFactory hashFactory = new HashFactory(this.modulus);
 
                     for (String stringValue : partition) {
                         BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
@@ -96,23 +93,23 @@ class PsiClientDh extends PsiClientAbstract {
                         // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                         if (encryptedValue == null) {
                             encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
-                            encryptedValue = encryptedValue.modPow(clientPrivateExponent, modulus);
+                            encryptedValue = encryptedValue.modPow(this.clientPrivateExponent, this.modulus);
                             statistics.incrementCacheMiss();
                             // If the cache support is enabled, the result is stored in the cache
                             if (this.cacheEnabled) {
                                 CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                             }
                         }
-                        Long key = keyAtomicCounter.incrementAndGet();
-                        clientClearDatasetMap.put(key, bigIntegerValue);
+                        Long key = this.keyAtomicCounter.incrementAndGet();
+                        this.clientClearDatasetMap.put(key, bigIntegerValue);
                         clientEncryptedDatasetMapConvertedToString.put(key, CustomTypeConverter.convertBigIntegerToString(encryptedValue));
                     }
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return clientEncryptedDatasetMapConvertedToString;
     }
 
@@ -137,8 +134,9 @@ class PsiClientDh extends PsiClientAbstract {
                 for (String serverEncryptedEntry : partition) {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(serverEncryptedEntry);
                     BigInteger encryptedValue = null;
+                    // If the cache support is enabled, the result is searched in the cache
                     if (this.cacheEnabled) {
-                        Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
+                        Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()) {
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
                             statistics.incrementCacheHit();
@@ -146,21 +144,22 @@ class PsiClientDh extends PsiClientAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        encryptedValue = bigIntegerValue.modPow(this.clientPrivateExponent, modulus);
+                        encryptedValue = bigIntegerValue.modPow(this.clientPrivateExponent, this.modulus);
                         statistics.incrementCacheMiss();
+                        // If the cache support is enabled, the result is stored in the cache
                         if (this.cacheEnabled) {
-                            CacheUtils.putCachedObject(keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
+                            CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
-                    serverDoubleEncryptedDataset.add(encryptedValue);
+                    this.serverDoubleEncryptedDataset.add(encryptedValue);
 
                 }
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
     }
 
     // Loads the clientReversedDatasetMap which contains a decryption of the clientDoubleEncryptedDatasetMap entries
@@ -175,20 +174,20 @@ class PsiClientDh extends PsiClientAbstract {
 
         computeReversedMap();
         Set<String> psi = ConcurrentHashMap.newKeySet();
-        List<Map<Long, BigInteger>> reversedMapPartition = PartitionHelper.partitionMap(clientDoubleEncryptedDatasetMap, threads);
+        List<Map<Long, BigInteger>> reversedMapPartition = PartitionHelper.partitionMap(this.clientDoubleEncryptedDatasetMap, this.threads);
         ExecutorService executorService = Executors.newFixedThreadPool(reversedMapPartition.size());
         for (Map<Long, BigInteger> partition : reversedMapPartition) {
             executorService.submit(() -> {
                 for (Map.Entry<Long, BigInteger> entry : partition.entrySet()) {
-                    if (serverDoubleEncryptedDataset.contains(entry.getValue()))
-                        psi.add(CustomTypeConverter.convertBigIntegerToString(clientClearDatasetMap.get(entry.getKey())));
+                    if (this.serverDoubleEncryptedDataset.contains(entry.getValue()))
+                        psi.add(CustomTypeConverter.convertBigIntegerToString(this.clientClearDatasetMap.get(entry.getKey())));
                 }
             });
         }
 
-        MultithreadingHelper.awaitTermination(executorService, threadTimeoutSeconds, log);
+        MultithreadingHelper.awaitTermination(executorService, this.threadTimeoutSeconds, log);
 
-        statisticList.add(statistics.close());
+        this.statisticList.add(statistics.close());
         return psi;
     }
 

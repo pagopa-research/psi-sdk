@@ -18,6 +18,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Test class to verify the correct behaviour while using external keys.
+ */
 class ClientServerKeyDescriptionTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientServerKeyDescriptionTest.class);
