@@ -1,4 +1,6 @@
 psi
 psi.cache
 psi.client
+psi.exception
+psi.model
 psi.server

@@ -13,7 +13,7 @@ import java.util.Set;
  * Instances of this class should be created by calling the methods in the <code>PsiClientFactory</code> class.
  * All the input and output collections are devised to work on Strings in order to facilitate the data exchange
  * between the parties and/or from external data sources.
- * Thus, the conversion of the datasets to String is required and outside the scope of this sdk.
+ * Thus, the conversion of the datasets to String is required and outside the scope of this SDK.
  */
 public interface PsiClient {
 

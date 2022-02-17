@@ -1,10 +1,10 @@
 package psi.server;
 
 import psi.PsiServerKeyDescription;
-import psi.PsiServerSession;
 import psi.cache.PsiCacheProvider;
 import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;
+import psi.model.PsiServerSession;
 
 import java.util.List;
 import java.util.Map;

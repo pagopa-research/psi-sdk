@@ -8,6 +8,7 @@ import psi.exception.UnsupportedKeySizeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiClientSession;
+import psi.model.PsiServerSession;
 import psi.server.PsiServer;
 
 import java.util.HashSet;

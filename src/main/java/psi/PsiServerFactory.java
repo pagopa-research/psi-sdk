@@ -7,6 +7,7 @@ import psi.exception.UnsupportedKeySizeException;
 import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
+import psi.model.PsiServerSession;
 import psi.server.PsiServer;
 
 import java.util.Arrays;

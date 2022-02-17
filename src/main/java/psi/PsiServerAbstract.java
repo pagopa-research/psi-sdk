@@ -3,6 +3,7 @@ package psi;
 import psi.cache.PsiCacheProvider;
 import psi.model.PsiPhaseStatistics;
 import psi.model.PsiRuntimeConfiguration;
+import psi.model.PsiServerSession;
 import psi.server.PsiServer;
 
 import java.util.List;

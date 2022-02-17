@@ -1,7 +1,6 @@
-package psi;
+package psi.model;
 
-import psi.model.PsiAlgorithm;
-import psi.model.PsiAlgorithmParameter;
+import psi.PsiServerKeyDescription;
 
 import java.io.Serializable;
 
@@ -17,7 +16,7 @@ public class PsiServerSession implements Serializable {
     private Boolean cacheEnabled;
     private PsiServerKeyDescription psiServerKeyDescription;
 
-    PsiServerSession() {
+    private PsiServerSession() {
     }
 
     public PsiServerSession(PsiAlgorithmParameter psiAlgorithmParameter) {
@@ -50,7 +49,7 @@ public class PsiServerSession implements Serializable {
         return cacheEnabled;
     }
 
-    void setCacheEnabled(Boolean cacheEnabled) {
+    public void setCacheEnabled(Boolean cacheEnabled) {
         this.cacheEnabled = cacheEnabled;
     }
 
@@ -58,7 +57,7 @@ public class PsiServerSession implements Serializable {
         return psiServerKeyDescription;
     }
 
-    void setPsiServerKeyDescription(PsiServerKeyDescription psiServerKeyDescription) {
+    public void setPsiServerKeyDescription(PsiServerKeyDescription psiServerKeyDescription) {
         this.psiServerKeyDescription = psiServerKeyDescription;
     }
 

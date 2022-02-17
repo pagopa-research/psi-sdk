@@ -3,12 +3,12 @@ package psi.cache;
 import java.util.Optional;
 
 /**
- * An interface representing a key-value cache used by the sdk to store the results of heavyweight mathematical
+ * An interface representing a key-value cache used by the SDK to store the results of heavyweight mathematical
  * operations (such as encryption operations), which can be read in subsequent executions with the same inputs
  * to speed up the execution.
  * Since the goal of the cache is to reduce the computational time with respect to running the actual computations,
  * reading and writing to the cache should be relatively lightweight.
- * When the cache is enabled, the sdk performs concurrent calls to the caching layer.
+ * When the cache is enabled, the SDK performs concurrent calls to the caching layer.
  * Consequently, the implementations of this interface should be thread safe.
  */
 public interface PsiCacheProvider {

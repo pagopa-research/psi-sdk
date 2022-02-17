@@ -9,6 +9,7 @@ import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
+import psi.model.PsiServerSession;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -76,7 +77,7 @@ class PsiServerBs extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(this.psiServerSession.getCacheEnabled()) {
+                    if(Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -90,7 +91,7 @@ class PsiServerBs extends PsiServerAbstract {
                         encryptedValue = hashFactory.hash(encryptedValue);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.psiServerSession.getCacheEnabled()) {
+                        if (Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_HASH_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -122,7 +123,7 @@ class PsiServerBs extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(entry.getValue());
                     BigInteger encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (this.psiServerSession.getCacheEnabled()) {
+                    if (Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                         Optional<CacheObjectEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue();
@@ -134,7 +135,7 @@ class PsiServerBs extends PsiServerAbstract {
                         encryptedValue = bigIntegerValue.modPow(serverPrivateExponent, modulus);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.psiServerSession.getCacheEnabled()) {
+                        if (Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }

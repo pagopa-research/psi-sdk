@@ -1,7 +1,6 @@
 package psi.model;
 
 import psi.PsiServerKeyDescription;
-import psi.PsiServerSession;
 import psi.exception.PsiServerException;
 
 import java.io.Serializable;

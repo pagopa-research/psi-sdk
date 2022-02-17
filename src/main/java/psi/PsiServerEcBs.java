@@ -11,6 +11,7 @@ import psi.exception.UnsupportedKeySizeRuntimeException;
 import psi.model.PsiAlgorithm;
 import psi.model.PsiAlgorithmParameter;
 import psi.model.PsiPhaseStatistics;
+import psi.model.PsiServerSession;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -80,7 +81,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                     BigInteger bigIntegerValue = CustomTypeConverter.convertStringToBigInteger(stringValue);
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if(this.psiServerSession.getCacheEnabled()) {
+                    if(Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
@@ -92,7 +93,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                         encryptedValue = EllipticCurve.multiply(ellipticCurve.mapMessage(bigIntegerValue), ecPrivateDInverse);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.psiServerSession.getCacheEnabled()) {
+                        if (Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, bigIntegerValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
@@ -131,7 +132,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                     ECPoint ecPointValue = CustomTypeConverter.convertStringToECPoint(ecCurve, entry.getValue());
                     ECPoint encryptedValue = null;
                     // If the cache support is enabled, the result is searched in the cache
-                    if (this.psiServerSession.getCacheEnabled()) {
+                    if (Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                         Optional<CacheObjectEcEncrypted> encryptedCacheObjectOptional = CacheUtils.getCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, CacheObjectEcEncrypted.class, this.psiCacheProvider);
                         if (encryptedCacheObjectOptional.isPresent()){
                             encryptedValue = encryptedCacheObjectOptional.get().getEncryptedValue(ecCurve);
@@ -143,7 +144,7 @@ class PsiServerEcBs extends PsiServerAbstract {
                         encryptedValue = EllipticCurve.multiply(ecPointValue, ecPrivateDInverse);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
-                        if (this.psiServerSession.getCacheEnabled()) {
+                        if (Boolean.TRUE.equals(this.psiServerSession.getCacheEnabled())) {
                             CacheUtils.putCachedObject(this.keyId, CacheOperationType.PRIVATE_KEY_ENCRYPTION, keyValue, new CacheObjectEcEncrypted(encryptedValue), this.psiCacheProvider);
                         }
                     }
