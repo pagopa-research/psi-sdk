@@ -193,7 +193,9 @@ class PsiClientDh extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(this.clientPrivateExponent, this.modulus);
+        return PsiClientKeyDescriptionFactory.createDhClientKeyDescription(
+                CustomTypeConverter.convertBigIntegerToString(this.clientPrivateExponent),
+                CustomTypeConverter.convertBigIntegerToString(this.modulus));
     }
 
 }

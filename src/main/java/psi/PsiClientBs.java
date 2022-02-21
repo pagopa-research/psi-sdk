@@ -212,6 +212,8 @@ class PsiClientBs extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createBsClientKeyDescription(this.serverPublicExponent, this.modulus);
+        return PsiClientKeyDescriptionFactory.createBsClientKeyDescription(
+                CustomTypeConverter.convertBigIntegerToString(this.serverPublicExponent),
+                CustomTypeConverter.convertBigIntegerToString(this.modulus));
     }
 }

@@ -2,11 +2,9 @@ package psi;
 
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.math.ec.ECPoint;
 import psi.exception.PsiServerException;
 
 import javax.crypto.spec.DHPrivateKeySpec;
-import java.math.BigInteger;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
@@ -38,26 +36,6 @@ public class PsiServerKeyDescriptionFactory {
      * Builds a PsiServerKeyDescription that can be used to load or initialize a PsiServer for the
      * BS algorithm.
      *
-     * @param privateExponent   the exponent of the server private key
-     * @param publicExponent    the exponent of the server public key
-     * @param modulus           the modulus of the private and public keys
-     * @return the PsiServerKeyDescription built based on the input parameters
-     */
-    public static PsiServerKeyDescription createBsServerKeyDescription(BigInteger privateExponent, BigInteger publicExponent, BigInteger modulus) {
-        if (privateExponent == null || publicExponent == null || modulus == null) {
-            throw new PsiServerException("PrivateExponent, publicExponent and modulus should not be null when creating a PsiServerKeyDescription for the BS algorithm");
-        }
-        return createServerKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(privateExponent),
-                CustomTypeConverter.convertBigIntegerToString(publicExponent),
-                CustomTypeConverter.convertBigIntegerToString(modulus),
-                null);
-    }
-
-    /**
-     * Builds a PsiServerKeyDescription that can be used to load or initialize a PsiServer for the
-     * BS algorithm.
-     *
      * @param rsaPrivateKeySpec the server private key
      * @param rsaPublicKeySpec  the server public key
      * @return the PsiServerKeyDescription built based on the input parameters
@@ -74,26 +52,6 @@ public class PsiServerKeyDescriptionFactory {
                 CustomTypeConverter.convertBigIntegerToString(rsaPublicKeySpec.getPublicExponent()),
                 CustomTypeConverter.convertBigIntegerToString(rsaPrivateKeySpec.getModulus()),
                 null);
-    }
-
-    /**
-     * Builds a PsiServerKeyDescription that can be used to load or initialize a PsiServer for the
-     * DH algorithm.
-     *
-     * @param privateExponent   the exponent of the server private key
-     * @param modulus           the modulus of the private key
-     * @param generator         the generator of the private key
-     * @return the PsiServerKeyDescription built based on the input parameters
-     */
-    public static PsiServerKeyDescription createDhServerKeyDescription(BigInteger privateExponent, BigInteger modulus, BigInteger generator) {
-        if (privateExponent == null || modulus == null || generator == null) {
-            throw new PsiServerException("PrivateExponent, modulus and generator should not be null when creating a PsiServerKeyDescription for the DH algorithm");
-        }
-        return createServerKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(privateExponent),
-                null,
-                CustomTypeConverter.convertBigIntegerToString(modulus),
-                CustomTypeConverter.convertBigIntegerToString(generator));
     }
 
     /**
@@ -149,23 +107,6 @@ public class PsiServerKeyDescriptionFactory {
      * Builds a PsiServerKeyDescription that can be used to load or initialize a PsiServer for the
      * ECBS algorithm.
      *
-     * @param ecPrivateD    the D parameter of the server private key
-     * @param ecPublicQ     the Q parameter of the server public key
-     * @return the PsiServerKeyDescription built based on the input parameters
-     */
-    public static PsiServerKeyDescription createEcBsServerKeyDescription(BigInteger ecPrivateD, ECPoint ecPublicQ){
-        if(ecPrivateD == null || ecPublicQ == null){
-            throw new PsiServerException("EcPrivateD and ecPublicQ should not be null when creating a PsiServerKeyDescription for the ECBS algorithm");
-        }
-        return createServerEcKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(ecPrivateD),
-                CustomTypeConverter.convertECPointToString(ecPublicQ));
-    }
-
-    /**
-     * Builds a PsiServerKeyDescription that can be used to load or initialize a PsiServer for the
-     * ECBS algorithm.
-     *
      * @param ecPrivateKey  the server private key
      * @param ecPublicKey   the server public key
      * @return the PsiServerKeyDescription built based on the input parameters
@@ -191,22 +132,6 @@ public class PsiServerKeyDescriptionFactory {
             throw new PsiServerException("EcPrivateD should not be null when creating a PsiServerKeyDescription for the ECDH algorithm");
         }
         return createServerEcKeyDescription(ecPrivateD, null);
-    }
-
-    /**
-     * Builds a PsiServerKeyDescription that can be used to load or initialize a PsiServer for the
-     * ECDH algorithm.
-     *
-     * @param ecPrivateD the D parameter of the server private key
-     * @return the PsiServerKeyDescription built based on the input parameters
-     */
-    public static PsiServerKeyDescription createEcDhServerKeyDescription(BigInteger ecPrivateD){
-        if(ecPrivateD == null){
-            throw new PsiServerException("EcPrivateD should not be null when creating a PsiServerKeyDescription for the ECDH algorithm");
-        }
-        return createServerEcKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(ecPrivateD),
-                null);
     }
 
     /**
