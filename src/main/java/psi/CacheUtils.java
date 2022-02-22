@@ -26,7 +26,7 @@ class CacheUtils {
      * @return the keyId corresponding to the input keyDescription
      */
     static Long getKeyId(PsiKeyDescription keyDescription, PsiCacheProvider psiCacheProvider) {
-        String base64KeyDescription = CustomTypeConverter.convertObjectToString(keyDescription);
+        String base64KeyDescription = CustomTypeConverter.getInstance().convertObjectToString(keyDescription);
         try {
             // A digest of the keyDescription is used to link a keyId to the provided keyDescription.
             // In this way the sdk can transparently notice when a keyDescription is reused, exploiting the cache content.
@@ -73,7 +73,7 @@ class CacheUtils {
         Optional<String> cachedValueBase64 = psiCacheProvider.get(key);
         if(!cachedValueBase64.isPresent())
             return Optional.empty();
-        T cachedObject = CustomTypeConverter.convertStringToObject(cachedValueBase64.get(), typeParameterClass);
+        T cachedObject = CustomTypeConverter.getInstance().convertStringToObject(cachedValueBase64.get(), typeParameterClass);
         return Optional.of(cachedObject);
     }
 
@@ -89,7 +89,7 @@ class CacheUtils {
      */
     static void putCachedObject(Long keyId, CacheOperationType cacheObjectType, BigInteger input, CacheObject output, PsiCacheProvider psiCacheProvider){
         String key = generateKeyString(keyId, cacheObjectType, input);
-        String value = CustomTypeConverter.convertObjectToString(output);
+        String value = CustomTypeConverter.getInstance().convertObjectToString(output);
         psiCacheProvider.put(key, value);
     }
 }
