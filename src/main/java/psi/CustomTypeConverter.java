@@ -32,6 +32,7 @@ class CustomTypeConverter {
 
     /**
      * Converts a String value into a BigInteger.
+     *
      * @param string String representation of the BigInteger value
      * @return the BigInteger representation of the String based on the selected charset
      */
@@ -42,6 +43,7 @@ class CustomTypeConverter {
 
     /**
      * Converts a BigInteger value into a String.
+     *
      * @param bigInteger BigInteger value to be converted
      * @return the String representation of the BigInteger based on the selected charset
      */
@@ -52,6 +54,7 @@ class CustomTypeConverter {
 
     /**
      * Converts a String value into an ECPoint.
+     *
      * @param curve     curve used to convert the string into a point
      * @param string    String representation of the ECPoint value
      * @return the ECPoint obtained converting the String on the provided curve
@@ -63,6 +66,7 @@ class CustomTypeConverter {
 
     /**
      * Converts an ECPoint value into a String.
+     *
      * @param point ECPoint value to be converted
      * @return the String representation of the ECPoint
      */
@@ -73,6 +77,7 @@ class CustomTypeConverter {
 
     /**
      * Converts a key size value into an ECParameterSpec.
+     *
      * @param keySize size of the key
      * @return the ECParameterSpec obtained from the provided key size
      */
@@ -83,6 +88,7 @@ class CustomTypeConverter {
 
     /**
      * Converts a generic Serializable Object into a string.
+     *
      * @param object object to be serialized
      * @return the serialized String representation of object
      */
@@ -101,6 +107,7 @@ class CustomTypeConverter {
 
     /**
      * Converts a String value into an Object of class T.
+     *
      * @param string         serialized String representation of the object
      * @param typeParamClass class of the object to be retrieved
      * @return the object obtained converting the String based on the specified class

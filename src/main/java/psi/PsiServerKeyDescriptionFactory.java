@@ -169,6 +169,7 @@ public class PsiServerKeyDescriptionFactory {
     /**
      * Builds a PsiServerKeyDescription that can be used to load or initialize a ECDH or ECBS PsiServer implementation.
      * It is not directly exposed to the user, and it does not perform any check on input parameters.
+     *
      * @param ecPrivateD the D parameter of the server private key
      * @param ecPublicQ the Q parameter of the server public key
      * @return the PsiServerKeyDescription built based on the input parameters
