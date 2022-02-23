@@ -38,20 +38,29 @@ class AsymmetricKeyFactory {
             AsymmetricKey asymmetricKey = generateKey(algorithm, keySize);
             if (algorithm.equals(PsiAlgorithm.BS))
                 return PsiServerKeyDescriptionFactory
-                        .createBsServerKeyDescription(asymmetricKey.privateExponent, asymmetricKey.publicExponent, asymmetricKey.modulus);
+                        .createBsServerKeyDescription(
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricKey.privateExponent),
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricKey.publicExponent),
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricKey.modulus));
             else
                 return PsiServerKeyDescriptionFactory
-                        .createDhServerKeyDescription(asymmetricKey.privateExponent, asymmetricKey.modulus, asymmetricKey.generator);
+                        .createDhServerKeyDescription(
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricKey.privateExponent),
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricKey.modulus),
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricKey.generator));
         }
 
         if (algorithm.equals(PsiAlgorithm.ECBS) || algorithm.equals(PsiAlgorithm.ECDH)) {
             AsymmetricEcKey asymmetricEcKey = generateEcKey(algorithm, keySize);
             if(algorithm.equals(PsiAlgorithm.ECBS))
                 return PsiServerKeyDescriptionFactory
-                        .createEcBsServerKeyDescription(asymmetricEcKey.privateD, asymmetricEcKey.publicQ);
+                        .createEcBsServerKeyDescription(
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricEcKey.privateD),
+                                CustomTypeConverter.convertECPointToString(asymmetricEcKey.publicQ));
             else
                 return PsiServerKeyDescriptionFactory
-                        .createEcDhServerKeyDescription(asymmetricEcKey.privateD);
+                        .createEcDhServerKeyDescription(
+                                CustomTypeConverter.convertBigIntegerToString(asymmetricEcKey.privateD));
         }
 
         throw new KeyGenerationException("Algorithm not supported");

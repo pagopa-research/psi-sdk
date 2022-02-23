@@ -82,19 +82,19 @@ class CustomTypeConverterTest {
     void encodeDecodeTest(){
         // Testing on simple Object, as a String
         String clearString = "Simple value";
-        String clearStringToBase64 = CustomTypeConverter.convertObjectToString(clearString);
-        assertEquals(clearString, CustomTypeConverter.convertStringToObject(clearStringToBase64, String.class));
+        String clearStringToBase64 = CustomTypeConverter.getInstance().convertObjectToString(clearString);
+        assertEquals(clearString, CustomTypeConverter.getInstance().convertStringToObject(clearStringToBase64, String.class));
 
         // Testing on BigInteger
         BigInteger clearBigInteger = CustomTypeConverter.convertStringToBigInteger("BigInteger value");
-        String clearBigIntegerToBase64 = CustomTypeConverter.convertObjectToString(clearBigInteger);
-        assertEquals(clearBigInteger, CustomTypeConverter.convertStringToObject(clearBigIntegerToBase64, BigInteger.class));
+        String clearBigIntegerToBase64 = CustomTypeConverter.getInstance().convertObjectToString(clearBigInteger);
+        assertEquals(clearBigInteger, CustomTypeConverter.getInstance().convertStringToObject(clearBigIntegerToBase64, BigInteger.class));
 
         // Testing con complex object
         BigInteger randomValue = CustomTypeConverter.convertStringToBigInteger("Random value");
         BigInteger encryptedValue = CustomTypeConverter.convertStringToBigInteger("Encrypted value");
         CacheObjectRandomEncrypted clearObject = new CacheObjectRandomEncrypted(randomValue,encryptedValue);
-        String clearObjectToBase64 = CustomTypeConverter.convertObjectToString(clearObject);
-        assertEquals(clearObject, CustomTypeConverter.convertStringToObject(clearObjectToBase64, CacheObjectRandomEncrypted.class));
+        String clearObjectToBase64 = CustomTypeConverter.getInstance().convertObjectToString(clearObject);
+        assertEquals(clearObject, CustomTypeConverter.getInstance().convertStringToObject(clearObjectToBase64, CacheObjectRandomEncrypted.class));
     }
 }

@@ -22,8 +22,7 @@ class PsiCacheProviderImplementation implements PsiCacheProvider {
     }
 
     public void put(String key, String value){
-        if(cache.putIfAbsent(key, value) != null)
-            System.out.println("Value overwritten");;
+        cache.putIfAbsent(key, value);
     }
 
     long size(){

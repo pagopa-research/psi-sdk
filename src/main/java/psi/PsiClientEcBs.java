@@ -213,7 +213,8 @@ class PsiClientEcBs extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(this.serverPublicQ);
+        return PsiClientKeyDescriptionFactory.createEcBsClientKeyDescription(
+                CustomTypeConverter.convertECPointToString(this.serverPublicQ));
     }
 
 }

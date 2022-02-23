@@ -197,7 +197,8 @@ class PsiClientEcDh extends PsiClientAbstract {
 
     @Override
     public PsiClientKeyDescription getClientKeyDescription() {
-        return PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(this.clientPrivateD);
+        return PsiClientKeyDescriptionFactory.createEcDhClientKeyDescription(
+                CustomTypeConverter.convertBigIntegerToString(this.clientPrivateD));
     }
 
 }

@@ -26,9 +26,19 @@ class CustomTypeConverter {
 
     private static final Logger log = LoggerFactory.getLogger(CustomTypeConverter.class);
 
-    private CustomTypeConverter() {}
+    private static CustomTypeConverter customTypeConverter = new CustomTypeConverter();
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Charset charset = StandardCharsets.ISO_8859_1;
+
+    public CustomTypeConverter() {
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    }
+
+    static CustomTypeConverter getInstance(){
+        return customTypeConverter;
+    }
 
     /**
      * Converts a String value into a BigInteger.
@@ -92,10 +102,8 @@ class CustomTypeConverter {
      * @param object object to be serialized
      * @return the serialized String representation of object
      */
-    static <T> String convertObjectToString(T object){
+    <T> String convertObjectToString(T object){
         log.trace("Called convertObjectToString() with object = {}", object);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         JsonNode jsonNodeJSON = objectMapper.valueToTree(object);
         try {
             byte[] jsonNodeBytes = objectMapper.writeValueAsBytes(jsonNodeJSON);
@@ -112,10 +120,8 @@ class CustomTypeConverter {
      * @param typeParamClass class of the object to be retrieved
      * @return the object obtained converting the String based on the specified class
      */
-    static <T> T convertStringToObject(String string, Class<T> typeParamClass){
+    <T> T convertStringToObject(String string, Class<T> typeParamClass){
         log.trace("Called convertStringToObject() with string = {}, typeParamClass = {}", string, typeParamClass);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         String decodedCursor = new String(Base64.getDecoder().decode(string));
         try {
             JsonNode jsonNode =  new ObjectMapper().readTree(decodedCursor);

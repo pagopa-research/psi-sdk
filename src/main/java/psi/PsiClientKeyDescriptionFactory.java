@@ -1,10 +1,12 @@
 package psi;
 
-import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.jce.interfaces.ECPrivateKey;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
 import psi.exception.InvalidPsiClientKeyDescriptionException;
 import psi.exception.PsiClientException;
 
-import java.math.BigInteger;
+import javax.crypto.spec.DHPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
 /**
  * Generates a PsiClientKeyDescription depending on the selected
@@ -16,7 +18,7 @@ public class PsiClientKeyDescriptionFactory {
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the BS algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the BS algorithm.
      *
      * @param serverPublicExponent String representing the exponent of the server public key
      * @param modulus String representing the modulus of the key
@@ -24,30 +26,28 @@ public class PsiClientKeyDescriptionFactory {
      */
     public static PsiClientKeyDescription createBsClientKeyDescription(String serverPublicExponent, String modulus) {
         if (serverPublicExponent == null || modulus == null || serverPublicExponent.isEmpty() || modulus.isEmpty()) {
-            throw new PsiClientException("Both serverPublicExponent and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
+            throw new PsiClientException("ServerPublicExponent and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
         }
         return createClientKeyDescription(null, serverPublicExponent, modulus);
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the BS algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the BS algorithm.
      *
-     * BS implementation of the client.
-     * @param serverPublicExponent the exponent of the server public key
-     * @param modulus the modulus of the key
+     * @param rsaPublicKeySpec the server public key
      * @return the PsiClientKeyDescription built based on the input parameters
      */
-    public static PsiClientKeyDescription createBsClientKeyDescription(BigInteger serverPublicExponent, BigInteger modulus) {
-        if (serverPublicExponent == null || modulus == null) {
-            throw new PsiClientException("Both serverPublicExponent and modulus should not be null when creating a PsiClientDescription for the BS algorithm");
+    public static PsiClientKeyDescription createBsClientKeyDescription(RSAPublicKeySpec rsaPublicKeySpec) {
+        if (rsaPublicKeySpec == null) {
+            throw new PsiClientException("RsaPublicKeySpec should not be null when creating a PsiClientDescription for the BS algorithm");
         }
         return createClientKeyDescription(null,
-                CustomTypeConverter.convertBigIntegerToString(serverPublicExponent),
-                CustomTypeConverter.convertBigIntegerToString(modulus));
+                CustomTypeConverter.convertBigIntegerToString(rsaPublicKeySpec.getPublicExponent()),
+                CustomTypeConverter.convertBigIntegerToString(rsaPublicKeySpec.getModulus()));
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the DH algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the DH algorithm.
      *
      * @param clientPrivateExponent String representing the exponent of the client private key
      * @param modulus String representing the modulus of the key
@@ -55,79 +55,79 @@ public class PsiClientKeyDescriptionFactory {
      */
     public static PsiClientKeyDescription createDhClientKeyDescription(String clientPrivateExponent, String modulus) {
         if (clientPrivateExponent == null || modulus == null || clientPrivateExponent.isEmpty() || modulus.isEmpty()) {
-            throw new PsiClientException("The fields clientPrivateExponent and modulus should not be null when creating a PsiClientDescription for the DH algorithm");
+            throw new PsiClientException("ClientPrivateExponent and modulus should not be null when creating a PsiClientDescription for the DH algorithm");
         }
         return createClientKeyDescription(clientPrivateExponent, null, modulus);
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the DH algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the DH algorithm.
      *
-     * @param clientPrivateExponent the exponent of the client private key
-     * @param modulus the modulus of the key
+     * @param dhPrivateKeySpec the client private key
      * @return the PsiClientKeyDescription built based on the input parameters
      */
-    public static PsiClientKeyDescription createDhClientKeyDescription(BigInteger clientPrivateExponent, BigInteger modulus) {
-        if (clientPrivateExponent == null || modulus == null) {
-            throw new PsiClientException("The fields clientPrivateExponent and modulus should not be null when creating a PsiClientDescription for the DH algorithm");
+    public static PsiClientKeyDescription createDhClientKeyDescription(DHPrivateKeySpec dhPrivateKeySpec) {
+        if (dhPrivateKeySpec == null) {
+            throw new PsiClientException("DhPrivateKeySpec should not be null when creating a PsiClientDescription for the DH algorithm");
         }
         return createClientKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(clientPrivateExponent),
+                CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getX()),
                 null,
-                CustomTypeConverter.convertBigIntegerToString(modulus));
+                CustomTypeConverter.convertBigIntegerToString(dhPrivateKeySpec.getP()));
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECBS algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECBS algorithm.
      *
      * @param ecServerPublicQ String representing the Q parameter of the server public key
      * @return the PsiClientKeyDescription built based on the input parameters
      */
     public static PsiClientKeyDescription createEcBsClientKeyDescription(String ecServerPublicQ) {
         if (ecServerPublicQ == null) {
-            throw new PsiClientException("The field ecServerPublicQ should not be null when creating a PsiClientDescription for the ECBS algorithm");
+            throw new PsiClientException("EcServerPublicQ should not be null when creating a PsiClientDescription for the ECBS algorithm");
         }
         return createClientEcKeyDescription(null, ecServerPublicQ);
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECBS algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECBS algorithm.
      *
-     * @param ecServerPublicQ the Q parameter of the server public key
+     * @param ecPublicKey the server public key
      * @return the PsiClientKeyDescription built based on the input parameters
      */
-    public static PsiClientKeyDescription createEcBsClientKeyDescription(ECPoint ecServerPublicQ) {
-        if (ecServerPublicQ == null) {
-            throw new PsiClientException("The field ecServerPublicQ should not be null when creating a PsiClientDescription for the ECBS algorithm");
+    public static PsiClientKeyDescription createEcBsClientKeyDescription(ECPublicKey ecPublicKey) {
+        if (ecPublicKey == null) {
+            throw new PsiClientException("EcPublicKey should not be null when creating a PsiClientDescription for the ECBS algorithm");
         }
         return createClientEcKeyDescription(null,
-                CustomTypeConverter.convertECPointToString(ecServerPublicQ));
+                CustomTypeConverter.convertECPointToString(ecPublicKey.getQ()));
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECDH algorithm
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECDH algorithm.
      *
      * @param ecClientPrivateD String representing the D parameter of the client private key
      * @return the PsiClientKeyDescription built based on the input parameters
      */
     public static PsiClientKeyDescription createEcDhClientKeyDescription(String ecClientPrivateD) {
         if (ecClientPrivateD == null) {
-            throw new PsiClientException("The field ecClientPrivateD should not be null when creating a PsiClientDescription for the ECDH algorithm");
+            throw new PsiClientException("EcClientPrivateD should not be null when creating a PsiClientDescription for the ECDH algorithm");
         }
         return createClientEcKeyDescription(ecClientPrivateD, null);
     }
 
     /**
-     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECDH algorithm
-     * @param ecClientPrivateD the D parameter of the client private key
+     * Builds a PsiClientKeyDescription that can be used to initialize a PsiClient for the ECDH algorithm.
+     *
+     * @param ecPrivateKey the client private key
      * @return the PsiClientKeyDescription built based on the input parameters
      */
-    public static PsiClientKeyDescription createEcDhClientKeyDescription(BigInteger ecClientPrivateD) {
-        if (ecClientPrivateD == null) {
-            throw new PsiClientException("The field ecClientPrivateD and should not be null when creating a PsiClientDescription for the ECDH algorithm");
+    public static PsiClientKeyDescription createEcDhClientKeyDescription(ECPrivateKey ecPrivateKey) {
+        if (ecPrivateKey == null) {
+            throw new PsiClientException("EcPrivateKey and should not be null when creating a PsiClientDescription for the ECDH algorithm");
         }
         return createClientEcKeyDescription(
-                CustomTypeConverter.convertBigIntegerToString(ecClientPrivateD),
+                CustomTypeConverter.convertBigIntegerToString(ecPrivateKey.getD()),
                 null);
     }
 
@@ -135,7 +135,7 @@ public class PsiClientKeyDescriptionFactory {
      * Builds a generic PsiClientKeyDescription that can be used to initialize a PsiClient which is compliant
      * with either the BS, DH, ECBS or ECDH algorithm. Differently to other methods of this class,
      * this method receives all the possible input parameter and checks whether it could be valid for any
-     * of the supported algorithms,
+     * of the supported algorithms.
      *
      * @param clientPrivateExponent String representing the exponent of the client private key
      * @param serverPublicExponent String representing the exponent of the server public key
