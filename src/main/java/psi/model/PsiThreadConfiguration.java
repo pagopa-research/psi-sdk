@@ -3,10 +3,10 @@ package psi.model;
 import java.io.Serializable;
 
 /**
- * Configuration object that can be used to configure the number of threads and max thread lifetime for psi
+ * Configuration object that can be used to configure the number of threads and max thread lifetime for PSI
  * calculations.
  */
-public class PsiRuntimeConfiguration implements Serializable {
+public class PsiThreadConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,11 +14,11 @@ public class PsiRuntimeConfiguration implements Serializable {
 
     private Integer threadTimeoutSeconds = null;
 
-    public PsiRuntimeConfiguration(Integer threads) {
+    public PsiThreadConfiguration(Integer threads) {
         this.threads = threads;
     }
 
-    public PsiRuntimeConfiguration(Integer threads, Integer threadTimeoutSeconds) {
+    public PsiThreadConfiguration(Integer threads, Integer threadTimeoutSeconds) {
         this.threads = threads;
         this.threadTimeoutSeconds = threadTimeoutSeconds;
     }

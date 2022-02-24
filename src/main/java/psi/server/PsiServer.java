@@ -3,8 +3,8 @@ package psi.server;
 import psi.PsiServerKeyDescription;
 import psi.cache.PsiCacheProvider;
 import psi.model.PsiPhaseStatistics;
-import psi.model.PsiRuntimeConfiguration;
 import psi.model.PsiServerSession;
+import psi.model.PsiThreadConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -55,8 +55,9 @@ public interface PsiServer {
 
     /**
      * Configures the number of threads and the max lifetime of each thread used by the PsiServer.
+     *
      * @param configuration containing the runtime configuration parameters
      */
-    void setConfiguration(PsiRuntimeConfiguration configuration);
+    void setConfiguration(PsiThreadConfiguration configuration);
 
 }

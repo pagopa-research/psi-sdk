@@ -2,8 +2,8 @@ package psi;
 
 import psi.cache.PsiCacheProvider;
 import psi.model.PsiPhaseStatistics;
-import psi.model.PsiRuntimeConfiguration;
 import psi.model.PsiServerSession;
+import psi.model.PsiThreadConfiguration;
 import psi.server.PsiServer;
 
 import java.util.List;
@@ -44,7 +44,7 @@ abstract class PsiServerAbstract implements PsiServer {
         return this.statisticList;
     }
 
-    public void setConfiguration(PsiRuntimeConfiguration configuration){
+    public void setConfiguration(PsiThreadConfiguration configuration) {
         this.threads = configuration.getThreads() != null ?
                 configuration.getThreads() : DEFAULT_THREADS;
         this.threadTimeoutSeconds = configuration.getThreadTimeoutSeconds() != null ?

@@ -3,7 +3,7 @@ package psi;
 import psi.cache.PsiCacheProvider;
 import psi.client.PsiClient;
 import psi.model.PsiPhaseStatistics;
-import psi.model.PsiRuntimeConfiguration;
+import psi.model.PsiThreadConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,7 @@ abstract class PsiClientAbstract implements PsiClient {
         return psiPhaseStatisticsList;
     }
 
-    public void setConfiguration(PsiRuntimeConfiguration configuration){
+    public void setConfiguration(PsiThreadConfiguration configuration) {
         this.threads = configuration.getThreads() != null ?
                 configuration.getThreads() : DEFAULT_THREADS;
         this.threadTimeoutSeconds = configuration.getThreadTimeoutSeconds() != null ?

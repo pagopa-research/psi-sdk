@@ -2,7 +2,7 @@ package psi.client;
 
 import psi.PsiClientKeyDescription;
 import psi.model.PsiPhaseStatistics;
-import psi.model.PsiRuntimeConfiguration;
+import psi.model.PsiThreadConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,8 @@ public interface PsiClient {
 
     /**
      * Configures the number of threads and the max lifetime of each thread used by the PsiClient.
+     *
      * @param configuration containing the runtime configuration parameters
      */
-    void setConfiguration(PsiRuntimeConfiguration configuration);
+    void setConfiguration(PsiThreadConfiguration configuration);
 }
