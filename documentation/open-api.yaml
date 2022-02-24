@@ -1,0 +1,319 @@
+openapi: 3.0.1
+info:
+  title: Private Set Intersection Server API
+  description: 'This documentation provides an example of APIs that the server party of a Private Set Intersection (PSI) protocol could expose to its clients. To perform a complete PSI calculation, the client should call the exposed APIs in the following order:
+  
+  
+  1) the client calls GET /psi/parameters which returns a list of supported 
+  PSI algorithm parameters (algorithm and key size) as a PsiAlgorithmParameterListDTO object. 
+  
+  2) the client selects an algorithm and key size pair from the PsiAlgorithmParameterListDTO object sent by the server and calls POST /psi
+  passing the selected parameters in the body as a PsiAlgorithmParameterDTO object. 
+  It returns a PsiClientSessionDTO object which contains the data needed to initialize the client.
+  
+  3) the client initializes its own PSI object by passing 
+  the returned PsiClientSessionDTO to the SDK method 
+  initSession.
+  
+  4) the client calls the SDK method encryptClientDataset to 
+  encypt its own dataset, either passing its entire dataset all at once or through a pagination approach. After completion, the client calls POST /psi/{sessionId}/clientSet passing in the body the encrypted items as a PsiDatasetMapDTO object. The result of this API call is also a PsiDatasetMapDTO which contains as values the server-side encryption of the (client-side encrypted) client dataset. The result of this API should be passed to the SDK method loadDoubleEncryptedClientDataset. If a pagination 
+  approach is used for the client dataset, repeat this step until all items in the client dataset have been processed.
+  
+  5) the client performs multiple calls to GET /psi/{sessionId}/serverSet 
+  to acquire all the pages of the server dataset as PsiServerDatasetPageDTO objects. The content returned by each API call 
+  should be passed to the SDK method loadServerDataset.
+
+  6) call the SDK method computePsi which returns the set intersection. 
+  
+  '
+
+  version: 0.5.0
+externalDocs:
+  description: Find out more about Private Set Intersection
+  url: https://en.wikipedia.org/wiki/Private_set_intersection
+tags:
+  - name: psi
+    description: Endpoints that allow the client to run a Private
+      Set Intersection protocol with the server.
+
+#####################
+### ENDPOINTS
+#####################
+
+paths:
+  /psi/parameters:
+    get:
+      tags:
+        - psi
+      summary: Get a description of the PSI algorithm parameters supported by the server
+      description: Returns a PsiAlgorithmParameterListDTO object containing a list of algorithm parameters supported by the server, where each element is a pair constituted by an algorithm identifier (BS, DH, ECBS or ECDH) and a key size (e.g., 2048 bit for BS).
+      operationId: getParameters
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PsiAlgorithmParameterListDTO'
+  /psi:
+    post:
+      tags:
+        - psi
+      summary: Create a new PSI session
+      description: Creates a new PSI session based on the parameters passed
+        in the body as a PsiAlgorithmParameterDTO object. Returns a PsiClientSessionDTO object which details the status of the session (such as its identifier or its expiration time) and contains the information needed to initialize the client-side PSI objects (such as the public key of the server). It might contain a Bloom Filter of the server dataset with an associated creation date, which can be used to filter the client dataset prior to the PSI calculation to reduce the computational cost of the PSI protocol.
+      operationId: createSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PsiAlgorithmParameterDTO'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PsiClientSessionDTO'
+        400:
+          description: Invalid input
+      x-codegen-request-body-name: body
+
+  /psi/{sessionId}:
+    get:
+      tags:
+        - psi
+      summary: Get the status of a PSI session
+      description: Returns the status of the PSI session identified by {sessionId} as a PsiClientSessionDTO object.
+      operationId: getSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PsiClientSessionDTO'
+        404:
+          description: Session identified by {sessionId} not found
+        408:
+          description: Session expired
+      x-codegen-request-body-name: body
+
+  /psi/{sessionId}/serverSet:
+    get:
+      tags:
+        - psi
+      summary: Get a page of the server-side encrypted server dataset
+      description: Returns a page of the encrypted dataset of the server as
+        a PsiServerDatasetPageDTO object. The optional query parameters page and size define respectively the requested page (default 0) and the number of entries per page (default 1000). The encryption of the returned page is performed on-demand. Thus, the response time of this API is highly dependent on the value of the query parameter size.
+      operationId: getServerSet
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1000
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PsiServerDatasetPageDTO'
+        400:
+          description: Invalid input values
+        404:
+          description: Session identified by {sessionId} not found
+        408:
+          description: Session expired
+      x-codegen-request-body-name: body
+
+  /psi/{sessionId}/clientSet:
+    post:
+      tags:
+        - psi
+      summary: Get the server-side encryption of the client dataset.
+      description: Retrieves as a PsiDatasetMapDTO object the server-side encryption of the entries passed in the body (also as a PsiDatasetMapDTOo object). The input PsiDatasetMapDTO should contain the client-side encryption of the client dataset. Both the input and the output objects are maps because each item of the client dataset is associated to a client-generated identifier (key of the maps), which is necessary to link toghether different representations of the same item. The key of each entry of the map is unchanged by this API, while the values of the
+        returned map are the server-side encryption of the input values sent by the client.
+      operationId: getClientSet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PsiDatasetMapDTO'
+        required: true
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PsiDatasetMapDTO'
+
+        400:
+          description: Invalid input values
+        404:
+          description: Session identified by {sessionId} not found
+        408:
+          description: Session expired
+      x-codegen-request-body-name: body
+
+#####################
+### SCHEMAS
+#####################
+
+components:
+  schemas:
+    PsiAlgorithmParameterDTO:
+      type: object
+      properties:
+        content:
+          type: object
+          properties:
+            algorithm:
+              type: string
+              example: "DH"
+            keySize:
+              type: integer
+              format: int32
+              example: 2048
+      required:
+        - content
+        - content.algorithm
+        - content.keySize
+
+    PsiAlgorithmParameterListDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PsiAlgorithmParameterDTO'
+      required:
+        - content
+
+    PsiClientSessionDTO:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+          example: 1
+        expiration:
+          type: string
+          format: date
+          description: "Defines when the session expires"
+          example: "2021-01-30T08:30:00Z"
+        psiClientSession:
+          type: object
+          properties:
+            serverPublicExponent:
+              type: string
+              description: "Information needed to init the client-side keys for the BS algorithm"
+            modulus:
+              type: string
+              description: "Information needed to init the client-side keys for the DH algorithm"
+            generator:
+              type: string
+              description: "Information needed to init the client-side keys for the DH algorithm"
+            ecServerPublicQ:
+              type: string
+              description: "Information needed to init the client-side keys for the ECBS algorithm"
+            psiAlgorithmParameter:
+              type: object
+              properties:
+                algorithm:
+                  type: string
+                  example: "DH"
+                keySize:
+                  type: integer
+                  example: 2048
+        bloomFilterDTO:
+          type: object
+          properties:
+            serializedBloomFilter:
+              type: string
+              description: "Serialized representation of a Bloom Filter of the server dataset "
+            bloomFilterCreationDate:
+              type: string
+              description: "Defines when the Bloom Filter was created by the server"
+              example: "2020-01-01:15:30Z"
+      required:
+        - sessionId
+        - expiration
+        - psiClientSession
+
+    PsiServerDatasetPageDTO:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 1000
+        entries:
+          type: integer
+          example: 1000
+          description: the number of entries in content
+        last:
+          type: boolean
+          example: false
+          description: defines whether this is the last page
+        totalPages:
+          type: integer
+          example: 8
+          description: total number of pages required to get all entries with
+            the requested size
+        totalEntries:
+          type: integer
+          example: 8000
+        content:
+          type: array
+          items:
+            type: string
+            description: "Set of server-side encrypted items"
+      required:
+        - page
+        - size
+        - content
+        - totalPages
+        - totalEntries
+        - entries
+        - last
+
+    PsiDatasetMapDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            type: object
+            example: "1, dKd93Pl40i09421sp9a0lvj2nr"
+  

@@ -12,10 +12,11 @@ library provides an implementation of the following algorithms:
 - Diffie-Hellman PSI based on Elliptic Curves (ECDH).
 
 The description of these algorithms, as well as their detailed comparison, can be found
-in [this file](PSI-report-v1.1.pdf) (currently only available in italian).
+in [this file](documentation/PSI-report-v1.1.pdf) (currently only available in italian).
 
 An example showing a client-server PSI implementation based on this library can be found on the following
-repositories: [server](https://github.com/alessandropellegrini/psi-demo-server), [client](https://github.com/alessandropellegrini/psi-demo-client).
+repositories: [server](https://github.com/alessandropellegrini/psi-demo-server)
+, [client](https://github.com/alessandropellegrini/psi-demo-client).
 
 The elliptic curve implementation is partially based on the [Bouncy Castle library](https://www.bouncycastle.org/java.html).
 
@@ -28,7 +29,7 @@ following command:
 
 The generated jar is automatically installed on the local maven repository.
 
-# JavaDoc
+## JavaDoc
 
 A detailed description of all the classes and methods contained in this repository can be obtained by generating the
 JavaDoc of this library with the following command:
@@ -77,7 +78,7 @@ The package structure of this repository is mostly motivated by visibility conce
 <code>model</code> package which contains the objects that define the data-layer of the PSI protocol, which, based on
 the specific implementations, could either be used in communications or stored in stable storage.
 
-# PSI calculation steps
+## PSI calculation steps
 
 This library provides an abstraction of the steps that constitute a PSI calculation. This allows its users to compute
 the PSI, for any of the supported algorithm or configuration, by calling the same sequence of methods on the

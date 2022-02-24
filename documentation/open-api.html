@@ -1,0 +1,739 @@
+<!doctype html>
+<html>
+<head>
+    <title>Private Set Intersection Server API</title>
+    <style type="text/css">
+        body {
+            font-family: Trebuchet MS, sans-serif;
+            font-size: 15px;
+            color: #444;
+            margin-right: 24px;
+        }
+
+        h1 {
+            font-size: 25px;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        hr {
+            height: 1px;
+            border: 0;
+            color: #ddd;
+            background-color: #ddd;
+        }
+
+        .app-desc {
+            clear: both;
+            margin-left: 20px;
+        }
+
+        .param-name {
+            width: 100%;
+        }
+
+        .license-info {
+            margin-left: 20px;
+        }
+
+        .license-url {
+            margin-left: 20px;
+        }
+
+        .model {
+            margin: 0 0 0px 20px;
+        }
+
+        .method {
+            margin-left: 20px;
+        }
+
+        .method-notes {
+            margin: 10px 0 20px 0;
+            font-size: 90%;
+            color: #555;
+        }
+
+        pre {
+            padding: 10px;
+            margin-bottom: 2px;
+        }
+
+        .http-method {
+            text-transform: uppercase;
+        }
+
+        pre.get {
+            background-color: #0f6ab4;
+        }
+
+        pre.post {
+            background-color: #10a54a;
+        }
+
+        pre.put {
+            background-color: #c5862b;
+        }
+
+        pre.delete {
+            background-color: #a41e22;
+        }
+
+        .huge {
+            color: #fff;
+        }
+
+        pre.example {
+            background-color: #f3f3f3;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        code {
+            white-space: pre;
+        }
+
+        .nickname {
+            font-weight: bold;
+        }
+
+        .method-path {
+            font-size: 1.5em;
+            background-color: #0f6ab4;
+        }
+
+        .up {
+            float: right;
+        }
+
+        .parameter {
+            width: 500px;
+        }
+
+        .param {
+            width: 500px;
+            padding: 10px 0 0 20px;
+            font-weight: bold;
+        }
+
+        .param-desc {
+            width: 700px;
+            padding: 0 0 0 20px;
+            color: #777;
+        }
+
+        .param-type {
+            font-style: italic;
+        }
+
+        .param-enum-header {
+            width: 700px;
+            padding: 0 0 0 60px;
+            color: #777;
+            font-weight: bold;
+        }
+
+        .param-enum {
+            width: 700px;
+            padding: 0 0 0 80px;
+            color: #777;
+            font-style: italic;
+        }
+
+        .field-label {
+            padding: 0;
+            margin: 0;
+            clear: both;
+        }
+
+        .field-items {
+            padding: 0 0 15px 0;
+            margin-bottom: 15px;
+        }
+
+        .return-type {
+            clear: both;
+            padding-bottom: 10px;
+        }
+
+        .param-header {
+            font-weight: bold;
+        }
+
+        .method-tags {
+            text-align: right;
+        }
+
+        .method-tag {
+            background: none repeat scroll 0% 0% #24A600;
+            border-radius: 3px;
+            padding: 2px 10px;
+            margin: 2px;
+            color: #FFF;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+<body>
+<h1>Private Set Intersection Server API</h1>
+<div class="app-desc"><p>This documentation provides an example of APIs that the server party of a Private Set
+    Intersection (PSI) protocol could expose to its clients. To perform a complete PSI calculation, the client should
+    call the exposed APIs in the following order:</p>
+    <ol>
+        <li>the client calls GET /psi/parameters which returns a list of supported PSI algorithm parameters (algorithm
+            and key size) as a PsiAlgorithmParameterListDTO object.
+        </li>
+        <li>the client selects an algorithm and key size pair from the PsiAlgorithmParameterListDTO object sent by the
+            server and calls POST /psi passing the selected parameters in the body as a PsiAlgorithmParameterDTO object.
+            It returns a PsiClientSessionDTO object which contains the data needed to initialize the client.
+        </li>
+        <li>the client initializes its own PSI object by passing the returned PsiClientSessionDTO to the SDK method
+            initSession.
+        </li>
+        <li>the client calls the SDK method encryptClientDataset to encypt its own dataset, either passing its entire
+            dataset all at once or through a pagination approach. After completion, the client calls POST
+            /psi/{sessionId}/clientSet passing in the body the encrypted items as a PsiDatasetMapDTO object. The result
+            of this API call is also a PsiDatasetMapDTO which contains as values the server-side encryption of the
+            (client-side encrypted) client dataset. The result of this API should be passed to the SDK method
+            loadDoubleEncryptedClientDataset. If a pagination approach is used for the client dataset, repeat this step
+            until all items in the client dataset have been processed.
+        </li>
+        <li>the client performs multiple calls to GET /psi/{sessionId}/serverSet to acquire all the pages of the server
+            dataset as PsiServerDatasetPageDTO objects. The content returned by each API call should be passed to the
+            SDK method loadServerDataset.
+        </li>
+        <li>call the SDK method computePsi which returns the set intersection.</li>
+    </ol>
+</div>
+<div class="app-desc">More information: <a href="https://openapi-generator.tech">https://openapi-generator.tech</a>
+</div>
+<div class="app-desc">Contact Info: <a href="team@openapitools.org">team@openapitools.org</a></div>
+<div class="app-desc">Version: 0.5.0</div>
+<div class="app-desc">BasePath:</div>
+<div class="license-info">All rights reserved</div>
+<div class="license-url">http://apache.org/licenses/LICENSE-2.0.html</div>
+<h2>Access</h2>
+
+<h2><a name="__Methods">Methods</a></h2>
+[ Jump to <a href="#__Models">Models</a> ]
+
+<h3>Table of Contents </h3>
+<div class="method-summary"></div>
+<h4><a href="#Psi">Psi</a></h4>
+<ul>
+    <li><a href="#createSession"><code><span class="http-method">post</span> /psi</code></a></li>
+    <li><a href="#getClientSet"><code><span class="http-method">post</span> /psi/{sessionId}/clientSet</code></a></li>
+    <li><a href="#getParameters"><code><span class="http-method">get</span> /psi/parameters</code></a></li>
+    <li><a href="#getServerSet"><code><span class="http-method">get</span> /psi/{sessionId}/serverSet</code></a></li>
+    <li><a href="#getSession"><code><span class="http-method">get</span> /psi/{sessionId}</code></a></li>
+</ul>
+
+<h1><a name="Psi">Psi</a></h1>
+<div class="method"><a name="createSession"/>
+    <div class="method-path">
+        <a class="up" href="#__Methods">Up</a>
+        <pre class="post"><code class="huge"><span class="http-method">post</span> /psi</code></pre>
+    </div>
+    <div class="method-summary">Create a new PSI session (<span class="nickname">createSession</span>)</div>
+    <div class="method-notes">Creates a new PSI session based on the parameters passed in the body as a
+        PsiAlgorithmParameterDTO object. Returns a PsiClientSessionDTO object which details the status of the session
+        (such as its identifier or its expiration time) and contains the information needed to initialize the
+        client-side PSI objects (such as the public key of the server). It might contain a Bloom Filter of the server
+        dataset with an associated creation date, which can be used to filter the client dataset prior to the PSI
+        calculation to reduce the computational cost of the PSI protocol.
+    </div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+        <div class="param">body <a href="#PsiAlgorithmParameterDTO">PsiAlgorithmParameterDTO</a> (required)</div>
+
+        <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;</div>
+
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+        <a href="#PsiClientSessionDTO">PsiClientSessionDTO</a>
+
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "psiClientSession" : {
+    "psiAlgorithmParameter" : {
+      "keySize" : 2048,
+      "algorithm" : "DH"
+    },
+    "ecServerPublicQ" : "ecServerPublicQ",
+    "generator" : "generator",
+    "serverPublicExponent" : "serverPublicExponent",
+    "modulus" : "modulus"
+  },
+  "bloomFilterDTO" : {
+    "bloomFilterCreationDate" : "2020-01-01:15:30Z",
+    "serializedBloomFilter" : "serializedBloomFilter"
+  },
+  "expiration" : "2000-01-23",
+  "sessionId" : 1
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    successful operation
+    <a href="#PsiClientSessionDTO">PsiClientSessionDTO</a>
+    <h4 class="field-label">400</h4>
+    Invalid input
+    <a href="#"></a>
+</div> <!-- method -->
+<hr/>
+<div class="method"><a name="getClientSet"/>
+    <div class="method-path">
+        <a class="up" href="#__Methods">Up</a>
+        <pre class="post"><code class="huge"><span
+                class="http-method">post</span> /psi/{sessionId}/clientSet</code></pre>
+    </div>
+    <div class="method-summary">Get the server-side encryption of the client dataset. (<span class="nickname">getClientSet</span>)
+    </div>
+    <div class="method-notes">Retrieves as a PsiDatasetMapDTO object the server-side encryption of the entries passed in
+        the body (also as a PsiDatasetMapDTOo object). The input PsiDatasetMapDTO should contain the client-side
+        encryption of the client dataset. Both the input and the output objects are maps because each item of the client
+        dataset is associated to a client-generated identifier (key of the maps), which is necessary to link toghether
+        different representations of the same item. The key of each entry of the map is unchanged by this API, while the
+        values of the returned map are the server-side encryption of the input values sent by the client.
+    </div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+        <div class="param">sessionId (required)</div>
+
+        <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash; default: null</div>
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+        <div class="param">body <a href="#PsiDatasetMapDTO">PsiDatasetMapDTO</a> (required)</div>
+
+        <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;</div>
+
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+        <a href="#PsiDatasetMapDTO">PsiDatasetMapDTO</a>
+
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "content" : [ "1, dKd93Pl40i09421sp9a0lvj2nr", "1, dKd93Pl40i09421sp9a0lvj2nr" ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    successful operation
+    <a href="#PsiDatasetMapDTO">PsiDatasetMapDTO</a>
+    <h4 class="field-label">400</h4>
+    Invalid input values
+    <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    Session identified by {sessionId} not found
+    <a href="#"></a>
+    <h4 class="field-label">408</h4>
+    Session expired
+    <a href="#"></a>
+</div> <!-- method -->
+<hr/>
+<div class="method"><a name="getParameters"/>
+    <div class="method-path">
+        <a class="up" href="#__Methods">Up</a>
+        <pre class="get"><code class="huge"><span class="http-method">get</span> /psi/parameters</code></pre>
+    </div>
+    <div class="method-summary">Get a description of the PSI algorithm parameters supported by the server (<span
+            class="nickname">getParameters</span>)
+    </div>
+    <div class="method-notes">Returns a PsiAlgorithmParameterListDTO object containing a list of algorithm parameters
+        supported by the server, where each element is a pair constituted by an algorithm identifier (BS, DH, ECBS or
+        ECDH) and a key size (e.g., 2048 bit for BS).
+    </div>
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+        array[<a href="#PsiAlgorithmParameterListDTO">PsiAlgorithmParameterListDTO</a>]
+
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "content" : [ {
+    "content" : {
+      "keySize" : 2048,
+      "algorithm" : "DH"
+    }
+  }, {
+    "content" : {
+      "keySize" : 2048,
+      "algorithm" : "DH"
+    }
+  } ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    successful operation
+
+</div> <!-- method -->
+<hr/>
+<div class="method"><a name="getServerSet"/>
+    <div class="method-path">
+        <a class="up" href="#__Methods">Up</a>
+        <pre class="get"><code class="huge"><span class="http-method">get</span> /psi/{sessionId}/serverSet</code></pre>
+    </div>
+    <div class="method-summary">Get a page of the server-side encrypted server dataset (<span class="nickname">getServerSet</span>)
+    </div>
+    <div class="method-notes">Returns a page of the encrypted dataset of the server as a PsiServerDatasetPageDTO object.
+        The optional query parameters page and size define respectively the requested page (default 0) and the number of
+        entries per page (default 1000). The encryption of the returned page is performed on-demand. Thus, the response
+        time of this API is highly dependent on the value of the query parameter size.
+    </div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+        <div class="param">sessionId (required)</div>
+
+        <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash; default: null</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Query parameters</h3>
+    <div class="field-items">
+        <div class="param">page (optional)</div>
+
+        <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; default: 0</div>
+        <div class="param">size (optional)</div>
+
+        <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; default: 1000</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+        <a href="#PsiServerDatasetPageDTO">PsiServerDatasetPageDTO</a>
+
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "entries" : 1000,
+  "size" : 1000,
+  "last" : false,
+  "totalPages" : 8,
+  "page" : 0,
+  "totalEntries" : 8000,
+  "content" : [ "content", "content" ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    successful operation
+    <a href="#PsiServerDatasetPageDTO">PsiServerDatasetPageDTO</a>
+    <h4 class="field-label">400</h4>
+    Invalid input values
+    <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    Session identified by {sessionId} not found
+    <a href="#"></a>
+    <h4 class="field-label">408</h4>
+    Session expired
+    <a href="#"></a>
+</div> <!-- method -->
+<hr/>
+<div class="method"><a name="getSession"/>
+    <div class="method-path">
+        <a class="up" href="#__Methods">Up</a>
+        <pre class="get"><code class="huge"><span class="http-method">get</span> /psi/{sessionId}</code></pre>
+    </div>
+    <div class="method-summary">Get the status of a PSI session (<span class="nickname">getSession</span>)</div>
+    <div class="method-notes">Returns the status of the PSI session identified by {sessionId} as a PsiClientSessionDTO
+        object.
+    </div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+        <div class="param">sessionId (required)</div>
+
+        <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash; default: null</div>
+    </div>  <!-- field-items -->
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+        <a href="#PsiClientSessionDTO">PsiClientSessionDTO</a>
+
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "psiClientSession" : {
+    "psiAlgorithmParameter" : {
+      "keySize" : 2048,
+      "algorithm" : "DH"
+    },
+    "ecServerPublicQ" : "ecServerPublicQ",
+    "generator" : "generator",
+    "serverPublicExponent" : "serverPublicExponent",
+    "modulus" : "modulus"
+  },
+  "bloomFilterDTO" : {
+    "bloomFilterCreationDate" : "2020-01-01:15:30Z",
+    "serializedBloomFilter" : "serializedBloomFilter"
+  },
+  "expiration" : "2000-01-23",
+  "sessionId" : 1
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+        <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    successful operation
+    <a href="#PsiClientSessionDTO">PsiClientSessionDTO</a>
+    <h4 class="field-label">404</h4>
+    Session identified by {sessionId} not found
+    <a href="#"></a>
+    <h4 class="field-label">408</h4>
+    Session expired
+    <a href="#"></a>
+</div> <!-- method -->
+<hr/>
+
+<h2><a name="__Models">Models</a></h2>
+[ Jump to <a href="#__Methods">Methods</a> ]
+
+<h3>Table of Contents</h3>
+<ol>
+    <li><a href="#PsiAlgorithmParameterDTO"><code>PsiAlgorithmParameterDTO</code> - </a></li>
+    <li><a href="#PsiAlgorithmParameterDTO_content"><code>PsiAlgorithmParameterDTO_content</code> - </a></li>
+    <li><a href="#PsiAlgorithmParameterListDTO"><code>PsiAlgorithmParameterListDTO</code> - </a></li>
+    <li><a href="#PsiClientSessionDTO"><code>PsiClientSessionDTO</code> - </a></li>
+    <li><a href="#PsiClientSessionDTO_bloomFilterDTO"><code>PsiClientSessionDTO_bloomFilterDTO</code> - </a></li>
+    <li><a href="#PsiClientSessionDTO_psiClientSession"><code>PsiClientSessionDTO_psiClientSession</code> - </a></li>
+    <li><a href="#PsiClientSessionDTO_psiClientSession_psiAlgorithmParameter"><code>PsiClientSessionDTO_psiClientSession_psiAlgorithmParameter</code>
+        - </a></li>
+    <li><a href="#PsiDatasetMapDTO"><code>PsiDatasetMapDTO</code> - </a></li>
+    <li><a href="#PsiServerDatasetPageDTO"><code>PsiServerDatasetPageDTO</code> - </a></li>
+</ol>
+
+<div class="model">
+    <h3><a name="PsiAlgorithmParameterDTO"><code>PsiAlgorithmParameterDTO</code> - </a> <a class="up" href="#__Models">Up</a>
+    </h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">content</div>
+        <div class="param-desc"><span class="param-type"><a href="#PsiAlgorithmParameterDTO_content">PsiAlgorithmParameterDTO_content</a></span>
+        </div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiAlgorithmParameterDTO_content"><code>PsiAlgorithmParameterDTO_content</code> - </a> <a class="up"
+                                                                                                           href="#__Models">Up</a>
+    </h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">algorithm (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span></div>
+        <div class="param">keySize (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> format: int32</div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiAlgorithmParameterListDTO"><code>PsiAlgorithmParameterListDTO</code> - </a> <a class="up"
+                                                                                                   href="#__Models">Up</a>
+    </h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">content</div>
+        <div class="param-desc"><span class="param-type"><a href="#PsiAlgorithmParameterDTO">array[PsiAlgorithmParameterDTO]</a></span>
+        </div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiClientSessionDTO"><code>PsiClientSessionDTO</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">sessionId</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span></div>
+        <div class="param">expiration</div>
+        <div class="param-desc"><span class="param-type"><a href="#date">date</a></span> Defines when the session
+            expires format: date
+        </div>
+        <div class="param">psiClientSession</div>
+        <div class="param-desc"><span class="param-type"><a href="#PsiClientSessionDTO_psiClientSession">PsiClientSessionDTO_psiClientSession</a></span>
+        </div>
+        <div class="param">bloomFilterDTO (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#PsiClientSessionDTO_bloomFilterDTO">PsiClientSessionDTO_bloomFilterDTO</a></span>
+        </div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiClientSessionDTO_bloomFilterDTO"><code>PsiClientSessionDTO_bloomFilterDTO</code> - </a> <a
+            class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">serializedBloomFilter (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Serialized representation
+            of a Bloom Filter of the server dataset
+        </div>
+        <div class="param">bloomFilterCreationDate (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Defines when the Bloom
+            Filter was created by the server
+        </div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiClientSessionDTO_psiClientSession"><code>PsiClientSessionDTO_psiClientSession</code> - </a> <a
+            class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">serverPublicExponent (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Information needed to init
+            the client-side keys for the BS algorithm
+        </div>
+        <div class="param">modulus (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Information needed to init
+            the client-side keys for the DH algorithm
+        </div>
+        <div class="param">generator (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Information needed to init
+            the client-side keys for the DH algorithm
+        </div>
+        <div class="param">ecServerPublicQ (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Information needed to init
+            the client-side keys for the ECBS algorithm
+        </div>
+        <div class="param">psiAlgorithmParameter (optional)</div>
+        <div class="param-desc"><span class="param-type"><a
+                href="#PsiClientSessionDTO_psiClientSession_psiAlgorithmParameter">PsiClientSessionDTO_psiClientSession_psiAlgorithmParameter</a></span>
+        </div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiClientSessionDTO_psiClientSession_psiAlgorithmParameter"><code>PsiClientSessionDTO_psiClientSession_psiAlgorithmParameter</code>
+        - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">algorithm (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">String</a></span></div>
+        <div class="param">keySize (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span></div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiDatasetMapDTO"><code>PsiDatasetMapDTO</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">content (optional)</div>
+        <div class="param-desc"><span class="param-type"><a href="#object">array[Object]</a></span></div>
+    </div>  <!-- field-items -->
+</div>
+<div class="model">
+    <h3><a name="PsiServerDatasetPageDTO"><code>PsiServerDatasetPageDTO</code> - </a> <a class="up"
+                                                                                         href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+        <div class="param">page</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span></div>
+        <div class="param">size</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span></div>
+        <div class="param">entries</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> the number of entries in
+            content
+        </div>
+        <div class="param">last</div>
+        <div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> defines whether this is
+            the last page
+        </div>
+        <div class="param">totalPages</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> total number of pages
+            required to get all entries with the requested size
+        </div>
+        <div class="param">totalEntries</div>
+        <div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span></div>
+        <div class="param">content</div>
+        <div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span></div>
+    </div>  <!-- field-items -->
+</div>
+</body>
+</html>
