@@ -21,10 +21,10 @@ public interface PsiClient {
      * Loads and encrypts the client dataset passed as input and returns a map of encrypted elements.
      * It performs the client-side encryption of the client dataset.
      * The conversion from Set to Map is needed to assign a unique id to each entry, which links together different
-     * stages of the same entry (e.g., allowing to find the clear value associated to a given server-side encrypted entry)
+     * stages of the same entry (e.g., allowing to find the clear value associated to a given server-side encrypted entry).
      * This method can be called multiple times with different portions of the client dataset, even concurrently.
      * This method should be called before the <code>loadAndEncryptClientDataset</code> method (at least for the respective entries)
-     * and before calling the <code>computePsi</code> method, else the result of the PSI will be an empty set.
+     * and before calling the <code>computePsi</code> method, else the result of the PSI will be an empty set
      *
      * @param clearClientDataset set of elements to be encrypted by the client
      * @return a Map containing for each item of the input set an entry which, as key, has an identifier of the entry
@@ -35,7 +35,7 @@ public interface PsiClient {
     /**
      * Loads the input map, which should be the server-side encryption of the client dataset.
      * The input of this method should be passed by the server. It is referred as double encrypted client dataset because it
-     * is the result of the server-side encryption of the client-side, which was also previously encrypted at the client-side
+     * is the result of the server-side encryption of the received client dataset, which was also previously encrypted at the client-side
      * prior to being sent to the server to preserve the privacy of the client. Therefore, both the server and the
      * client applied encryption operations on the entries of the input map.
      * This method can be called multiple times with different portions of the client dataset, even concurrently.
@@ -62,7 +62,7 @@ public interface PsiClient {
     /**
      * Computes the actual PSI calculation by comparing the entries of the double encrypted client dataset with the
      * processed entries loaded from the server dataset.
-     * @return the result of the private set intersection containing the elements present both in the server and client datasets.
+     * @return the result of the private set intersection containing the elements present both in the server and client datasets
      */
     Set<String> computePsi();
 
