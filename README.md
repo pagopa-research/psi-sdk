@@ -1,7 +1,6 @@
 # PSI-SDK
 
-This Java library offers the core functionalities needed to implement an end-to-end Private Set Intersection protocol (
-PSI). Private Set Intersection is a secure multiparty computation that allows two parties to compute the intersection of
+This Java library offers the core functionalities needed to implement an end-to-end Private Set Intersection protocol (PSI). Private Set Intersection is a secure multiparty computation that allows two parties to compute the intersection of
 their encrypted datasets without revealing anything outside the intersection (or as close as possible to anything).
 
 In the literature, we can find multiple alternative PSI algorithms based on different cryptographic primitives. This
@@ -16,8 +15,7 @@ The description of these algorithms, as well as their detailed comparison, can b
 in [this file](PSI-report-v1.1.pdf) (currently only available in italian).
 
 An example showing a client-server PSI implementation based on this library can be found on the following
-repositories: [server](https://github.com/alessandropellegrini/psi-demo-server)
-, [client](https://github.com/alessandropellegrini/psi-demo-client).
+repositories: [server](https://github.com/alessandropellegrini/psi-demo-server), [client](https://github.com/alessandropellegrini/psi-demo-client).
 
 The elliptic curve implementation is partially based on the [Bouncy Castle library](https://www.bouncycastle.org/java.html).
 
@@ -50,13 +48,13 @@ of the PSI. As a consequence of this approach, we note that the problem of compu
 session for both parties is outside the scope of this library and that it might not be feasible for all the supported
 PSI algorithms.
 
-Following the client-server paradigm, the core PSI functionalities are provided by two distinct classes: <code>
-PsiServer</code> and <code>PsiClient</code>. Remarkably, the interface of these classes is independent of the specific
-PSI algorithm, and can be generated from the respective factory classes:<code>PsiServerFactory</code> and <code>
-PsiClientFactory</code>. The configuration of the PSI calculation
+Following the client-server paradigm, the core PSI functionalities are provided by two distinct classes: 
+<code>PsiServer</code> and <code>PsiClient</code>. Remarkably, the interface of these classes is independent of the specific
+PSI algorithm, and can be generated from the respective factory classes: <code>PsiServerFactory</code> and 
+<code>PsiClientFactory</code>. The configuration of the PSI calculation
 (such as the selection of the algorithm, the keys used for encryption, the cache configuration or the number of threads
-used by the computation) is defined at the moment of the creation of the <code>PsiServer</code> and <code>
-PsiClient</code> objects by calling the proper factory methods. After the creation of these objects, the subsequent
+used by the computation) is defined at the moment of the creation of the <code>PsiServer</code> and 
+<code>PsiClient</code> objects by calling the proper factory methods. After the creation of these objects, the subsequent
 steps of the PSI computation are the same for all the algorithms or configurations.
 
 The <code>PsiServer</code> class is designed to operate on portions of the datasets, and does not require loading the
@@ -82,8 +80,8 @@ the specific implementations, could either be used in communications or stored i
 # PSI calculation steps
 
 This library provides an abstraction of the steps that constitute a PSI calculation. This allows its users to compute
-the PSI, for any of the supported algorithm or configuration, by calling the same sequence of methods on the <code>
-PsiServer</code> and <code>PsiClient</code> objects.
+the PSI, for any of the supported algorithm or configuration, by calling the same sequence of methods on the
+<code>PsiServer</code> and <code>PsiClient</code> objects.
 
 From a high-level abstraction, the client computes the PSI by comparing the following representations of the two
 datasets:
@@ -201,7 +199,7 @@ systems, in-memory data structures or databases, is highly dependent on the spec
 provided directly by this library.
 
 To support caching while also offering flexibility and ease-of-use, this library exposes a
-<code>PsiCacheProvider</code>interface, which requires its users to implement a simple key-store interface constituted
+<code>PsiCacheProvider</code> interface, which requires its users to implement a simple key-store interface constituted
 by a <code>put</code> and a <code>get</code> method. Internally, the library relies on BASE64 and JSON conversions to
 convert complex objects to key-value entries, also hiding the heterogeneity of the different PSI algorithms.
 
@@ -238,7 +236,7 @@ By default, all methods that operate on the datasets are executed concurrently o
 configuration, as well as to configure the timeout of the threads, the user can call the method
 <code>setConfiguration</code> on the <code>PsiServer</code> or <code>PsiClient</code>
 instances, passing an instance of a <code>PsiThreadConfiguration</code> with the preferred thread configuration. We note
-that the user could set a different number of threads for each method by setting its distinctive <code>
-PsiThreadConfiguration</code> object prior to its execution. Despite this internal support, all the classes and methods
-of this library are thread-safe, which allows the users of this library to also implement ad-hoc thread management
+that the user could set a different number of threads for each method by setting its distinctive
+<code>PsiThreadConfiguration</code> object prior to its execution. Despite this internal support, all the classes and methods
+of this library are thread-safe, which allows the users of this library to also implement external ad-hoc thread management
 techniques.
