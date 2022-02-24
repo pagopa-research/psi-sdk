@@ -1,5 +1,5 @@
 /**
- * Contains the Java objects used for the communication between the client and the server, or objects are shared by
- * both parties to provide common functionalities (such as statistics).
+ * Contains the Java objects used for the communication between the server and the client objects,
+ * or objects that are shared by both parties to provide common functionalities (such as statistics).
  */
 package psi.model;

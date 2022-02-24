@@ -19,8 +19,7 @@ An example showing a client-server PSI implementation based on this library can 
 repositories: [server](https://github.com/alessandropellegrini/psi-demo-server)
 , [client](https://github.com/alessandropellegrini/psi-demo-client).
 
-The elliptic curve implementations are partially based on
-the [Bouncy Castle library](https://www.bouncycastle.org/java.html).
+The elliptic curve implementation is partially based on the [Bouncy Castle library](https://www.bouncycastle.org/java.html).
 
 ## Building
 
@@ -71,14 +70,14 @@ storage to load different representations of the datasets is feasible but would 
 degraded performance. The implementation of this approach is not provided by this repository.
 
 In its external interface, either in input or output, this library considers the items of the datasets as sets of type
-String. Internally, the String objects are converted to object of type BigInteger after being read to speed up the
-execution of encryption operations, and are converted back to String before being returned to the user. This approach
-simplifies the interface of the library as strings that can be easily serialized and deserialized (either for network
-communications or database interactions).
+String. Internally, the String objects are converted to BigInteger objects after being read to speed up the execution of
+encryption operations, and are converted back to String before being returned to the user. This approach simplifies the
+interface of the library as strings can be easily serialized and deserialized (either for network communications or
+database interactions).
 
 The package structure of this repository is mostly motivated by visibility concerns. A notable exception is the
 <code>model</code> package which contains the objects that define the data-layer of the PSI protocol, which, based on
-the specific implementations, could either be used in communications or stored on databases/secondary storage.
+the specific implementations, could either be used in communications or stored in stable storage.
 
 # PSI calculation steps
 
@@ -100,7 +99,7 @@ To reach this state, the client dataset should undergo the following transformat
 2. Encrypt the resulting dataset map by calling the <code>encryptClientDataset</code> method of the
    <code>PsiClient</code> object. The actual encryption operations performed by this method depend on the specific PSI
    algorithm.
-3. The result of client-side encryption is passed to the <code>encryptDatasetMap</code> method of the
+3. The result of the client-side encryption is passed to the <code>encryptDatasetMap</code> method of the
    <code>PsiServer</code> object, which applies algorithm-specific encryption operations.
 4. The result is loaded by the <code>PsiClient</code> object by calling the
    <code>loadDoubleEncryptedClientDataset</code> method.
@@ -127,7 +126,7 @@ through proper communication primitives, such as REST APIs.
 // Could be any supported pair of PsiAlgorithm and key size
 PsiAlgorithmParameter psiAlgorithmParameter = new PsiAlgorithmParameter(PsiAlgorithm.BS, 2048)
 
-// PsiServerSession objects containing the session metadata required to init PsiServer objects.
+// PsiServerSession objects containing the session metadata required to init PsiServer objects
 PsiServerSession psiServerSession = PsiServerFactory.initSession(psiAlgorithmParameter);
 PsiServer psiServer = PsiServerFactory.loadSession(psiServerSession);
 
@@ -156,8 +155,8 @@ of the <code>PsiClient</code> class, as well as the methods <code>encryptDataset
 and <code>encryptDatasetMap</code> of the <code>PsiServer</code> class, which in this example are called once each,
 could be called multiple times (even concurrently) to encrypt or load different portions of the datasets. Moreover, the
 operations on the client dataset and the server datasets could be performed in different order or even concurrently. The
-only requirement is that, to get a correct result of the PSI, the final representations of the two datasets should be
-completely loaded by the <code>PsiClient</code> object before calling the <code>computePsi</code> method.
+only requirement for computing a correct result of the PSI is that the final representations of the two datasets should
+be completely loaded by the <code>PsiClient</code> object before calling the <code>computePsi</code> method.
 
 ## Key management
 
@@ -182,21 +181,21 @@ externally, or save previously used keys for subsequent executions, which, as di
 essential to achieve performance speed-up through caching.
 
 Users of this library can create instances of <code>PsiServerKeyDescription</code> and
-<code>PsiClientKeyDescription</code> objects through the respective factory classes
+<code>PsiClientKeyDescription</code> objects through their respective factory classes
 (<code>PsiServerKeyDescriptionFactory</code> and <code>PsiClientKeyDescriptionFactory</code>). These classes offer
 specific methods for each PSI algorithm, allowing the users to only provide the parameters that are relevant for the
 selected algorithm. Moreover, the users can either pass the input parameters as String objects (which is the format
 exported directly by the library) or as standard key specifications objects. In particular, the keys associated to the
 BS algorithm can be generated from <code>RSAPrivateKeySpec</code> and <code>RSAPublicKeySpec</code> objects (Java
 Security), DH keys can be generated from <code>DHPrivateKeySpec</code> objects (Java Security), and keys associated to
-the ECBS and ECDH PSI algorithms can be generated from
+the ECBS and ECDH algorithms can be generated from
 <code>ECPrivateKey</code> and <code>ECPublicKey</code> objects (Bouncy Castle).
 
 ## Caching
 
 The computational cost of encryption operations, in particular when using relatively large keys, can be significant. For
-PSI calculations that use the same keys, saving the result of encryption operations, and then reading these values (
-instead than performing once again the encryption operation) in subsequent executions can result in a significant
+PSI calculations that use the same keys, saving the result of encryption operations, and then reading these values in
+subsequent executions (instead than performing once again the encryption operations) can result in significant
 performance improvements. However, the actual implementation of the caching layer, which could be based on external
 systems, in-memory data structures or databases, is highly dependent on the specific implementation, and thus, is not
 provided directly by this library.
@@ -217,13 +216,13 @@ size. For testing purposes, in this repository we provide a basic implementation
 
 As anticipated, the caching layer can provide performance improvements only when the same keys are used for subsequent
 PSI calculations. For instances of the <code>PsiServer</code> class, this can only happen if an external key is provided
-to its factory methods (which might also be keys previously autogenerated by the library). Conversely, the instances of
-the <code>PsiClient</code> the behavior is different based on the specific PSI algorithm. For the BS and ECBS
+to its factory methods (which might also be keys previously generated by the library). Conversely, for instances of
+the <code>PsiClient</code> class, the requirements might change based on the specific PSI algorithm. For the BS and ECBS
 algorithms, the <code>PsiClient</code> methods can get cache hits even without passing an external key to its factory
-methods, as long as the public key provided by the <code>PsiServer</code> object is the same as previous executions.
-Conversely, for the DH and ECDH algorithms, methods of the <code>PsiClient</code> can get cache hits only if it is
-created by passing an external <code>PsiClientKeyDescription</code> object, which was already used by previous
-executions, to its factory methods.
+methods as long as the public key provided by the <code>PsiServer</code> object is the same as previous executions.
+Conversely, for the DH and ECDH algorithms, the methods of the <code>PsiClient</code> class can get cache hits only if
+its instance is created by passing to its factory method an external
+<code>PsiClientKeyDescription</code> object which was already used in previous executions.
 
 To enable caching during the execution, an object implementing the <code>PsiCacheProvider</code> interface should be
 passed to the factory methods that create <code>PsiServer</code> and <code>PsiClient</code> instances.
@@ -236,8 +235,7 @@ benefits of parallelism, this library supports multi-threading natively. Indeed,
 datasets split the data in different portions, and each portion is processed by different threads.
 
 By default, all methods that operate on the datasets are executed concurrently on 4 threads. To change this
-configuration, as well as to configure the timeout of the threads (which could be useful for deadlock prevention), the
-user can call the method
+configuration, as well as to configure the timeout of the threads, the user can call the method
 <code>setConfiguration</code> on the <code>PsiServer</code> or <code>PsiClient</code>
 instances, passing an instance of a <code>PsiThreadConfiguration</code> with the preferred thread configuration. We note
 that the user could set a different number of threads for each method by setting its distinctive <code>
