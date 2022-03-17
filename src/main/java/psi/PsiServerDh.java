@@ -86,7 +86,7 @@ class PsiServerDh extends PsiServerAbstract {
                     }
                     // If the cache support is not enabled or if the corresponding value is not available, it has to be computed
                     if (encryptedValue == null) {
-                        encryptedValue = hashFactory.hashFullDomain(bigIntegerValue);
+                        encryptedValue = hashFactory.hash(bigIntegerValue);
                         encryptedValue = encryptedValue.modPow(serverPrivateExponent, modulus);
                         statistics.incrementCacheMiss();
                         // If the cache support is enabled, the result is stored in the cache
